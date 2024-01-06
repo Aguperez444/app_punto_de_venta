@@ -15,7 +15,6 @@ main_window = ttk.Window(themename=project_functions.obtener_config('tema'))
 main_window.title('Catalogo-Alpha-0.0.3')
 main_window.geometry(resolucion)
 # -----------------------------------------bootstrap widgets------------------------------------------------
-
 # ----------------------------botón tema---------------------------
 str_modo = ttk.StringVar()
 str_modo.set('Modo claro')
