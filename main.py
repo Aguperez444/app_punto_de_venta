@@ -12,7 +12,7 @@ from search_window import abrir_ventana_buscar
 # -----------------------------------------ventana_menu------------------------------------------------
 resolucion, ancho, alto = project_functions.calcular_res_ventana()
 main_window = ttk.Window(themename=project_functions.obtener_config('tema'))
-main_window.title('Catalogo-Alpha-0.0.3')
+main_window.title('Catalogo-Alpha-0.0.4')
 main_window.geometry(resolucion)
 # -----------------------------------------bootstrap widgets------------------------------------------------
 # ----------------------------botón tema---------------------------
