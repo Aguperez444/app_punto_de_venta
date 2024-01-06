@@ -1,8 +1,9 @@
 import sqlite3
 from screeninfo import get_monitors
 import ttkbootstrap as ttk
+import datetime
 
-# alpha 0.0.4
+# alpha 0.0.5
 
 
 def obtener_config(configuracion_deseada: str):
@@ -25,7 +26,7 @@ def cambiar_tema_config(tema_new):
     config_file.close()
 
 
-def cambiar_modo(actual,window,str_modo):
+def cambiar_modo(actual, window, str_modo):
     if actual == 'journal_mod':
         window.style.theme_use('darkly_2')
         actual = 'darkly_2'
@@ -100,3 +101,25 @@ def pasar_al_cuadro(matrix, treeview_var):
             treeview_var.insert("", "end", text=tupla[1], values=(tupla[2],
                                 tupla[3], tupla[4], tupla[5], tupla[0]), tags=('impar',))
         contador += 1
+    return
+
+
+def registrar_venta(id_producto, amount):
+    # obtener fecha y hora
+    fecha_hora_actual = datetime.datetime.now()
+    formato_fecha = "%Y-%m-%d"
+    formato_hora = "%H:%M:%S"
+    fecha = fecha_hora_actual.strftime(formato_fecha)
+    hora = fecha_hora_actual.strftime(formato_hora)
+
+    # conectar a base de datos
+    connection_db = sqlite3.connect('productos.db')
+    cursor = connection_db.cursor()
+    datos_venta = (int(id_producto), int(amount), fecha, hora)
+    cursor.execute(f'''
+        INSERT INTO Ventas (product_id, cantidad, fecha, hora)
+        VALUES (?,?,?,?)
+        ''', datos_venta)
+    connection_db.commit()
+    connection_db.close()
+    return
