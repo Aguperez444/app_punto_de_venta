@@ -45,8 +45,8 @@ def cambiar_modo(actual,window,str_modo):
 
 def calcular_res_ventana():
     monitores = get_monitors()
-    ancho = int(monitores[0].width // 1.3)
-    alto = int(monitores[0].height // 1.3)
+    ancho = int(monitores[1].width // 1.3)
+    alto = int(monitores[1].height // 1.3)
     return f'{ancho}x{alto}', ancho, alto
 
 
@@ -66,6 +66,19 @@ def busqueda(str_var_buscado):
     cursor.execute("SELECT * FROM Productos WHERE producto LIKE ?"
                    " OR detalle LIKE ? OR codigo LIKE ? OR codigo_de_barras LIKE ?",
                    (f'%{buscado}%', f'%{buscado}%', f'%{buscado}%', f'%{buscado}%'))
+    encontrado = cursor.fetchall()
+
+    connection.close()
+    return encontrado
+
+
+def busqueda_por_id(id_buscado):
+    if id_buscado == '':
+        return
+    connection = sqlite3.connect('productos.db')
+    cursor = connection.cursor()
+
+    cursor.execute(f"SELECT * FROM Productos WHERE id = {id_buscado}")
     encontrado = cursor.fetchall()
 
     connection.close()

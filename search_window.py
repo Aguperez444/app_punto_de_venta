@@ -1,7 +1,7 @@
 import ttkbootstrap as ttk
 import project_functions
 import datetime
-
+from sale_register_window import abrir_ventana_venta
 
 def abrir_ventana_buscar(main_window_in, str_modo_in):
     # ----------------------------------------- Funciones ---------------------------------------------
@@ -40,11 +40,7 @@ def abrir_ventana_buscar(main_window_in, str_modo_in):
         item = cuadro.selection()
         if item and (event.keysym == 'Return' or event.num == 1):
             valores = cuadro.item(item, 'values')
-            fecha_hora_actual = datetime.datetime.now()
-            formato = "%Y-%m-%d %H:%M:%S"
-            fecha_hora_formateada = fecha_hora_actual.strftime(formato)
-            print(f"Registrar venta, producto: {valores[4]}, fecha: {fecha_hora_formateada}")
-            # Aquí puedes realizar las acciones que desees al presionar Enter
+            abrir_ventana_venta(search_window, valores[4])
 
     # ----------------------------------------- ventana ---------------------------------------------
     resolution = project_functions.calcular_res_ventana()
@@ -100,7 +96,7 @@ def abrir_ventana_buscar(main_window_in, str_modo_in):
                     '984x738': 13,
                     '984x553': 13,
                     '787x590': 12,
-                    '615x461' : 10}
+                    '615x461': 10}
 
     cuadro.tag_configure('par', foreground="black", background="white", font=('Calibri', font_per_res[resolution[0]],))
     cuadro.tag_configure('impar', foreground="white", background="grey", font=('Calibri', font_per_res[resolution[0]],))
@@ -133,7 +129,7 @@ def abrir_ventana_buscar(main_window_in, str_modo_in):
     cuadro.pack_configure(fill='both', expand=True)
     sub_frame.pack_configure(fill='both', expand=True)
     boton_tema.place(relx=0.990, rely=0.017, anchor='ne')
-    # -----------------------------------------------eventos---------------------------------------------------
+    # -----------------------------------------------testing---------------------------------------------------
 
     nombre_producto = ttk.StringVar()
 
