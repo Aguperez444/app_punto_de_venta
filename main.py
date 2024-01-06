@@ -2,6 +2,7 @@ import ttkbootstrap as ttk
 import project_functions
 from search_window import abrir_ventana_buscar
 
+# alpha 0.0.4
 
 # ----------------------------------------- Funciones menu ---------------------------------------------
 

@@ -3,7 +3,7 @@ import project_functions
 import datetime
 from sale_register_window import abrir_ventana_venta
 
-#alpha 0.0.4
+# alpha 0.0.4
 
 def abrir_ventana_buscar(main_window_in, str_modo_in):
     # ----------------------------------------- Funciones ---------------------------------------------

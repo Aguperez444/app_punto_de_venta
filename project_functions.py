@@ -2,7 +2,7 @@ import sqlite3
 from screeninfo import get_monitors
 import ttkbootstrap as ttk
 
-#alpha 0.0.4
+# alpha 0.0.4
 
 
 def obtener_config(configuracion_deseada: str):

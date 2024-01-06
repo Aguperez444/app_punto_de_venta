@@ -2,7 +2,7 @@ import ttkbootstrap as ttk
 import project_functions
 import datetime
 
-#alpha 0.0.4
+# alpha 0.0.4
 
 def abrir_ventana_venta(main_window_in, product_id):
     # --------------------------------- funciones para esta ventana ----------------------------------
