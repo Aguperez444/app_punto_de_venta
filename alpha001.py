@@ -17,6 +17,7 @@ window.geometry('1280x720')
 # -----------------------------------------ttk_variables------------------------------------------------
 str_buscado = ttk.StringVar()
 
+
 # -----------------------------------------bootstrap widgets------------------------------------------------
 entry = ttk.Entry(master=window, textvariable=str_buscado)
 
