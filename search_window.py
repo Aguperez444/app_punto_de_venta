@@ -1,9 +1,9 @@
 import ttkbootstrap as ttk
 import project_functions
-import datetime
 from sale_register_window import abrir_ventana_venta
 
-# alpha 0.0.5
+
+# alpha 0.0.6
 
 def abrir_ventana_buscar(main_window_in, str_modo_in):
     # ----------------------------------------- Funciones ---------------------------------------------
@@ -14,35 +14,33 @@ def abrir_ventana_buscar(main_window_in, str_modo_in):
         else:
             cuadro.delete(*cuadro.get_children())
 
+    def on_focus_out(*args):
+        foco_actual = search_window.focus_get()
+        if foco_actual != cuadro and foco_actual != entry:
+            lost_focus.set(True)
+
+    def on_focus_in(*args):
+        if lost_focus.get():
+            lost_focus.set(False)
+            realizar_busqueda()
 
     def on_resize(event):
-        # Obtener el nuevo ancho de la ventana
         new_width = event.width
+        new_width = int(new_width * 0.9)
 
-        # Redimensionar las columnas del Treeview
-        cuadro.column("#0", width=int(new_width * 2 / 7), anchor="center")
-        cuadro.column("col1", width=int(new_width / 7), anchor="center")
-        cuadro.column("col2", width=int(new_width / 7), anchor="center")
-        cuadro.column("col3", width=int(new_width * 2 / 7), anchor="center")
-
-
-    def obtener_producto_seleccionado(event):
-        item = cuadro.selection()
-        if item:
-            valores = cuadro.item(item, 'values')
-            nombre_producto.set(valores[4])
-
-    def obtener_producto_seleccionado_teclado(event):
-        item = cuadro.selection()
-        if item and (event.keysym in {'Up', 'Down'}):
-            valores = cuadro.item(item, 'values')
-            nombre_producto.set(valores[4])
+        cuadro.column("#0", width=int(new_width * 3 / 10), anchor="center")
+        cuadro.column("col1", width=int(new_width / 10), anchor="center")
+        cuadro.column("col2", width=int(new_width / 10), anchor="center")
+        cuadro.column("col3", width=int(new_width * 3 / 10), anchor="center")
+        cuadro.column("col4", width=int(new_width / 10), anchor="center")
 
     def registrar_venta(event):
-        item = cuadro.selection()
+        tuple_items = cuadro.selection()
+        item = tuple_items[0]
         if item and (event.keysym == 'Return' or event.num == 1):
-            valores = cuadro.item(item, 'values')
-            abrir_ventana_venta(search_window, valores[4])
+            valores = cuadro.item(item, option='values')
+            product_id = valores[4]
+            abrir_ventana_venta(search_window, product_id)
 
     # ----------------------------------------- ventana ---------------------------------------------
     resolution = project_functions.calcular_res_ventana()
@@ -52,17 +50,18 @@ def abrir_ventana_buscar(main_window_in, str_modo_in):
     search_window.title(f'{main_window_in.title()} - Busqueda de productos')
     search_window.protocol("WM_DELETE_WINDOW", lambda: main_window_in.destroy())
     search_window.geometry(resolution[0])
-
+    search_window.state('zoomed')
     # -----------------------------------------------frames---------------------------------------------------
     frame = ttk.Frame(master=search_window)
     sub_frame = ttk.Frame(master=frame)
 
     # -----------------------------------------ttk_variables------------------------------------------------
     str_buscado = ttk.StringVar()
+    lost_focus = ttk.BooleanVar()
 
     # -----------------------------------------bootstrap widgets------------------------------------------------
-    menu_button = ttk.Button(master=search_window, text='Volver al menú', command=
-    lambda: project_functions.volver_al_menu(search_window, main_window_in))
+    menu_button = ttk.Button(master=search_window, text='Volver al menú',
+                             command=lambda: project_functions.volver_al_menu(search_window, main_window_in))
 
     entry = ttk.Entry(master=frame, textvariable=str_buscado, width=105)
 
@@ -73,19 +72,27 @@ def abrir_ventana_buscar(main_window_in, str_modo_in):
     # Cuadro de busqueda
     style = ttk.Style()
     style.configure('Treeview', rowheight=30)
-    cuadro = ttk.Treeview(master=sub_frame, columns=("col1", "col2", "col3","col4"))
+    cuadro = ttk.Treeview(master=sub_frame, columns=("col1", "col2", "col3", "col4"))
     cuadro.column("#0")
     cuadro.column("col1")
     cuadro.column("col2")
     cuadro.column("col3")
     cuadro.column("col4")
 
-    cuadro.heading("#0", text="Producto")
-    cuadro.heading("col1", text="Codigo")
-    cuadro.heading("col2", text="Precio")
-    cuadro.heading("col3", text="Detalle")
-    cuadro.heading("col4", text='')
-    cuadro.column("col4", width=0, stretch='no')
+    cuadro.heading("#0", text="Producto", anchor='center')
+    cuadro.heading("col1", text="Codigo", anchor='center')
+    cuadro.heading("col2", text="Precio", anchor='center')
+    cuadro.heading("col3", text="Detalle", anchor='center')
+    cuadro.heading("col4", text="stock", anchor='center')
+
+    screen_width = int(resolution[1] * 1.3)
+    screen_width = int(screen_width * 0.9)
+
+    cuadro.column("#0", width=int(screen_width * 3 / 10), anchor="center")
+    cuadro.column("col1", width=int(screen_width / 10), anchor="center")
+    cuadro.column("col2", width=int(screen_width / 10), anchor="center")
+    cuadro.column("col3", width=int(screen_width * 3 / 10), anchor="center")
+    cuadro.column("col4", width=int(screen_width / 10), anchor="center")
 
     font_per_res = {'1476x830': 18,
                     '1353x761': 18,
@@ -112,31 +119,22 @@ def abrir_ventana_buscar(main_window_in, str_modo_in):
     cuadro.configure(yscrollcommand=scrollbar.set)
 
     boton_tema = ttk.Button(master=search_window, textvariable=str_modo_in,
-                            command=lambda: project_functions.cambiar_modo(project_functions.obtener_config('tema'), main_window_in,
-                                                                           str_modo_in))
+                            command=lambda: project_functions.cambiar_modo(project_functions.obtener_config('tema'),
+                                                                           main_window_in, str_modo_in))
 
     # -----------------------------------------------gestion de eventos----------------------------------------
-    search_window.after(0, lambda: search_window.state('zoomed'))
     search_window.bind("<Configure>", on_resize)
-    cuadro.bind("<ButtonRelease-1>", obtener_producto_seleccionado)
-    cuadro.bind("<KeyRelease>", obtener_producto_seleccionado_teclado)
+    search_window.bind("<FocusIn>", on_focus_in)
+    search_window.bind("<FocusOut>", on_focus_out)
     cuadro.bind("<Return>", registrar_venta)
     cuadro.bind("<Double-1>", registrar_venta)
     # -----------------------------------------------packing---------------------------------------------------
     menu_button.place(x=15, y=15, anchor='nw')
-    frame.place(relx=0.5, rely=0.4, relwidth=0.8, relheight=0.6, anchor="center")
-
+    frame.place(relx=0.5, rely=0.4, relwidth=0.9, relheight=0.6, anchor="center")
     label_titulo.pack_configure(pady=10)
-    entry.pack_configure(pady=10, fill='x', expand= True)
+    entry.pack_configure(pady=10, fill='x', expand=True)
     cuadro.pack_configure(fill='both', expand=True)
     sub_frame.pack_configure(fill='both', expand=True)
     boton_tema.place(relx=0.990, rely=0.017, anchor='ne')
-    # -----------------------------------------------testing---------------------------------------------------
-
-    nombre_producto = ttk.StringVar()
-
-    # Crear una etiqueta para mostrar el nombre del producto seleccionado
-    etiqueta_nombre_producto = ttk.Label(search_window, textvariable=nombre_producto)
-    etiqueta_nombre_producto.pack()
 
     return

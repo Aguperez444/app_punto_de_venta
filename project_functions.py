@@ -3,14 +3,14 @@ from screeninfo import get_monitors
 import ttkbootstrap as ttk
 import datetime
 
-# alpha 0.0.5
+# alpha 0.0.6
 
 
-def obtener_config(configuracion_deseada: str):
+def obtener_config(config_deseada: str):
     config_file = open('config.txt', 'rt')
     config_lines = config_file.readlines()
     config_file.close()
-    if configuracion_deseada.lower() == 'tema':
+    if config_deseada.lower() == 'tema':
         return config_lines[0]
 
 
@@ -48,15 +48,15 @@ def cambiar_modo(actual, window, str_modo):
 
 def calcular_res_ventana():
     monitores = get_monitors()
-    ancho = int(monitores[1].width // 1.3)
-    alto = int(monitores[1].height // 1.3)
+    ancho = int(monitores[0].width // 1.3)
+    alto = int(monitores[0].height // 1.3)
     return f'{ancho}x{alto}', ancho, alto
 
 
 def volver_al_menu(ventana_secundaria, ventana_principal):
     ventana_secundaria.destroy()
     ventana_principal.deiconify()
-    ventana_principal.after(0, lambda: ventana_principal.state('zoomed'))
+    ventana_principal.state('zoomed')
 
 
 def busqueda(str_var_buscado):
@@ -96,10 +96,10 @@ def pasar_al_cuadro(matrix, treeview_var):
     for tupla in matrix:
         if contador % 2 == 0:
             treeview_var.insert("", "end", text=tupla[1], values=(tupla[2],
-                                tupla[3], tupla[4], tupla[5], tupla[0]), tags=('par',))
+                                tupla[3], tupla[4], tupla[6], tupla[0]), tags=('par',))
         else:
             treeview_var.insert("", "end", text=tupla[1], values=(tupla[2],
-                                tupla[3], tupla[4], tupla[5], tupla[0]), tags=('impar',))
+                                tupla[3], tupla[4], tupla[6], tupla[0]), tags=('impar',))
         contador += 1
     return
 
@@ -115,6 +115,12 @@ def registrar_venta(id_producto, amount):
     # conectar a base de datos
     connection_db = sqlite3.connect('productos.db')
     cursor = connection_db.cursor()
+    try:
+        a = int(amount)
+        if a <= 0:
+            raise ValueError('cero o negativo no es una cantidad valida')
+    except ValueError:
+        amount = 1
     datos_venta = (int(id_producto), int(amount), fecha, hora)
     cursor.execute(f'''
         INSERT INTO Ventas (product_id, cantidad, fecha, hora)
@@ -122,4 +128,13 @@ def registrar_venta(id_producto, amount):
         ''', datos_venta)
     connection_db.commit()
     connection_db.close()
+    return
+
+
+def actualizar_stock(id_producto, cantidad):
+    connection = sqlite3.connect('Productos.db')
+    cursor = connection.cursor()
+    cursor.execute("UPDATE productos SET stock = stock + ? WHERE id = ?", (cantidad, id_producto))
+    connection.commit()
+    connection.close()
     return
