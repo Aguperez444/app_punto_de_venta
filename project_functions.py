@@ -3,7 +3,9 @@ from screeninfo import get_monitors
 import ttkbootstrap as ttk
 import datetime
 
-# alpha 0.0.6
+# alpha 0.0.7
+
+db_name = 'productos.db'
 
 
 def obtener_config(config_deseada: str):
@@ -55,15 +57,16 @@ def calcular_res_ventana():
 
 def volver_al_menu(ventana_secundaria, ventana_principal):
     ventana_secundaria.destroy()
-    ventana_principal.deiconify()
     ventana_principal.state('zoomed')
+    ventana_principal.deiconify()
 
 
 def busqueda(str_var_buscado):
     buscado = str_var_buscado.get()
     if buscado == '':
         return
-    connection = sqlite3.connect('productos.db')
+    global db_name
+    connection = sqlite3.connect(db_name)
     cursor = connection.cursor()
 
     cursor.execute("SELECT * FROM Productos WHERE producto LIKE ?"
@@ -78,7 +81,8 @@ def busqueda(str_var_buscado):
 def busqueda_por_id(id_buscado):
     if id_buscado == '':
         return
-    connection = sqlite3.connect('productos.db')
+    global db_name
+    connection = sqlite3.connect(db_name)
     cursor = connection.cursor()
 
     cursor.execute(f"SELECT * FROM Productos WHERE id = {id_buscado}")
@@ -113,7 +117,8 @@ def registrar_venta(id_producto, amount):
     hora = fecha_hora_actual.strftime(formato_hora)
 
     # conectar a base de datos
-    connection_db = sqlite3.connect('productos.db')
+    global db_name
+    connection_db = sqlite3.connect(db_name)
     cursor = connection_db.cursor()
     try:
         a = int(amount)
@@ -132,9 +137,28 @@ def registrar_venta(id_producto, amount):
 
 
 def actualizar_stock(id_producto, cantidad):
-    connection = sqlite3.connect('Productos.db')
+    global db_name
+    connection = sqlite3.connect(db_name)
     cursor = connection.cursor()
     cursor.execute("UPDATE productos SET stock = stock + ? WHERE id = ?", (cantidad, id_producto))
     connection.commit()
     connection.close()
     return
+
+
+def add_to_db(vector):
+    try:
+        vector[5] = int(vector[5])
+    except ValueError:
+        print('error tipo invalido')
+        return False
+
+    global db_name
+    connection = sqlite3.connect(db_name)
+    cursor = connection.cursor()
+
+    cursor.execute('''INSERT INTO Productos (producto, codigo, precio, detalle, codigo_de_barras, stock)
+                   VALUES (?, ?, ?, ?, ?, ?)''', vector)
+    connection.commit()
+    connection.close()
+    return True

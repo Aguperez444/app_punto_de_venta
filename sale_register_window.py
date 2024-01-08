@@ -2,7 +2,7 @@ import ttkbootstrap as ttk
 import project_functions
 
 
-# alpha 0.0.6
+# alpha 0.0.7
 
 # ventana de alerta de error al registrar venta
 def abrir_ventana_alerta(parent_window):
@@ -18,6 +18,7 @@ def abrir_ventana_alerta(parent_window):
     alert_window = ttk.Toplevel(parent_window)
     alert_window.title('Cantidad invalida')
     alert_window.geometry(f'{ancho}x{alto}+{x}+{y}')
+    alert_window.focus_set()
     alert_window.grab_set()
 
     label_alerta = ttk.Label(master=alert_window, text='Cantidad introducida invalida', font='Arial 20 bold')
