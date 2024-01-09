@@ -59,9 +59,9 @@ class VentanaBuscar(ttk.Toplevel):
         menu_button = ttk.Button(master=self, text='Volver al menú',
                                  command=lambda: project_functions.volver_al_menu(self, self.parent))
 
-        boton_tema = ttk.Button(master=self, textvariable=str_modo_in,
-                                command=lambda: project_functions.cambiar_modo(project_functions.obtener_config('tema'),
-                                                                               self.parent, str_modo_in))
+        button_theme = ttk.Button(master=self, textvariable=str_modo_in,
+                                  command=lambda: project_functions.cambiar_modo(
+                                      project_functions.obtener_config('tema'), self.parent, str_modo_in))
         # --------------------------- entry's --------------------------
         self.entry = ttk.Entry(master=frame, textvariable=self.str_buscado, width=105)
 
@@ -132,4 +132,4 @@ class VentanaBuscar(ttk.Toplevel):
         self.entry.pack_configure(pady=10, fill='x', expand=True)
         self.cuadro.pack_configure(fill='both', expand=True)
         sub_frame.pack_configure(fill='both', expand=True)
-        boton_tema.place(relx=0.990, rely=0.017, anchor='ne')
+        button_theme.place(relx=0.990, rely=0.017, anchor='ne')

@@ -61,7 +61,6 @@ def volver_al_menu(ventana_secundaria, ventana_principal):
     ventana_principal.deiconify()
 
 
-
 def busqueda(str_var_buscado):
     buscado = str_var_buscado.get()
     if buscado == '':
@@ -151,7 +150,6 @@ def add_to_db(vector):
     try:
         vector[5] = int(vector[5])
     except ValueError:
-        print('error tipo invalido')
         return False
 
     global db_name

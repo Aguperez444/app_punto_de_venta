@@ -30,6 +30,8 @@ def abrir_ventana_alerta(parent_window):
     sub_label_alerta.pack()
     button_confirm.pack(pady=20)
 
+    # mainloop
+
     alert_window.mainloop()
 
 

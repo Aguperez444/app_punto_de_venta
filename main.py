@@ -16,11 +16,11 @@ class MainWindowC(ttk.Window):
         super().__init__()
         # -----------------------------------------ventana_menu------------------------------------------------
         ver = 'Alpha-0.0.8'
-        resolucion, ancho, alto = project_functions.calcular_res_ventana()
+        resolution, ancho, alto = project_functions.calcular_res_ventana()
         self.style.theme_use(project_functions.obtener_config('tema'))
         self.title(f'Catalogo-{ver}')
         self.state('zoomed')
-        self.geometry(resolucion)
+        self.geometry(resolution)
         # -----------------------------------------bootstrap widgets------------------------------------------------
         # ----------------------------botón tema---------------------------
         str_modo = ttk.StringVar()
@@ -28,10 +28,9 @@ class MainWindowC(ttk.Window):
         if project_functions.obtener_config('tema') == 'journal_mod':
             str_modo.set('Modo oscuro')
 
-        boton_tema = ttk.Button(master=self, textvariable=str_modo,
-                                command=lambda:
-                                project_functions.cambiar_modo(project_functions.obtener_config('tema'), self,
-                                                               str_modo))
+        button_theme = ttk.Button(master=self, textvariable=str_modo,
+                                  command=lambda: project_functions.cambiar_modo(
+                                      project_functions.obtener_config('tema'), self, str_modo))
 
         # ---------------------------botónes ventanas internas-------------------------
         button_search = ttk.Button(master=self, text='Buscar productos',
@@ -46,7 +45,7 @@ class MainWindowC(ttk.Window):
         # ---------------------------------------------- placing widgets -----------------------------------------------
         button_search.place(relx=0.5, rely=0.1, anchor='center')
         button_add_product.place(relx=0.5, rely=0.2, anchor='center')
-        boton_tema.place(relx=0.990, rely=0.017, anchor='ne')
+        button_theme.place(relx=0.990, rely=0.017, anchor='ne')
         version_label.place(relx=0.009, rely=0.99, anchor='sw')
 
         # -----------------------------------------------Main loop------------------------------------------------------

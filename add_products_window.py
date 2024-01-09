@@ -5,7 +5,7 @@ import project_functions
 # alpha 0.0.8
 
 def abrir_ventana_alerta(parent_window, success, error_type=0):
-    def aceptar(*args):
+    def aceptar():
         alert_window.destroy()
         parent_window.grab_set()
         return
@@ -55,7 +55,7 @@ def abrir_ventana_alerta(parent_window, success, error_type=0):
         label_msg.pack()
     # gestion de eventos
 
-    alert_window.bind('<Return>', aceptar)
+    alert_window.bind('<Return>', lambda *args: aceptar())
 
     # mainloop
 
@@ -144,9 +144,9 @@ class VentAdd(ttk.Toplevel):
         label_msg = ttk.Label(master=input_frame, text='Ingrese los datos del producto', font='Arial 14 bold')
 
         # ----------------------------buttons---------------------------
-        boton_tema = ttk.Button(master=self, textvariable=str_modo_in,
-                                command=lambda: project_functions.cambiar_modo(project_functions.obtener_config('tema'),
-                                                                               self.parent, str_modo_in))
+        button_theme = ttk.Button(master=self, textvariable=str_modo_in,
+                                  command=lambda: project_functions.cambiar_modo
+                                  (project_functions.obtener_config('tema'), self.parent, str_modo_in))
 
         button_add = ttk.Button(master=input_frame, text='Agregar producto', width=18, style='success',
                                 command=self.add_product)
@@ -160,7 +160,7 @@ class VentAdd(ttk.Toplevel):
         # none
 
         # ---------------------------------------------- placing widgets -----------------------------------------------
-        boton_tema.place(relx=0.990, rely=0.017, anchor='ne')
+        button_theme.place(relx=0.990, rely=0.017, anchor='ne')
         menu_button.place(x=15, y=15, anchor='nw')
         label_msg.grid(row=0, column=1, pady=6)
         label_name.grid(row=1, column=0)
