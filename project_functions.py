@@ -3,7 +3,7 @@ from screeninfo import get_monitors
 import ttkbootstrap as ttk
 import datetime
 
-# alpha 0.0.7
+# alpha 0.0.8
 
 db_name = 'productos.db'
 
@@ -59,6 +59,7 @@ def volver_al_menu(ventana_secundaria, ventana_principal):
     ventana_secundaria.destroy()
     ventana_principal.state('zoomed')
     ventana_principal.deiconify()
+
 
 
 def busqueda(str_var_buscado):
