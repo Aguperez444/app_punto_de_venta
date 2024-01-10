@@ -2,8 +2,9 @@ import sqlite3
 from screeninfo import get_monitors
 import ttkbootstrap as ttk
 import datetime
+import re
 
-# alpha 0.0.8
+# alpha 0.0.9
 
 db_name = 'productos.db'
 
@@ -92,6 +93,22 @@ def busqueda_por_id(id_buscado):
     return encontrado
 
 
+def busqueda_multiples_ids(ids_buscadas):
+    if ids_buscadas == '' or ids_buscadas == () or ids_buscadas == []:
+        return
+    global db_name
+    connection = sqlite3.connect(db_name)
+    cursor = connection.cursor()
+
+    encontrado = ()
+    for id_buscado in ids_buscadas:
+        cursor.execute(f"SELECT * FROM Productos WHERE id = {id_buscado}")
+        encontrado = encontrado + tuple(cursor.fetchall())
+
+    connection.close()
+    return encontrado
+
+
 def pasar_al_cuadro(matrix, treeview_var):
     # Borrar todas las filas existentes en el Treeview
     treeview_var.delete(*treeview_var.get_children())
@@ -146,11 +163,21 @@ def actualizar_stock(id_producto, cantidad):
     return
 
 
+def es_valido(precio):
+    patron = re.compile(r'^\$?\d+$')
+    if patron.match(precio):
+        return True
+    return False
+
+
 def add_to_db(vector):
-    try:
-        vector[5] = int(vector[5])
-    except ValueError:
-        return False
+    vector[5] = int(vector[5])
+
+    if not es_valido(vector[2]):
+        raise SyntaxError
+
+    if '$' not in vector[2]:
+        vector[2] = f'${vector[2]}'
 
     global db_name
     connection = sqlite3.connect(db_name)
@@ -161,3 +188,84 @@ def add_to_db(vector):
     connection.commit()
     connection.close()
     return True
+
+
+def get_all():
+    global db_name
+    connection = sqlite3.connect(db_name)
+    cursor = connection.cursor()
+
+    cursor.execute('''SELECT * FROM Productos''')
+    all_items = cursor.fetchall()
+
+    connection.close()
+
+    return all_items
+
+
+def update_all(percent=0):
+    percent_multiplier = round((1 + int(percent)/100.0), 2)
+    global db_name
+
+    connection = sqlite3.connect(db_name)
+    cursor = connection.cursor()
+
+    cursor.execute("SELECT id, precio FROM productos")
+    all_items = cursor.fetchall()
+
+    for tupla_item in all_items:
+
+        product_id, current_price_str = tupla_item
+        current_price_str = current_price_str.replace(',', '.').replace('$', '')
+
+        current_price = round(float(current_price_str), 2)
+        new_price = round((current_price * percent_multiplier), 2)
+
+        cursor.execute("UPDATE productos SET precio = ? WHERE id = ?",
+                       (f'${new_price}', product_id))
+
+    connection.commit()
+    connection.close()
+
+
+def update_selected(ids_list, percent=0):
+    percent_multiplier = round((1 + int(percent)/100.0), 2)
+    global db_name
+
+    connection = sqlite3.connect(db_name)
+    cursor = connection.cursor()
+
+    for prod in ids_list:
+        cursor.execute("SELECT precio FROM productos WHERE id = ?", (prod,))
+        tupla_item = cursor.fetchone()
+
+        current_price_str = tupla_item[0]
+        current_price_str = current_price_str.replace(',', '.').replace('$', '')
+
+        current_price = round(float(current_price_str), 2)
+        new_price = round((current_price * percent_multiplier), 2)
+
+        cursor.execute("UPDATE productos SET precio = ? WHERE id = ?",
+                       (f'${new_price}', prod))
+
+        connection.commit()
+    connection.close()
+
+
+def update_price_to_new(ids_list, new_price):
+    global db_name
+
+    connection = sqlite3.connect(db_name)
+    cursor = connection.cursor()
+
+    for prod in ids_list:
+        if not es_valido(new_price):
+            raise SyntaxError
+
+        if '$' not in new_price:
+            new_price = f'${new_price}'
+
+        cursor.execute("UPDATE productos SET precio = ? WHERE id = ?", (f'{new_price}', prod))
+
+        connection.commit()
+    connection.close()

@@ -2,7 +2,7 @@ import ttkbootstrap as ttk
 import project_functions
 
 
-# alpha 0.0.8
+# alpha 0.0.9
 
 # ventana de alerta de error al registrar venta
 def abrir_ventana_alerta(parent_window):
@@ -38,6 +38,32 @@ def abrir_ventana_alerta(parent_window):
 # ventana de venta
 class VentanaVenta(ttk.Toplevel):
     # --------------------------------- funciones para esta ventana ----------------------------------
+    def iniciar_actualizacion(self, event):
+        # Marcar la tecla como presionada
+        self.tecla_presionada = True
+        # Llamar a la función de actualización
+        self.actualizar_cantidad(event)
+
+    def detener_actualizacion(self, event):
+        # Marcar la tecla como liberada
+        self.tecla_presionada = False
+
+    def actualizar_cantidad(self, event):
+        if self.tecla_presionada:
+            if event.keysym == 'Up':
+                nueva_cantidad = int(self.cantidad_vendida.get()) + 1
+            elif event.keysym == 'Down':
+                nueva_cantidad = int(self.cantidad_vendida.get()) - 1
+            else:
+                nueva_cantidad = int(self.cantidad_vendida.get())
+
+            if nueva_cantidad <= 0:
+                nueva_cantidad = 1
+
+            self.cantidad_vendida.set(str(nueva_cantidad))
+
+            # Llamar a la función de actualización nuevamente después de un breve retraso
+            self.after(100, lambda: self.actualizar_cantidad(event))
 
     def venta_confirm(self, id_in, amount_in):
         try:
@@ -70,6 +96,7 @@ class VentanaVenta(ttk.Toplevel):
 
         # ----------------------------------------- ventana ---------------------------------------------
         self.parent = parent
+        self.tecla_presionada = False
         resolution = project_functions.calcular_res_ventana()
         ancho = int(resolution[1])
         alto = int(resolution[2] / 1.7)
@@ -77,6 +104,7 @@ class VentanaVenta(ttk.Toplevel):
         y = (self.parent.winfo_screenheight() - alto) // 2
         self.title(f'Registrar venta')
         self.geometry(f'{ancho}x{alto}+{x}+{y}')
+        self.focus_set()
         self.grab_set()
         # -------------------------------------obtención de datos ----------------------------------------
 
@@ -103,7 +131,7 @@ class VentanaVenta(ttk.Toplevel):
         cancel_button = ttk.Button(master=self, text='Cancelar venta', style='danger',
                                    command=self.venta_cancel)
 
-        frame_cuadro = ttk.Frame(master=self, width=1000, height=10)
+        frame_cuadro = ttk.Frame(master=self, width=1000, height=12)
 
         style = ttk.Style()
         style.configure('Treeview', rowheight=30)
@@ -135,8 +163,10 @@ class VentanaVenta(ttk.Toplevel):
         entry_cantidad_vendida = ttk.Entry(master=entry_frame, textvariable=self.cantidad_vendida, width=3)
 
         # -----------------------------------------------gestion de eventos----------------------------------------
-        self.bind("<Configure>", self.on_resize)
 
+        self.bind("<Configure>", self.on_resize)
+        self.bind("<KeyPress>", self.iniciar_actualizacion)
+        self.bind("<KeyRelease>", self.detener_actualizacion)
         # ---------------------------------------------- placing widgets -----------------------------------------------
         label_titulo.pack()
         label_subtitulo.pack()

@@ -1,9 +1,8 @@
-
 import ttkbootstrap as ttk
 import project_functions
 from sale_register_window import VentanaVenta
 
-# alpha 0.0.8
+# alpha 0.0.9
 
 
 class VentanaBuscar(ttk.Toplevel):
@@ -34,7 +33,7 @@ class VentanaBuscar(ttk.Toplevel):
             VentanaVenta(self, product_id)
 
     # ---------------------------------- ventana Principal de la clase ----------------------------------------
-    def __init__(self, parent, str_modo_in):
+    def __init__(self, parent):
         super().__init__()
 
         # ----------------------------------------- ventana ---------------------------------------------
@@ -59,9 +58,9 @@ class VentanaBuscar(ttk.Toplevel):
         menu_button = ttk.Button(master=self, text='Volver al menú',
                                  command=lambda: project_functions.volver_al_menu(self, self.parent))
 
-        button_theme = ttk.Button(master=self, textvariable=str_modo_in,
+        button_theme = ttk.Button(master=self, textvariable=parent.str_modo,
                                   command=lambda: project_functions.cambiar_modo(
-                                      project_functions.obtener_config('tema'), self.parent, str_modo_in))
+                                      project_functions.obtener_config('tema'), self.parent, parent.str_modo))
         # --------------------------- entry's --------------------------
         self.entry = ttk.Entry(master=frame, textvariable=self.str_buscado, width=105)
 

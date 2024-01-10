@@ -2,11 +2,14 @@ import ttkbootstrap as ttk
 import project_functions
 
 
-# alpha 0.0.8
+# alpha 0.0.9
 
 def abrir_ventana_alerta(parent_window, success, error_type=0):
     def aceptar():
         alert_window.destroy()
+        parent_window.focus_set()
+        parent_window.actual_focus = 0
+        parent_window.entrys[0].focus_set()
         parent_window.grab_set()
         return
 
@@ -32,7 +35,7 @@ def abrir_ventana_alerta(parent_window, success, error_type=0):
         label_alerta = ttk.Label(master=alert_window, text='producto agregado exitosamente')
     label_alerta.configure(font='Arial 20 bold')
 
-    msg = ttk.StringVar(value='Error desconocido')
+    msg = ttk.StringVar()
     label_msg = ttk.Label(master=alert_window, textvariable=msg, font='Arial 12 bold', wraplength=250)
 
     match error_type:
@@ -40,8 +43,10 @@ def abrir_ventana_alerta(parent_window, success, error_type=0):
             msg.set('El campo stock solo debe contener números enteros positivos')
         case 2:
             msg.set('Por favor completá todos los campos con información')
+        case 3:
+            msg.set('El precio del producto solo puede contener números enteros y el símbolo $')
         case _:
-            pass
+            msg.set('Error desconocido')
     # confirm_button
 
     button_confirm = ttk.Button(master=alert_window, text='Aceptar', style='success')
@@ -64,6 +69,34 @@ def abrir_ventana_alerta(parent_window, success, error_type=0):
 
 class VentAdd(ttk.Toplevel):
     # ----------------------------------------- Métodos de esta clase ---------------------------------------------
+    def find_focus(self, event):
+        if self.entrys[self.actual_focus] == self.focus_get():
+            return
+        for i in range(len(self.entrys)):
+            if self.focus_get() == self.entrys[i]:
+                self.actual_focus = i
+                return
+
+    def change_focus(self, event):
+        if event.keysym == 'Down':
+            try:
+                if self.actual_focus == len(self.entrys) - 1:
+                    raise IndexError
+                self.actual_focus += 1
+                self.entrys[self.actual_focus].focus_set()
+            except IndexError:
+                self.actual_focus = 0
+                self.entrys[self.actual_focus].focus_set()
+        elif event.keysym == 'Up':
+            try:
+                self.actual_focus -= 1
+                if self.actual_focus < 0:
+                    raise IndexError
+                self.entrys[self.actual_focus].focus_set()
+            except IndexError:
+                self.actual_focus = len(self.entrys) - 1
+                self.entrys[self.actual_focus].focus_set()
+
     def get_data(self):
         nombre = self.product_name.get()
         codigo = self.product_code.get()
@@ -75,20 +108,24 @@ class VentAdd(ttk.Toplevel):
 
         for dato in vec_datos:
             if dato == '':
-                raise ValueError('Los campos de datos no pueden estar vacíos')
+                raise AssertionError('Los campos de datos no pueden estar vacíos')
 
         return vec_datos
 
     def add_product(self):
+        err = 0
         try:
             datos_producto = self.get_data()
-            exitoso = project_functions.add_to_db(datos_producto)
-            err = 0
-            if not exitoso:
+            try:
+                exitoso = project_functions.add_to_db(datos_producto)
+            except ValueError:
+                exitoso = False
                 err = 1
+            except SyntaxError:
+                exitoso = False
+                err = 3
             abrir_ventana_alerta(self, exitoso, err)
-
-        except ValueError:
+        except AssertionError:
             abrir_ventana_alerta(self, success=False, error_type=2)
 
     def nuevo(self):
@@ -98,13 +135,15 @@ class VentAdd(ttk.Toplevel):
         self.product_details.set('')
         self.product_bar_code.set('')
         self.product_stock.set('1')
+        self.actual_focus = 0
+        self.entrys[0].focus_set()
 
     # ------------------------------ ventana Principal de la clase (método init) -----------------------------------
-    def __init__(self, parent, str_modo_in):
+    def __init__(self, parent):
         super().__init__()
         # -------------------------------------- atributos principales ---------------------------------------------
         self.parent = parent
-        self.str_modo_in = str_modo_in
+        self.actual_focus = 0
         # ----------------------------------------- ventana ---------------------------------------------
         resolution = project_functions.calcular_res_ventana()
         self.parent.withdraw()
@@ -128,12 +167,15 @@ class VentAdd(ttk.Toplevel):
 
         # ----------------------------entry's---------------------------
         product_name_entry = ttk.Entry(master=input_frame, textvariable=self.product_name, width=30)
+        product_name_entry.focus_set()
         product_code_entry = ttk.Entry(master=input_frame, textvariable=self.product_code, width=30)
         product_price_entry = ttk.Entry(master=input_frame, textvariable=self.product_price, width=30)
         product_details_entry = ttk.Entry(master=input_frame, textvariable=self.product_details, width=30)
         product_bar_code_entry = ttk.Entry(master=input_frame, textvariable=self.product_bar_code, width=30)
         product_stock_entry = ttk.Entry(master=input_frame, textvariable=self.product_stock, width=30)
 
+        self.entrys = [product_name_entry, product_code_entry, product_price_entry,
+                       product_details_entry, product_stock_entry, product_bar_code_entry]
         # ----------------------------labels----------------------------
         label_name = ttk.Label(master=input_frame, text='                     Nombre:', anchor='e', font='arial 13')
         label_code = ttk.Label(master=input_frame, text='                     Codigo:', anchor='e', font='arial 13')
@@ -143,10 +185,12 @@ class VentAdd(ttk.Toplevel):
         label_stock = ttk.Label(master=input_frame, text='                      Stock:', anchor='e', font='arial 13')
         label_msg = ttk.Label(master=input_frame, text='Ingrese los datos del producto', font='Arial 14 bold')
 
+        self.labels = [label_name, label_code, label_price, label_details, label_stock, label_bar_code]
+
         # ----------------------------buttons---------------------------
-        button_theme = ttk.Button(master=self, textvariable=str_modo_in,
+        button_theme = ttk.Button(master=self, textvariable=parent.str_modo,
                                   command=lambda: project_functions.cambiar_modo
-                                  (project_functions.obtener_config('tema'), self.parent, str_modo_in))
+                                  (project_functions.obtener_config('tema'), self.parent, parent.str_modo))
 
         button_add = ttk.Button(master=input_frame, text='Agregar producto', width=18, style='success',
                                 command=self.add_product)
@@ -157,24 +201,21 @@ class VentAdd(ttk.Toplevel):
                                  command=lambda: project_functions.volver_al_menu(self, self.parent))
         # -----------------------------------------------gestion de eventos----------------------------------------
 
-        # none
-
+        self.bind("<KeyRelease>", self.change_focus)
+        self.entrys[0].bind('<FocusOut>', self.find_focus)
+        self.entrys[1].bind('<FocusOut>', self.find_focus)
+        self.entrys[2].bind('<FocusOut>', self.find_focus)
+        self.entrys[3].bind('<FocusOut>', self.find_focus)
+        self.entrys[4].bind('<FocusOut>', self.find_focus)
+        self.entrys[5].bind('<FocusOut>', self.find_focus)
         # ---------------------------------------------- placing widgets -----------------------------------------------
         button_theme.place(relx=0.990, rely=0.017, anchor='ne')
         menu_button.place(x=15, y=15, anchor='nw')
         label_msg.grid(row=0, column=1, pady=6)
-        label_name.grid(row=1, column=0)
-        label_code.grid(row=2, column=0)
-        label_price.grid(row=3, column=0)
-        label_details.grid(row=4, column=0)
-        label_stock.grid(row=5, column=0)
-        label_bar_code.grid(row=6, column=0)
-        product_name_entry.grid(row=1, column=1, pady=6)
-        product_code_entry.grid(row=2, column=1, pady=6)
-        product_price_entry.grid(row=3, column=1, pady=6)
-        product_details_entry.grid(row=4, column=1, pady=6)
-        product_stock_entry.grid(row=5, column=1, pady=6)
-        product_bar_code_entry.grid(row=6, column=1, pady=6)
+        for i in range(len(self.labels)):
+            self.labels[i].grid(row=i + 1, column=0)
+        for i in range(len(self.entrys)):
+            self.entrys[i].grid(row=i + 1, column=1, pady=6)
         button_add.grid(row=3, column=2, padx=20)
         button_new.grid(row=4, column=2, padx=20)
         input_frame.place(relx=0.5, rely=0.5, anchor='center')
