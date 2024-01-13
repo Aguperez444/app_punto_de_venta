@@ -2,7 +2,7 @@ import ttkbootstrap as ttk
 import project_functions
 from tkinter import messagebox
 
-# alpha 0.0.9
+# alpha 0.0.10
 
 
 def abrir_ventana_alerta(parent_window):

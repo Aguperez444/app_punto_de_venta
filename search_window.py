@@ -2,7 +2,7 @@ import ttkbootstrap as ttk
 import project_functions
 from sale_register_window import VentanaVenta
 
-# alpha 0.0.9
+# alpha 0.0.10
 
 
 class VentanaBuscar(ttk.Toplevel):

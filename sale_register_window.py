@@ -1,41 +1,11 @@
 import ttkbootstrap as ttk
 import project_functions
+from tkinter import messagebox
+
+# alpha 0.0.10
 
 
-# alpha 0.0.9
-
-# ventana de alerta de error al registrar venta
-def abrir_ventana_alerta(parent_window):
-    def aceptar():
-        alert_window.destroy()
-        parent_window.grab_set()
-        return
-
-    ancho = int(parent_window.winfo_width() / 1.2)
-    alto = int(parent_window.winfo_height() / 2)
-    x = (parent_window.winfo_screenwidth() - ancho) // 2
-    y = (parent_window.winfo_screenheight() - alto) // 2
-    alert_window = ttk.Toplevel(parent_window)
-    alert_window.title('Cantidad invalida')
-    alert_window.geometry(f'{ancho}x{alto}+{x}+{y}')
-    alert_window.focus_set()
-    alert_window.grab_set()
-
-    label_alerta = ttk.Label(master=alert_window, text='Cantidad introducida invalida', font='Arial 20 bold')
-    sub_label_alerta = ttk.Label(master=alert_window, text='solo se aceptan números enteros como cantidad')
-    sub_label_alerta.configure(font='Arial 15 italic')
-    button_confirm = ttk.Button(master=alert_window, text='Aceptar', style='success')
-    button_confirm.configure(width=15, command=aceptar)
-    label_alerta.pack()
-    sub_label_alerta.pack()
-    button_confirm.pack(pady=20)
-
-    # mainloop
-
-    alert_window.mainloop()
-
-
-# ventana de venta
+# Ventana principal del módulo
 class VentanaVenta(ttk.Toplevel):
     # --------------------------------- funciones para esta ventana ----------------------------------
     def iniciar_actualizacion(self, event):
@@ -50,20 +20,21 @@ class VentanaVenta(ttk.Toplevel):
 
     def actualizar_cantidad(self, event):
         if self.tecla_presionada:
-            if event.keysym == 'Up':
-                nueva_cantidad = int(self.cantidad_vendida.get()) + 1
-            elif event.keysym == 'Down':
-                nueva_cantidad = int(self.cantidad_vendida.get()) - 1
-            else:
-                nueva_cantidad = int(self.cantidad_vendida.get())
+            if self.cantidad_vendida.get() != '' and project_functions.no_contiene_letras(self.cantidad_vendida.get()):
+                if event.keysym == 'Up':
+                    nueva_cantidad = int(self.cantidad_vendida.get()) + 1
+                elif event.keysym == 'Down':
+                    nueva_cantidad = int(self.cantidad_vendida.get()) - 1
+                else:
+                    nueva_cantidad = int(self.cantidad_vendida.get())
 
-            if nueva_cantidad <= 0:
-                nueva_cantidad = 1
+                if nueva_cantidad <= 0:
+                    nueva_cantidad = 1
 
-            self.cantidad_vendida.set(str(nueva_cantidad))
+                self.cantidad_vendida.set(str(nueva_cantidad))
 
-            # Llamar a la función de actualización nuevamente después de un breve retraso
-            self.after(100, lambda: self.actualizar_cantidad(event))
+                # Llamar a la función de actualización nuevamente después de un breve retraso
+                self.after(100, lambda: self.actualizar_cantidad(event))
 
     def venta_confirm(self, id_in, amount_in):
         try:
@@ -71,9 +42,11 @@ class VentanaVenta(ttk.Toplevel):
             if a <= 0:
                 raise ValueError('cero o negativo no es una cantidad valida')
         except ValueError:
-            abrir_ventana_alerta(self)
+            messagebox.showerror('Cantidad introducida invalida',
+                                 'solo se aceptan números enteros positivos como cantidad')
             return
-        project_functions.registrar_venta(id_in, amount_in)
+        product_price = self.producto[0][3]
+        project_functions.registrar_venta(id_in, amount_in, product_price)
         project_functions.actualizar_stock(id_in, int(amount_in) * (-1))
         self.parent.realizar_busqueda()
         self.destroy()
@@ -109,12 +82,12 @@ class VentanaVenta(ttk.Toplevel):
         # -------------------------------------obtención de datos ----------------------------------------
 
         # datos del producto
-        producto = project_functions.busqueda_por_id(product_id)
-
+        self.producto = project_functions.busqueda_por_id(product_id)
+        product_name = self.producto[0][1]
         # -----------------------------------------ttk_variables------------------------------------------------
         self.cantidad_vendida = ttk.StringVar()
         self.cantidad_vendida.set('1')
-        title = f'¿Desea registrar una venta de: {producto[0][1]}?'
+        title = f'¿Desea registrar una venta de: {product_name}?'
         # -----------------------------------------bootstrap widgets------------------------------------------------
         label_titulo = ttk.Label(master=self, text=f'{title}')
         label_titulo.configure(font='Calibri 20 bold')
@@ -154,7 +127,7 @@ class VentanaVenta(ttk.Toplevel):
         self.cuadro.column("col3", width=int(ancho * 3 / 10), anchor="center")
         self.cuadro.column("col4", width=int(ancho / 10), anchor="center")
 
-        project_functions.pasar_al_cuadro(producto, self.cuadro)
+        project_functions.pasar_al_cuadro(self.producto, self.cuadro)
 
         entry_frame = ttk.Frame(master=self, width=120, height=40)
         label_entry = ttk.Label(master=entry_frame, text='Cantidad:', font='Calibri 14 bold')

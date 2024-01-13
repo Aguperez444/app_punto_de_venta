@@ -4,7 +4,8 @@ import ttkbootstrap as ttk
 import datetime
 import re
 
-# alpha 0.0.9
+# alpha 0.0.10
+
 
 db_name = 'productos.db'
 
@@ -15,6 +16,10 @@ def obtener_config(config_deseada: str):
     config_file.close()
     if config_deseada.lower() == 'tema':
         return config_lines[0]
+
+
+def no_contiene_letras(cadena):
+    return not any(caracter.isalpha() for caracter in cadena)
 
 
 def cambiar_tema_config(tema_new):
@@ -125,31 +130,33 @@ def pasar_al_cuadro(matrix, treeview_var):
     return
 
 
-def registrar_venta(id_producto, amount):
+def registrar_venta(id_producto, amount, product_price):
     # obtener fecha y hora
     fecha_hora_actual = datetime.datetime.now()
-    formato_fecha = "%Y-%m-%d"
+    formato_fecha = "%#d/%#m/%Y"
     formato_hora = "%H:%M:%S"
     fecha = fecha_hora_actual.strftime(formato_fecha)
     hora = fecha_hora_actual.strftime(formato_hora)
 
     # conectar a base de datos
     global db_name
-    connection_db = sqlite3.connect(db_name)
-    cursor = connection_db.cursor()
-    try:
-        a = int(amount)
-        if a <= 0:
-            raise ValueError('cero o negativo no es una cantidad valida')
-    except ValueError:
-        amount = 1
-    datos_venta = (int(id_producto), int(amount), fecha, hora)
-    cursor.execute(f'''
-        INSERT INTO Ventas (product_id, cantidad, fecha, hora)
-        VALUES (?,?,?,?)
-        ''', datos_venta)
-    connection_db.commit()
-    connection_db.close()
+    with sqlite3.connect(db_name) as connection_db:
+        cursor = connection_db.cursor()
+        try:
+            a = int(amount)
+            if a <= 0:
+                raise ValueError('cero o negativo no es una cantidad valida')
+        except ValueError:
+            amount = 1
+
+        precio = float(product_price.replace('$', ''))
+        total_price = round((precio * int(amount)), 2)
+        datos_venta = (int(id_producto), int(amount), fecha, hora, total_price)
+        cursor.execute(f'''
+            INSERT INTO Ventas (product_id, cantidad, fecha, hora, total_price)
+            VALUES (?,?,?,?,?)
+            ''', datos_venta)
+        connection_db.commit()
     return
 
 
@@ -269,3 +276,45 @@ def update_price_to_new(ids_list, new_price):
 
         connection.commit()
     connection.close()
+
+
+def busqueda_venta_fecha(str_fecha_buscada):
+    buscado = str_fecha_buscada.get()
+    if buscado == '':
+        return
+    global db_name
+    connection = sqlite3.connect(db_name)
+    cursor = connection.cursor()
+
+    cursor.execute("SELECT * FROM Ventas WHERE fecha = ?", (f'{buscado}',))
+    encontrado = cursor.fetchall()
+
+    connection.close()
+    return encontrado
+
+
+def buscar_nombre_por_id(product_id):
+    global db_name
+    with sqlite3.connect(db_name) as connection:
+        cursor = connection.cursor()
+        cursor.execute("SELECT producto FROM Productos WHERE id = ?", (product_id,))
+        found = cursor.fetchone()
+    if found:
+        return found
+    return 'No encontrado'
+
+
+def pasar_al_cuadro_ventas(matrix, treeview_var):
+    treeview_var.delete(*treeview_var.get_children())
+    contador = 0
+    for tupla in matrix:
+        nombre_prod, = buscar_nombre_por_id(tupla[1])
+
+        if contador % 2 == 0:
+            treeview_var.insert("", "end", text=nombre_prod, values=(tupla[2], f'${tupla[5]}',
+                                tupla[3], tupla[4]), tags=('par',))
+        else:
+            treeview_var.insert("", "end", text=nombre_prod, values=(tupla[2], f'${tupla[5]}',
+                                tupla[3], tupla[4]), tags=('impar',))
+        contador += 1
+    return
