@@ -2,7 +2,7 @@ import ttkbootstrap as ttk
 import project_functions
 from sale_register_window import VentanaVenta
 
-# alpha 0.0.10
+# Beta 0.1.0
 
 
 class VentanaBuscar(ttk.Toplevel):
@@ -56,11 +56,11 @@ class VentanaBuscar(ttk.Toplevel):
 
         # --------------------------- buttons --------------------------
         menu_button = ttk.Button(master=self, text='Volver al menú',
-                                 command=lambda: project_functions.volver_al_menu(self, self.parent))
+                                 command=lambda: project_functions.volver_al_menu(self, self.parent), width=20)
 
         button_theme = ttk.Button(master=self, textvariable=parent.str_modo,
                                   command=lambda: project_functions.cambiar_modo(
-                                      project_functions.obtener_config('tema'), self.parent, parent.str_modo))
+                                      project_functions.obtener_config('tema'), self.parent, parent.str_modo), width=20)
         # --------------------------- entry's --------------------------
         self.entry = ttk.Entry(master=frame, textvariable=self.str_buscado, width=105)
 
@@ -125,10 +125,10 @@ class VentanaBuscar(ttk.Toplevel):
         self.cuadro.configure(yscrollcommand=self.scrollbar.set)
 
         # ---------------------------------------------- placing widgets -----------------------------------------------
-        menu_button.place(x=15, y=15, anchor='nw')
+        menu_button.place(x=15, rely=0.017, anchor='nw', height=35)
         frame.place(relx=0.5, rely=0.4, relwidth=0.9, relheight=0.6, anchor="center")
         label_titulo.pack_configure(pady=10)
         self.entry.pack_configure(pady=10, fill='x', expand=True)
         self.cuadro.pack_configure(fill='both', expand=True)
         sub_frame.pack_configure(fill='both', expand=True)
-        button_theme.place(relx=0.990, rely=0.017, anchor='ne')
+        button_theme.place(relx=0.990, rely=0.017, height=35, anchor='ne')

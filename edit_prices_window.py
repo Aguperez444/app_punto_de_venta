@@ -2,7 +2,7 @@ import ttkbootstrap as ttk
 import project_functions
 from tkinter import messagebox
 
-# alpha 0.0.10
+# Beta 0.1.0
 
 
 def abrir_ventana_alerta(parent_window):
@@ -237,11 +237,11 @@ class VentanaPrecios(ttk.Toplevel):
 
         # --------------------------- buttons --------------------------
         menu_button = ttk.Button(master=self, text='Volver al menú',
-                                 command=lambda: project_functions.volver_al_menu(self, self.parent))
+                                 command=lambda: project_functions.volver_al_menu(self, self.parent), width=20)
 
         button_theme = ttk.Button(master=self, textvariable=parent.str_modo,
                                   command=lambda: project_functions.cambiar_modo(
-                                      project_functions.obtener_config('tema'), self.parent, parent.str_modo))
+                                      project_functions.obtener_config('tema'), self.parent, parent.str_modo), width=20)
 
         checkbutton = ttk.Checkbutton(master=frame, text="Mostrar en orden alfabético", variable=self.order_mode,
                                       command=self.realizar_busqueda)
@@ -317,17 +317,17 @@ class VentanaPrecios(ttk.Toplevel):
         self.porcentaje_var.trace_add("write", self.actualizar_valor)
 
         # ---------------------------------------------- placing widgets -----------------------------------------------
-        menu_button.place(x=15, y=15, anchor='nw')
+        menu_button.place(x=15, rely=0.017, anchor='nw', height=35)
         frame.place(relx=0.5, rely=0.4, relwidth=0.9, relheight=0.6, anchor="center")
         label_titulo.pack_configure(pady=10)
         checkbutton.pack_configure(pady=10)
         self.entry.pack_configure(pady=10, fill='x', expand=True)
         self.cuadro.pack_configure(fill='both', expand=True)
         sub_frame.pack_configure(fill='both', expand=True)
-        button_theme.place(relx=0.990, rely=0.017, anchor='ne')
-        self.button_increment.grid(row=0, column=0)
-        porcentaje_combobox.grid(row=0, column=1)
-        increment_frame.place(relx=0.88, rely=0.017, anchor='ne')
+        button_theme.place(relx=0.990, rely=0.017, height=35, anchor='ne')
+        self.button_increment.grid(row=0, column=0, ipady=3)
+        porcentaje_combobox.grid(row=0, column=1, ipady=3)
+        increment_frame.place(relx=0.82, rely=0.017, anchor='ne')
 
         # se ejecuta instantáneamente
         project_functions.pasar_al_cuadro(project_functions.get_all(), self.cuadro)

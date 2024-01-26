@@ -3,7 +3,7 @@ import project_functions
 from tkinter import messagebox
 
 
-# alpha 0.0.10
+# Beta 0.1.0
 
 class EditIndividual(ttk.Toplevel):
 

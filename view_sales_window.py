@@ -1,15 +1,17 @@
 import ttkbootstrap as ttk
 import project_functions
 
-# alpha 0.0.10
+
+# Beta 0.1.0
 
 
 class VentanaVerVentas(ttk.Toplevel):
     # ----------------------------------------- Métodos de esta clase ---------------------------------------------
     def realizar_busqueda_sale(self):
-        a = project_functions.busqueda_venta_fecha(self.fecha_var)
-        if a:
-            project_functions.pasar_al_cuadro_ventas(a, self.cuadro)
+        ventas_del_dia_listado = project_functions.busqueda_venta_fecha(self.fecha_var)
+        if ventas_del_dia_listado:
+            project_functions.pasar_al_cuadro_ventas(ventas_del_dia_listado, self.cuadro)
+            self.total_price_of_day.set(project_functions.calcular_total_del_dia(ventas_del_dia_listado))
         else:
             self.cuadro.delete(*self.cuadro.get_children())
 
@@ -37,18 +39,21 @@ class VentanaVerVentas(ttk.Toplevel):
         # -----------------------------------------------frames---------------------------------------------------
         self.frame = ttk.Frame(master=self)
         self.sub_frame = ttk.Frame(master=self.frame)
+        self.frame_para_total = ttk.Frame(master=self)
 
         # -----------------------------------------ttk variables------------------------------------------------
         self.fecha_var = ttk.StringVar()
+        self.total_price_of_day = ttk.StringVar(value='')
 
         # -----------------------------------------bootstrap widgets------------------------------------------------
         # --------------------------- buttons --------------------------
         self.menu_button = ttk.Button(master=self, text='Volver al menú',
-                                      command=lambda: project_functions.volver_al_menu(self, self.parent))
+                                      command=lambda: project_functions.volver_al_menu(self, self.parent), width=20)
 
         self.button_theme = ttk.Button(master=self, textvariable=parent.str_modo,
                                        command=lambda: project_functions.cambiar_modo(
-                                           project_functions.obtener_config('tema'), self.parent, parent.str_modo))
+                                           project_functions.obtener_config('tema'), self.parent, parent.str_modo),
+                                       width=20)
 
         # --------------------------- entry's --------------------------
 
@@ -56,7 +61,9 @@ class VentanaVerVentas(ttk.Toplevel):
         self.calendario.entry.configure(textvariable=self.fecha_var)
 
         # --------------------------- labels ---------------------------
-        # none
+        self.total_del_dia = ttk.Label(master=self.frame_para_total, textvariable=self.total_price_of_day,
+                                       font='Arial 15 bold')
+        self.titulo_total_dia = ttk.Label(master=self.frame_para_total, text='Total del Día:', font= 'Arial 15 bold')
 
         # --------------------------- cuadro ---------------------------
         style = ttk.Style()
@@ -113,9 +120,12 @@ class VentanaVerVentas(ttk.Toplevel):
         self.bind("<Configure>", self.on_resize)
 
         # ---------------------------------------------- placing widgets -----------------------------------------------
-        self.menu_button.place(x=15, y=15, anchor='nw')
+        self.menu_button.place(x=15, rely=0.017, anchor='nw', height=35)
         self.frame.place(relx=0.5, rely=0.4, relwidth=0.9, relheight=0.5, anchor="center")
         self.cuadro.pack_configure(fill='both', expand=True)
         self.sub_frame.pack_configure(fill='both', expand=True)
-        self.button_theme.place(relx=0.990, rely=0.017, anchor='ne')
+        self.button_theme.place(relx=0.990, rely=0.017, height=35, anchor='ne')
         self.calendario.place(relx=0.5, y=60, anchor='center')
+        self.titulo_total_dia.grid(row=0, column=0)
+        self.total_del_dia.grid(row=0, column=1)
+        self.frame_para_total.place(relx=0.5, rely=0.87, anchor='center')

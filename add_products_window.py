@@ -190,7 +190,7 @@ class VentAdd(ttk.Toplevel):
         # ----------------------------buttons---------------------------
         button_theme = ttk.Button(master=self, textvariable=parent.str_modo,
                                   command=lambda: project_functions.cambiar_modo
-                                  (project_functions.obtener_config('tema'), self.parent, parent.str_modo))
+                                  (project_functions.obtener_config('tema'), self.parent, parent.str_modo), width=20)
 
         button_add = ttk.Button(master=input_frame, text='Agregar producto', width=18, style='success',
                                 command=self.add_product)
@@ -198,7 +198,7 @@ class VentAdd(ttk.Toplevel):
         button_new = ttk.Button(master=input_frame, text='Nuevo', width=18, style='warning', command=self.nuevo)
 
         menu_button = ttk.Button(master=self, text='Volver al menú',
-                                 command=lambda: project_functions.volver_al_menu(self, self.parent))
+                                 command=lambda: project_functions.volver_al_menu(self, self.parent), width=20)
         # -----------------------------------------------gestion de eventos----------------------------------------
 
         self.bind("<KeyRelease>", self.change_focus)
@@ -209,8 +209,8 @@ class VentAdd(ttk.Toplevel):
         self.entrys[4].bind('<FocusOut>', self.find_focus)
         self.entrys[5].bind('<FocusOut>', self.find_focus)
         # ---------------------------------------------- placing widgets -----------------------------------------------
-        button_theme.place(relx=0.990, rely=0.017, anchor='ne')
-        menu_button.place(x=15, y=15, anchor='nw')
+        button_theme.place(relx=0.990, rely=0.017, height=35, anchor='ne')
+        menu_button.place(x=15, rely=0.017, anchor='nw', height=35)
         label_msg.grid(row=0, column=1, pady=6)
         for i in range(len(self.labels)):
             self.labels[i].grid(row=i + 1, column=0)

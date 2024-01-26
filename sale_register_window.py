@@ -2,7 +2,7 @@ import ttkbootstrap as ttk
 import project_functions
 from tkinter import messagebox
 
-# alpha 0.0.10
+# Beta 0.1.0
 
 
 # Ventana principal del módulo
@@ -75,7 +75,7 @@ class VentanaVenta(ttk.Toplevel):
         alto = int(resolution[2] / 1.7)
         x = (self.parent.winfo_screenwidth() - ancho) // 2
         y = (self.parent.winfo_screenheight() - alto) // 2
-        self.title(f'Registrar venta')
+        self.title(f'{self.parent.parent.title()} - Registrar venta')
         self.geometry(f'{ancho}x{alto}+{x}+{y}')
         self.focus_set()
         self.grab_set()
@@ -144,7 +144,7 @@ class VentanaVenta(ttk.Toplevel):
         label_titulo.pack()
         label_subtitulo.pack()
         self.cuadro.pack_configure(fill='both', expand=True)
-        frame_cuadro.place(relx=0.5, rely=0.5, relwidth=0.9, height=63, anchor='center')
+        frame_cuadro.place(relx=0.5, rely=0.5, relwidth=0.9, height=70, anchor='center')
         confirm_button.place(relx=0.8, rely=0.8, anchor='center')
         confirm_button.place_configure(width=160, height=60)
         cancel_button.place(relx=0.2, rely=0.8, anchor='center')
