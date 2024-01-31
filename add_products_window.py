@@ -27,6 +27,7 @@ def abrir_ventana_alerta(parent_window, success, error_type=0):
     alert_window.geometry(f'{ancho}x{alto}+{x}+{y}')
     alert_window.focus_set()
     alert_window.grab_set()
+    alert_window.iconbitmap(parent_window.parent.icon_path)
 
     # label
 
@@ -151,6 +152,7 @@ class VentAdd(ttk.Toplevel):
         self.protocol("WM_DELETE_WINDOW", lambda: self.parent.destroy())
         self.geometry(resolution[0])
         self.state('zoomed')
+        self.iconbitmap(parent.icon_path)
 
         # -----------------------------------------ttk_variables-----------------------------------------
         self.product_name = ttk.StringVar()
@@ -188,17 +190,17 @@ class VentAdd(ttk.Toplevel):
         self.labels = [label_name, label_code, label_price, label_details, label_stock, label_bar_code]
 
         # ----------------------------buttons---------------------------
-        button_theme = ttk.Button(master=self, textvariable=parent.str_modo,
+        button_theme = ttk.Button(master=self, textvariable=parent.str_modo, width=17, style='my.TButton',
                                   command=lambda: project_functions.cambiar_modo
-                                  (project_functions.obtener_config('tema'), self.parent, parent.str_modo), width=20)
+                                  (project_functions.obtener_config('tema'), self.parent, parent.str_modo))
 
         button_add = ttk.Button(master=input_frame, text='Agregar producto', width=18, style='success',
                                 command=self.add_product)
 
         button_new = ttk.Button(master=input_frame, text='Nuevo', width=18, style='warning', command=self.nuevo)
 
-        menu_button = ttk.Button(master=self, text='Volver al menú',
-                                 command=lambda: project_functions.volver_al_menu(self, self.parent), width=20)
+        menu_button = ttk.Button(master=self, text='Volver al menú',  width=17, style='my.TButton',
+                                 command=lambda: project_functions.volver_al_menu(self, self.parent))
         # -----------------------------------------------gestion de eventos----------------------------------------
 
         self.bind("<KeyRelease>", self.change_focus)

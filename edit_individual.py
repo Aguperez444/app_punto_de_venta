@@ -50,6 +50,7 @@ class EditIndividual(ttk.Toplevel):
         self.title('Actualizar precio manualmente')
         self.geometry(f'{ancho}x{alto}+{x}+{y}')
         self.focus_set()
+        self.iconbitmap('program_icon.ico')
 
         self.porcentaje_var = ttk.StringVar(value='10')
         self.precio_var = ttk.StringVar(value='$')

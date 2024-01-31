@@ -2,7 +2,7 @@ import ttkbootstrap as ttk
 import project_functions
 from tkinter import messagebox
 
-# Beta 0.1.0
+# Beta 0.1.1
 
 
 # Ventana principal del módulo
@@ -77,6 +77,7 @@ class VentanaVenta(ttk.Toplevel):
         y = (self.parent.winfo_screenheight() - alto) // 2
         self.title(f'{self.parent.parent.title()} - Registrar venta')
         self.geometry(f'{ancho}x{alto}+{x}+{y}')
+        self.iconbitmap('program_icon.ico')
         self.focus_set()
         self.grab_set()
         # -------------------------------------obtención de datos ----------------------------------------

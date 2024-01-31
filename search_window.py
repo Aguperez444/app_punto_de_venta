@@ -2,7 +2,7 @@ import ttkbootstrap as ttk
 import project_functions
 from sale_register_window import VentanaVenta
 
-# Beta 0.1.0
+# Beta 0.1.1
 
 
 class VentanaBuscar(ttk.Toplevel):
@@ -44,6 +44,7 @@ class VentanaBuscar(ttk.Toplevel):
         self.protocol("WM_DELETE_WINDOW", lambda: self.parent.destroy())
         self.geometry(resolution[0])
         self.state('zoomed')
+        self.iconbitmap(parent.icon_path)
         # -----------------------------------------------frames---------------------------------------------------
         frame = ttk.Frame(master=self)
         sub_frame = ttk.Frame(master=frame)
@@ -55,12 +56,12 @@ class VentanaBuscar(ttk.Toplevel):
         # -----------------------------------------bootstrap widgets------------------------------------------------
 
         # --------------------------- buttons --------------------------
-        menu_button = ttk.Button(master=self, text='Volver al menú',
-                                 command=lambda: project_functions.volver_al_menu(self, self.parent), width=20)
+        menu_button = ttk.Button(master=self, text='Volver al menú', width=17, style='my.TButton',
+                                 command=lambda: project_functions.volver_al_menu(self, self.parent))
 
-        button_theme = ttk.Button(master=self, textvariable=parent.str_modo,
+        button_theme = ttk.Button(master=self, textvariable=parent.str_modo, width=17, style='my.TButton',
                                   command=lambda: project_functions.cambiar_modo(
-                                      project_functions.obtener_config('tema'), self.parent, parent.str_modo), width=20)
+                                      project_functions.obtener_config('tema'), self.parent, parent.str_modo))
         # --------------------------- entry's --------------------------
         self.entry = ttk.Entry(master=frame, textvariable=self.str_buscado, width=105)
 
