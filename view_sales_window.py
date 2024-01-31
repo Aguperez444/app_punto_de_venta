@@ -36,6 +36,7 @@ class VentanaVerVentas(ttk.Toplevel):
         self.protocol("WM_DELETE_WINDOW", lambda: self.parent.destroy())
         self.geometry(resolution[0])
         self.state('zoomed')
+        self.iconbitmap(parent.icon_path)
         # -----------------------------------------------frames---------------------------------------------------
         self.frame = ttk.Frame(master=self)
         self.sub_frame = ttk.Frame(master=self.frame)
@@ -47,13 +48,12 @@ class VentanaVerVentas(ttk.Toplevel):
 
         # -----------------------------------------bootstrap widgets------------------------------------------------
         # --------------------------- buttons --------------------------
-        self.menu_button = ttk.Button(master=self, text='Volver al menú',
-                                      command=lambda: project_functions.volver_al_menu(self, self.parent), width=20)
+        self.menu_button = ttk.Button(master=self, text='Volver al menú',  width=17, style='my.TButton',
+                                      command=lambda: project_functions.volver_al_menu(self, self.parent))
 
-        self.button_theme = ttk.Button(master=self, textvariable=parent.str_modo,
+        self.button_theme = ttk.Button(master=self, textvariable=parent.str_modo,  width=17, style='my.TButton',
                                        command=lambda: project_functions.cambiar_modo(
-                                           project_functions.obtener_config('tema'), self.parent, parent.str_modo),
-                                       width=20)
+                                           project_functions.obtener_config('tema'), self.parent, parent.str_modo))
 
         # --------------------------- entry's --------------------------
 
@@ -63,7 +63,7 @@ class VentanaVerVentas(ttk.Toplevel):
         # --------------------------- labels ---------------------------
         self.total_del_dia = ttk.Label(master=self.frame_para_total, textvariable=self.total_price_of_day,
                                        font='Arial 15 bold')
-        self.titulo_total_dia = ttk.Label(master=self.frame_para_total, text='Total del Día:', font= 'Arial 15 bold')
+        self.titulo_total_dia = ttk.Label(master=self.frame_para_total, text='Total del Día:', font='Arial 15 bold')
 
         # --------------------------- cuadro ---------------------------
         style = ttk.Style()

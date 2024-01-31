@@ -5,8 +5,9 @@ import ttkbootstrap as ttk
 import datetime
 import re
 import os
+import sys
 
-# beta 0.1.0
+# beta 0.1.1
 
 
 ruta_bdd = ''
@@ -84,6 +85,14 @@ def cambiar_modo(actual, window, str_modo):
         actual = 'darkly_3'
         style = ttk.Style()
         style.configure('Treeview', rowheight=30)
+        menu_button_style = ttk.Style()
+        menu_button_style.configure('my.TButton', font='arial 12 bold')
+        danger_button_style = ttk.Style()
+        danger_button_style.configure('danger.TButton', font='arial 11 bold')
+        success_button_style = ttk.Style()
+        success_button_style.configure('success.TButton', font='arial 11 bold')
+        warning_button_style = ttk.Style()
+        warning_button_style.configure('warning.TButton', font='arial 11 bold')
         str_modo.set('Modo claro')
 
         cambiar_tema_config(actual)
@@ -93,6 +102,14 @@ def cambiar_modo(actual, window, str_modo):
         actual = 'journal_2'
         style = ttk.Style()
         style.configure('Treeview', rowheight=30)
+        menu_button_style = ttk.Style()
+        menu_button_style.configure('my.TButton', font='arial 12 bold')
+        danger_button_style = ttk.Style()
+        danger_button_style.configure('danger.TButton', font='arial 11 bold')
+        success_button_style = ttk.Style()
+        success_button_style.configure('success.TButton', font='arial 11 bold')
+        danger_button_style = ttk.Style()
+        danger_button_style.configure('danger.TButton', font='arial 11 bold')
         str_modo.set('Modo oscuro')
 
         cambiar_tema_config(actual)
@@ -126,6 +143,19 @@ def buscar_base_de_datos():
     boton_aceptar.pack()
 
     window.mainloop()
+
+
+def encontrar_ruta_icono():
+    if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
+        # En el caso de PyInstaller
+        base_path = sys._MEIPASS
+    else:
+        # En el caso de ejecutar directamente el script
+        base_path = os.path.abspath(".")
+
+    # Construir la ruta al archivo de icono
+    icon_path = os.path.join(base_path, "program_icon.ico")
+    return icon_path
 
 
 def calcular_res_ventana():
@@ -253,6 +283,12 @@ def es_valido(precio):
     return False
 
 
+def es_valido_stock(stock: str):
+    if stock.isdigit() and int(stock) > 0:
+        return True
+    return False
+
+
 def add_to_db(vector):
     vector[5] = int(vector[5])
 
@@ -337,12 +373,13 @@ def update_selected(ids_list, percent=0):
 def update_price_to_new(ids_list, new_price):
     global ruta_bdd
 
+    if not es_valido(new_price):
+        raise SyntaxError
+
     connection = sqlite3.connect(ruta_bdd)
     cursor = connection.cursor()
 
     for prod in ids_list:
-        if not es_valido(new_price):
-            raise SyntaxError
 
         if '$' not in new_price:
             new_price = f'${new_price}'
@@ -403,3 +440,51 @@ def calcular_total_del_dia(matrix):
         return f'${acumulador}'
     except ValueError:
         return "Error al calcular"
+
+
+def add_to_stock(ids_list, stock_to_add):
+    global ruta_bdd
+
+    if not es_valido_stock(str(stock_to_add)):
+        raise SyntaxError
+
+    with sqlite3.connect(ruta_bdd) as connection:
+        cursor = connection.cursor()
+        for prod in ids_list:
+
+            cursor.execute("UPDATE productos SET stock = stock + ? WHERE id = ?",
+                           (int(stock_to_add), prod))
+
+        connection.commit()
+
+
+def update_info_product_bdd(current_data, new_data):
+    global ruta_bdd
+
+    print('current data:', current_data)
+
+    print()
+
+    print('new data:', new_data)
+
+    for i in range(len(new_data)):
+        if new_data[i] == '' or new_data[i] == '$':
+            new_data[i] = current_data[i+1]
+
+    if not es_valido(new_data[2]):
+        raise SyntaxError
+
+    if '$' not in new_data[2]:
+        new_data[2] = f'${new_data[2]}'
+
+    with sqlite3.connect(ruta_bdd) as connection:
+        cursor = connection.cursor()
+
+        cursor.execute(
+            "UPDATE productos SET "
+            "producto = ?, codigo = ?, precio = ?, detalle = ?, codigo_de_barras = ?, stock = ? "
+            "WHERE id = ?",
+            (new_data[0], new_data[1], new_data[2],
+             new_data[3], new_data[4], new_data[5], current_data[0]))
+
+        connection.commit()
