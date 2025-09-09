@@ -1,0 +1,78 @@
+from Models.DetalleVenta import DetalleVenta
+from Services.VentaService import VentaService
+from Views.sale_register_window import VentanaVenta
+from Services.ProductoService import ProductoService
+from Services.DetalleService import DetalleService
+from datetime import datetime
+
+from custom_errors import DomainValidationError
+
+
+class RegisterSaleController:
+    def __init__(self, invoqued_by_controller, invoqued_by_window, product_id: int):
+        self.parent_controller = invoqued_by_controller
+        self.venta_service = VentaService()
+        self.product_service = ProductoService()
+        self.detalle_service = DetalleService()
+        self.product_id = product_id
+
+        product_data = self.get_product_data()
+
+        print('\n\nproduct_data:', product_data, '\n\n')
+
+        self.view_pointer = VentanaVenta(invoqued_by_window, self, product_data)
+
+        self.view_pointer.render_view()
+
+
+    def get_product_data(self):
+        found = self.product_service.get_product_by_id(self.product_id)
+        return found.__dict__
+
+
+    def register_new_sale(self, product_data: dict, quantity_sold: str):
+        try:
+            quantity_sold = int(quantity_sold)
+            if quantity_sold <= 0:
+                raise DomainValidationError('La cantidad vendida debe ser un número positivo.')
+        except DomainValidationError as dve:
+            self.view_pointer.show_error(str(dve))
+            return
+        except ValueError:
+            self.view_pointer.show_error('La cantidad vendida debe ser un número entero válido, no se aceptan letras o símbolos.')
+            return
+
+        try:
+            precio = float(product_data['precio'])
+        except Exception:
+            self.view_pointer.show_error('El precio del producto no es válido.')
+            return
+
+        actual_time = self.get_fecha_hora_actual(self)
+        new_venta = self.venta_service.create_sale(actual_time)
+        success = self.venta_service.save_sale(new_venta)
+
+        new_detalle = self.detalle_service.create_detalle(quantity_sold, precio, product_data['id'], new_venta.id)
+        success = success and self.detalle_service.save_detalle(new_detalle)
+
+        total_price = self.calculate_total_price([new_detalle])
+
+        self.venta_service.update_total_price(new_venta, total_price)
+
+
+
+        if success:
+            # Actualizar stock del producto vendido
+            self.product_service.add_stock(product_data['id'], -quantity_sold)
+            self.view_pointer.sale_registered()
+        else:
+            self.view_pointer.show_error('Error al registrar la venta. Por favor, inténtelo de nuevo.')
+
+
+    @staticmethod
+    def get_fecha_hora_actual(self):
+        return datetime.now()
+
+    @staticmethod
+    def calculate_total_price(detalles_list: list[DetalleVenta]) -> float:
+        return sum(detalle.calcular_subtotal() for detalle in detalles_list)
