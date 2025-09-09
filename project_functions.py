@@ -10,8 +10,8 @@ import sys
 # beta 0.1.1
 
 
-ruta_bdd = ''
-ruta_archivo = ''
+ruta_bdd = '/home/agustin/MEGA/AB No de la Facultad/Proyectos/Proyectos_personales/APP_FARMACIA/productos.db'
+ruta_archivo = '/home/agustin/Documents/catalogo/config.txt'
 
 
 def set_ruta_bdd():
@@ -36,7 +36,7 @@ def is_first_time_running():
             return False
     except FileNotFoundError:
         with open(ruta_archivo, 'wt') as archivo_config:
-            contenido_lineas = "journal_2\n"
+            contenido_lineas = "journal\n"
             archivo_config.write(contenido_lineas * 2)
             return True
 
@@ -80,9 +80,9 @@ def cambiar_ruta_bdd(ruta_new):
 
 
 def cambiar_modo(actual, window, str_modo):
-    if actual == 'journal_2':
-        window.style.theme_use('darkly_3')
-        actual = 'darkly_3'
+    if actual == 'journal':
+        window.style.theme_use('darkly')
+        actual = 'darkly'
         style = ttk.Style()
         style.configure('Treeview', rowheight=30)
         menu_button_style = ttk.Style()
@@ -98,8 +98,8 @@ def cambiar_modo(actual, window, str_modo):
         cambiar_tema_config(actual)
 
     else:
-        window.style.theme_use('journal_2')
-        actual = 'journal_2'
+        window.style.theme_use('journal')
+        actual = 'journal'
         style = ttk.Style()
         style.configure('Treeview', rowheight=30)
         menu_button_style = ttk.Style()
@@ -145,7 +145,7 @@ def buscar_base_de_datos():
     window.mainloop()
 
 
-def encontrar_ruta_icono():
+def encontrar_ruta_icono_old():
     if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
         # En el caso de PyInstaller
         base_path = sys._MEIPASS
@@ -158,6 +158,19 @@ def encontrar_ruta_icono():
     return icon_path
 
 
+def encontrar_ruta_icono():
+    if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
+        # En el caso de PyInstaller
+        base_path = sys._MEIPASS
+    else:
+        # En el caso de ejecutar directamente el script
+        base_path = os.path.abspath(".")
+
+    # Construir la ruta al archivo de icono
+    icon_path = os.path.join(base_path, "program_icon.png")
+    return icon_path
+
+
 def calcular_res_ventana():
     monitores = get_monitors()
     ancho = int(monitores[0].width // 1.3)
@@ -167,11 +180,30 @@ def calcular_res_ventana():
 
 def volver_al_menu(ventana_secundaria, ventana_principal):
     ventana_secundaria.destroy()
-    ventana_principal.state('zoomed')
+    #ventana_principal.state('zoomed') funciona en windows, no en linux
+    ventana_principal.attributes('-zoomed', True)
     ventana_principal.deiconify()
 
 
 def busqueda(str_var_buscado):
+    buscado = str_var_buscado.get()
+    if buscado == '':
+        return None
+
+    global ruta_bdd
+    connection = sqlite3.connect(ruta_bdd)
+    cursor = connection.cursor()
+
+    cursor.execute("SELECT * FROM Productos WHERE producto LIKE ?"
+                   " OR detalle LIKE ? OR codigo LIKE ? OR codigo_de_barras LIKE ?",
+                   (f'%{buscado}%', f'%{buscado}%', f'%{buscado}%', f'%{buscado}%'))
+    encontrado = cursor.fetchall()
+
+    connection.close()
+    return encontrado
+
+
+def busqueda_no_stock(str_var_buscado):
     buscado = str_var_buscado.get()
     if buscado == '':
         return
@@ -179,8 +211,8 @@ def busqueda(str_var_buscado):
     connection = sqlite3.connect(ruta_bdd)
     cursor = connection.cursor()
 
-    cursor.execute("SELECT * FROM Productos WHERE producto LIKE ?"
-                   " OR detalle LIKE ? OR codigo LIKE ? OR codigo_de_barras LIKE ?",
+    cursor.execute("SELECT * FROM Productos WHERE (producto LIKE ?"
+                   " OR detalle LIKE ? OR codigo LIKE ? OR codigo_de_barras LIKE ?) AND stock < 1",
                    (f'%{buscado}%', f'%{buscado}%', f'%{buscado}%', f'%{buscado}%'))
     encontrado = cursor.fetchall()
 
@@ -322,6 +354,19 @@ def get_all():
     return all_items
 
 
+def get_no_stock():
+    global ruta_bdd
+    connection = sqlite3.connect(ruta_bdd)
+    cursor = connection.cursor()
+
+    cursor.execute('''SELECT * FROM Productos WHERE stock < 1''')
+    all_items = cursor.fetchall()
+
+    connection.close()
+
+    return all_items
+
+
 def update_all(percent=0):
     percent_multiplier = round((1 + int(percent) / 100.0), 2)
     global ruta_bdd
@@ -403,6 +448,24 @@ def busqueda_venta_fecha(str_fecha_buscada):
 
     connection.close()
     return encontrado
+
+
+def obtener_ventas_mes(var_fecha_del_mes):
+    str_fecha_mes = str(var_fecha_del_mes.get())
+    tupla_fecha = str_fecha_mes.split('/')
+    mes = tupla_fecha[1]
+    ventas_del_mes = []
+
+    global ruta_bdd
+    with sqlite3.connect(ruta_bdd) as connection:
+        cursor = connection.cursor()
+        cursor.execute("SELECT * FROM Ventas")
+        retornado = cursor.fetchall()
+    for venta in retornado:
+        fecha_tpl = venta[3].split('/')
+        if fecha_tpl[1] == mes:
+            ventas_del_mes.append(venta)
+    return ventas_del_mes
 
 
 def buscar_nombre_por_id(product_id):
