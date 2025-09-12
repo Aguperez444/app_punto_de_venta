@@ -30,10 +30,6 @@ class ProductoRepository:
                 session.commit()
                 session.refresh(product)
             except Exception:
-                print('-'*100)
-                print("LANZO EXCEPCION")
-                print('-'*100)
-
                 session.rollback()
                 raise
 

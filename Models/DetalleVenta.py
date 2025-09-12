@@ -1,5 +1,3 @@
-from decimal import Decimal
-
 from sqlalchemy import Column, Integer, Numeric, ForeignKey
 from sqlalchemy.orm import relationship
 
@@ -19,8 +17,8 @@ class DetalleVenta(Base):
     # Relación con Producto (si querés acceso directo al producto)
     producto = relationship("Producto")
 
-    def calcular_subtotal(self) -> Decimal:
-        return self.cantidad * self.precio_unitario_actual
+    def calcular_subtotal(self) -> float:
+        return float(self.cantidad) * self.precio_unitario_actual
 
     def __repr__(self):
         return (f"<DetalleVenta(id={self.id}, id_venta={self.id_venta}, "
