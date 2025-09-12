@@ -1,4 +1,5 @@
 import os
+import subprocess
 import sys
 
 class ConfigFilesPersistence:
@@ -59,7 +60,7 @@ class ConfigFilesPersistence:
 
 
     @staticmethod
-    def get_ruta_documents():
+    def get_ruta_documents_old():
         """
         Get the path to the 'Documents' folder and create a 'catalogo' folder if it doesn't exist.
         :return:
@@ -69,6 +70,55 @@ class ConfigFilesPersistence:
         if not os.path.exists(ruta_carpeta):
             os.makedirs(ruta_carpeta)
 
+        return ruta_carpeta
+
+
+    @staticmethod
+    def get_ruta_documents():
+        """
+        Obtiene la ruta a la carpeta de Documentos del usuario respetando la localización (XDG en Linux)
+        y crea la subcarpeta 'catálogo' si no existe.
+        """
+        home = os.path.expanduser('~')
+        docs = None
+
+        if sys.platform.startswith('linux'):
+            # 1) Probar con xdg-user-dir (paquete xdg-user-dirs)
+            try:
+                out = subprocess.check_output(['xdg-user-dir', 'DOCUMENTS'], text=True,
+                                              stderr=subprocess.DEVNULL).strip()
+                if out and out != '$HOME':
+                    docs = out
+            except Exception:
+                pass
+
+            # 2) Respaldo: leer ~/.config/user-dirs.dirs
+            if not docs:
+                config_path = os.path.join(home, '.config', 'user-dirs.dirs')
+                try:
+                    with open(config_path, 'rt', encoding='utf-8') as f:
+                        for line in f:
+                            if line.startswith('XDG_DOCUMENTS_DIR'):
+                                value = line.split('=', 1)[1].strip().strip('"')
+                                docs = value.replace('$HOME', home)
+                                break
+                except Exception:
+                    pass
+
+            # 3) Último recurso
+            if not docs:
+                docs = os.path.join(home, 'Documents')
+
+        elif sys.platform == 'darwin':
+            # En macOS el nombre real es 'Documents' (Finder solo localiza visualmente)
+            docs = os.path.join(home, 'Documents')
+        else:
+            # Windows u otros: fallback simple
+            docs = os.path.join(home, 'Documents')
+
+        ruta_carpeta = os.path.join(docs, 'catalogo')
+        if not os.path.exists(ruta_carpeta):
+            os.makedirs(ruta_carpeta)
         return ruta_carpeta
 
     @staticmethod

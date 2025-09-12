@@ -1,5 +1,5 @@
 #import project_functions
-from Views.main_menu_window import MainWindowC
+
 from Controllers.program_start_controller import ProgramStartController
 
 
@@ -15,6 +15,8 @@ program_start_controller = ProgramStartController()
 program_start_controller.verify_first_run()
 program_start_controller = None
 # ---------------------------------------------------- App Mainloop ----------------------------------------------------
+
+from Views.main_menu_window import MainWindowC
 
 main_window1 = MainWindowC()
 main_window1.mainloop()
