@@ -89,7 +89,7 @@ class BaseProjectWindowToplevel(ttk.Toplevel):
     Base class for project topLevel windows, providing common functionality.
     """
     def __init__(self, parent, needs_cuadro=True):
-        super().__init__()
+        super().__init__(parent)
         # -----------------------------------------comunicación con Controllers--------------------------------
         self.init_controller = CommonWindowInitController()
         # -----------------------------------------atributos principales----------------------------------------
@@ -113,7 +113,7 @@ class BaseProjectWindowToplevel(ttk.Toplevel):
         self.minsize(400,300)
 
         # ----------------------------otros atributos-----------------------
-        self.order_mode = ttk.IntVar()
+        self.alfabetico_checked = ttk.IntVar()
 
         # ----------------------------botón tema---------------------------
         self.str_modo = ttk.StringVar()
@@ -135,8 +135,8 @@ class BaseProjectWindowToplevel(ttk.Toplevel):
         self.sub_frame = ttk.Frame(master=self.frame)
 
         # ----------------------------Botón orden alfabético---------------------------
-        self.checkbutton = ttk.Checkbutton(master=self.frame, text="Mostrar en orden alfabético", variable=self.order_mode,
-                                      command=self.realizar_busqueda)
+
+        self.check = ttk.Checkbutton(self.frame, text="Mostrar en orden alfabético", variable=self.alfabetico_checked, command=self.toggle_busqueda_alfabetica)
 
         # --------------------------- cuadro ---------------------------
 
@@ -192,6 +192,20 @@ class BaseProjectWindowToplevel(ttk.Toplevel):
             style_scroll = ttk.Style()
             style_scroll.configure("Vertical.TScrollbar", troughcolor="white")
 
+
+
+    def toggle_busqueda_alfabetica(self):
+
+        ordenado_alfabetico = True if int(self.alfabetico_checked.get()) == 1 else False
+
+        if ordenado_alfabetico:  # 1 = marcado
+            self.realizar_busqueda_alfabetica()
+        else:  # 0 = no marcado
+            self.realizar_busqueda()
+
+
+    def realizar_busqueda_alfabetica(self):
+        raise NotImplementedError("Subclasses should implement this method.")
 
     def realizar_busqueda(self):
         """

@@ -1,7 +1,6 @@
 import ttkbootstrap as ttk
 
-from Views.add_products_window import VentanaAddProducts
-from Views.search_window import VentanaBuscar
+
 from Views.edit_prices_window import VentanaPrecios
 from Views.view_sales_window import VentanaVerVentas
 from Views.add_stock_window import VentanaStock
@@ -11,6 +10,7 @@ from Views.base_window_toplevel import BaseProjectWindow
 
 from Controllers.Add_product_controller import AddProductController
 from Controllers.find_product_controller import FindProductController
+from Controllers.add_stock_controller import AddStockController
 
 # beta 0.1.1
 
@@ -66,13 +66,13 @@ class MainWindowC(BaseProjectWindow):
                                              command=lambda: AddProductController(self), width=23, style='my.TButton')
 
         self.button_edit_prices = ttk.Button(master=self.frame_for_buttons, text='Actualizar los precios',
-                                        command=lambda: self.solicit_password(0), width=23, style='my.TButton')
+                                        command=lambda: self.solicit_password(0), width=23, style='my.TButton') # TODO CHEK THIS
 
         self.button_view_sales = ttk.Button(master=self.frame_for_buttons, text='Listado de ventas',
                                        command=lambda: VentanaVerVentas(self), width=23, style='my.TButton')
 
         self.button_add_stock = ttk.Button(master=self.frame_for_buttons, text='Añadir Stock',
-                                      command=lambda: VentanaStock(self), width=23, style='my.TButton')
+                                      command=lambda: AddStockController(self), width=23, style='my.TButton')
 
         self.button_edit_info = ttk.Button(master=self.frame_for_buttons, text='Editar productos',
                                       command=lambda: self.solicit_password(1), width=23, style='my.TButton')
