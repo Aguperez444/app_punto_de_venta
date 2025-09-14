@@ -143,3 +143,6 @@ class ProductoService:
         if producto is not None:
             return producto.producto
         return 'No encontrado'
+
+    def get_all_products_alphabetically(self):
+        return self.repo.get_all_products_alphabetically()

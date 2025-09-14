@@ -168,3 +168,8 @@ class ProductoRepository:
                 producto_old.stock = producto_new.stock
 
                 session.commit()
+
+    @staticmethod
+    def get_all_products_alphabetically():
+        with SessionLocal() as session:
+            return session.query(Producto).order_by(Producto.producto).all()
