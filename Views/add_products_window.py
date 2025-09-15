@@ -156,7 +156,7 @@ class VentanaAddProducts(BaseProjectWindowToplevel):
             self.input_frame.place(relx=0.5, rely=0.5, anchor='center')
 
 
-    def find_focus(self, event):
+    def find_focus(self, _event):
         if self.entrys[self.actual_focus] == self.focus_get():
             return
         for i in range(len(self.entrys)):

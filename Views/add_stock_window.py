@@ -1,8 +1,6 @@
 import ttkbootstrap as ttk
 import project_functions
-from tkinter import messagebox
 from Views.base_window_toplevel import BaseProjectWindowToplevel
-from project_functions import pasar_al_cuadro
 from Controllers.edit_individual_controller import EditIndividualController
 
 
@@ -50,7 +48,7 @@ class VentanaStock(BaseProjectWindowToplevel):
         self.bind("<Configure>", self.on_resize)
         self.cuadro.bind("<Return>", self.edit_selected)
         self.cuadro.bind("<Double-1>", self.edit_selected)
-        self.str_buscado.trace_add('write', lambda *args: self.realizar_busqueda())
+        self.str_buscado.trace_add('write', self.realizar_busqueda)
         self.cuadro.configure(yscrollcommand=self.scrollbar.set)
 
 
@@ -68,12 +66,11 @@ class VentanaStock(BaseProjectWindowToplevel):
         self.obtener_datos_productos()
 
     def obtener_datos_productos(self):
-        #self.pasar_al_cuadro(project_functions.get_all()) #TODO CAMIBAR ESTO
         datos_productos = self.controller.get_all_products()
         self.pasar_al_cuadro(datos_productos)
 
 
-    def edit_selected(self, event):
+    def edit_selected(self, _event):
         mod_ids = []
         tuple_items = self.cuadro.selection()
         for item in tuple_items:
@@ -84,7 +81,7 @@ class VentanaStock(BaseProjectWindowToplevel):
 
         self.edit_individual_controller = EditIndividualController(self, mod_ids)
 
-    def realizar_busqueda(self):                            # TODO CAMBIAR ESTO
+    def realizar_busqueda(self, _varname=None, _index=None, _mode=None):# TODO CAMBIAR ESTO
         a = project_functions.busqueda(self.str_buscado)
         if a:
             if self.order_mode.get() == 1:
@@ -100,15 +97,3 @@ class VentanaStock(BaseProjectWindowToplevel):
 
     def realizar_busqueda_alfabetica(self):
         self.controller.get_all_products_alphabetically()
-
-
-    def on_resize(self, event):
-        new_width = event.width
-        new_width = int(new_width * 0.9)
-
-        self.cuadro.column("#0", width=int(new_width * 3 / 10), anchor="center")
-        self.cuadro.column("col1", width=int(new_width / 10), anchor="center")
-        self.cuadro.column("col2", width=int(new_width / 10), anchor="center")
-        self.cuadro.column("col3", width=int(new_width * 3 / 10), anchor="center")
-        self.cuadro.column("col4", width=int(new_width / 10), anchor="center")
-

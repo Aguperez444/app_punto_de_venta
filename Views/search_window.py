@@ -37,13 +37,13 @@ class VentanaBuscar(BaseProjectWindowToplevel):
         self.entry = ttk.Entry(master=self.frame, textvariable=self.str_buscado, width=105)
 
         # --------------------------- labels ---------------------------
-        self.label_titulo = ttk.Label(master=self.frame, text='Busqueda de productos', font='Calibri 24 bold')
+        self.label_titulo = ttk.Label(master=self.frame, text='Búsqueda de productos', font='Calibri 24 bold')
 
         # -----------------------------------------------gestion de eventos----------------------------------------
         self.bind("<Configure>", self.on_resize)
         self.cuadro.bind("<Return>", self.registrar_venta)
         self.cuadro.bind("<Double-1>", self.registrar_venta)
-        self.str_buscado.trace_add('write', lambda *args: self.realizar_busqueda()) # TODO CHECK THIS
+        self.str_buscado.trace_add('write', self.realizar_busqueda) # TODO CHECK THIS
         self.cuadro.configure(yscrollcommand=self.scrollbar.set)
 
         # ---------------------------------------------- placing widgets -----------------------------------------------
@@ -58,21 +58,11 @@ class VentanaBuscar(BaseProjectWindowToplevel):
 
     # ----------------------------------------- Métodos de esta clase ---------------------------------------------
 
-    def realizar_busqueda(self):
+    def realizar_busqueda(self, _varname=None, _index=None, _mode=None):
         self.controller.search_products(self.str_buscado.get())
 
 
-    def on_resize(self, event):
-        new_width = event.width
-        new_width = int(new_width * 0.9)
-
-        self.cuadro.column("#0", width=int(new_width * 3 / 10), anchor="center")
-        self.cuadro.column("col1", width=int(new_width / 10), anchor="center")
-        self.cuadro.column("col2", width=int(new_width / 10), anchor="center")
-        self.cuadro.column("col3", width=int(new_width * 3 / 10), anchor="center")
-        self.cuadro.column("col4", width=int(new_width / 10), anchor="center")
-
-    def registrar_venta(self, event):
+    def registrar_venta(self, _event):
         valores = self.get_info_from_selected_item()
         product_id = valores[4]
         #VentanaVenta(self, product_id)

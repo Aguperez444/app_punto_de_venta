@@ -21,7 +21,7 @@ class EditIndividual(BaseProjectWindowToplevel):
         self.destroy()
         self.parent.realizar_busqueda()
 
-    def actualizar_valor(self):
+    def actualizar_valor(self, _varname=None, _index=None, _mode=None):
         self.button_increment.config(
             text=f"Incrementar un %{self.porcentaje_var.get()} a el/los productos seleccionados")
 
@@ -30,15 +30,6 @@ class EditIndividual(BaseProjectWindowToplevel):
         self.destroy()
         self.parent.realizar_busqueda()
 
-    def on_resize(self, event):
-        new_width = event.width
-        new_width = int(new_width * 0.9)
-
-        self.cuadro.column("#0", width=int(new_width * 3 / 10), anchor="center")
-        self.cuadro.column("col1", width=int(new_width / 10), anchor="center")
-        self.cuadro.column("col2", width=int(new_width / 10), anchor="center")
-        self.cuadro.column("col3", width=int(new_width * 3 / 10), anchor="center")
-        self.cuadro.column("col4", width=int(new_width / 10), anchor="center")
 
     def __init__(self, parent):
         super().__init__(parent) #TODO CHECK THIS
@@ -92,11 +83,11 @@ class EditIndividual(BaseProjectWindowToplevel):
         self.pasar_al_cuadro(productos)
 
         self.bind("<Configure>", self.on_resize)
-        self.porcentaje_var.trace_add("write", lambda *args: self.actualizar_valor()) #TODO CHECK THIS
+        self.porcentaje_var.trace_add("write", self.actualizar_valor) #TODO CHECK THIS
         self.cuadro.configure(yscrollcommand=self.scrollbar.set)
 
         self.relleno_superior = ttk.Frame(self, height=44, width=0)
-        self.relleno_superior.pack(side=ttk.TOP)
+        self.relleno_superior.pack(side='top')
         self.label_alerta.pack()
         self.sub_label_alerta.pack()
         self.button_cancel.grid(row=0, column=0, padx=15)
