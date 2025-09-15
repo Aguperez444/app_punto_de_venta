@@ -10,7 +10,7 @@ class EditIndividual(BaseProjectWindowToplevel):
 
     def aceptar(self):
         try:
-            project_functions.update_price_to_new(self.parent.mod_ids, self.precio_var.get())
+            project_functions.update_price_to_new(self.parent.mod_ids, self.precio_var.get()) #TODO CHECK THIS
             self.destroy()
             self.parent.realizar_busqueda()
         except SyntaxError:
@@ -26,13 +26,13 @@ class EditIndividual(BaseProjectWindowToplevel):
             text=f"Incrementar un %{self.porcentaje_var.get()} a el/los productos seleccionados")
 
     def actualizar_percent(self):
-        project_functions.update_selected(self.parent.mod_ids, self.porcentaje_var.get())
+        project_functions.update_selected(self.parent.mod_ids, self.porcentaje_var.get()) #TODO CHECK THIS
         self.destroy()
         self.parent.realizar_busqueda()
 
 
     def __init__(self, parent):
-        super().__init__(parent) #TODO CHECK THIS
+        super().__init__(parent)
 
         self.ancho = int(parent.winfo_width() / 1.2)
         self.alto = int(parent.winfo_height() / 1.2)
@@ -83,7 +83,7 @@ class EditIndividual(BaseProjectWindowToplevel):
         self.pasar_al_cuadro(productos)
 
         self.bind("<Configure>", self.on_resize)
-        self.porcentaje_var.trace_add("write", self.actualizar_valor) #TODO CHECK THIS
+        self.porcentaje_var.trace_add("write", self.actualizar_valor)
         self.cuadro.configure(yscrollcommand=self.scrollbar.set)
 
         self.relleno_superior = ttk.Frame(self, height=44, width=0)

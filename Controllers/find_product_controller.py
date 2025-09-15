@@ -10,7 +10,7 @@ class FindProductController:
 
 
     def search_products(self, search_criteria: str):
-        found_products = self.product_service.get_filtered_products(search_criteria)
+        found_products = self.product_service.get_products_by_str_filter(search_criteria)
         if found_products is not None:
             self.view_pointer.pasar_al_cuadro(found_products)
         else:

@@ -34,7 +34,7 @@ APP-MVC-Python-Tkinter-SQLAlchemy/
 ├── Controllers/                      # Controladores (coordinan vista ↔ servicio)
 │   ├── program_start_controller.py
 │   ├── common_window_innit_controller.py
-│   ├── Add_product_controller.py
+│   ├── add_product_controller.py
 │   ├── find_product_controller.py
 │   └── register_sale_controller.py
 │
