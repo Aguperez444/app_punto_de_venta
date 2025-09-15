@@ -1,5 +1,4 @@
 import ttkbootstrap as ttk
-import project_functions
 from Views.base_window_toplevel import BaseProjectWindowToplevel
 from Controllers.edit_individual_controller import EditIndividualController
 
@@ -65,9 +64,9 @@ class VentanaStock(BaseProjectWindowToplevel):
 
         self.obtener_datos_productos()
 
+
     def obtener_datos_productos(self):
-        datos_productos = self.controller.get_all_products()
-        self.pasar_al_cuadro(datos_productos)
+        self.controller.get_all_products()
 
 
     def edit_selected(self, _event):
@@ -77,23 +76,16 @@ class VentanaStock(BaseProjectWindowToplevel):
             valores = self.cuadro.item(item, option='values') # Obtiene los valores de las filas seleccionadas
             mod_ids.append(valores[4]) # El ID está en la columna oculta (col4), esta línea añade todos los ID seleccionados a una lista
 
-        #abrir_ventana_edit_individual(self, mod_ids) #TODO CAMBIAR ESTO
+        self.edit_individual_controller = EditIndividualController(self, mod_ids) # abre la ventana de edición individual
 
-        self.edit_individual_controller = EditIndividualController(self, mod_ids)
 
-    def realizar_busqueda(self, _varname=None, _index=None, _mode=None):# TODO CAMBIAR ESTO
-        a = project_functions.busqueda(self.str_buscado)
-        if a:
-            if self.order_mode.get() == 1:
-                a.sort(key=lambda x: x[1])
-            project_functions.pasar_al_cuadro(a, self.cuadro)
+    def realizar_busqueda(self, _varname=None, _index=None, _mode=None):
+        buscado = self.str_buscado.get()
+        if buscado == '':
+            self.obtener_datos_productos()
         else:
-            self.cuadro.delete(*self.cuadro.get_children())
-            if self.str_buscado.get() == '':
-                a = project_functions.get_all()
-                if self.order_mode.get() == 1:
-                    a.sort(key=lambda x: x[1])
-                project_functions.pasar_al_cuadro(a, self.cuadro)
+            self.controller.search_products(buscado)
+
 
     def realizar_busqueda_alfabetica(self):
         self.controller.get_all_products_alphabetically()

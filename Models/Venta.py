@@ -12,7 +12,7 @@ class Venta(Base):
     fecha = Column(DateTime, nullable=True)   # o DateTime si querés manejarlo como fecha real
     total_price = Column(Numeric, nullable=True)
 
-    detalles = relationship("DetalleVenta", back_populates="venta", cascade="all, delete-orphan")
+    detalles = relationship("DetalleVenta", back_populates="venta", cascade="all, delete-orphan", lazy='joined')
 
     def __repr__(self):
         return f"<Venta(id={self.id}, fecha='{self.fecha}', total_price={self.total_price})>"

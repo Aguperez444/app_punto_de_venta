@@ -4,6 +4,7 @@ from Controllers.common_window_innit_controller import CommonWindowInitControlle
 from PIL import Image, ImageTk
 
 from Models.Producto import Producto
+from Models.Venta import Venta
 
 
 class BaseProjectWindow(ttk.Window):

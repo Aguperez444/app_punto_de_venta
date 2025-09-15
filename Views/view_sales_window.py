@@ -1,15 +1,18 @@
 import ttkbootstrap as ttk
-import project_functions
+from datetime import datetime
+from Models.Venta import Venta
 from Views.base_window_toplevel import BaseProjectWindowToplevel
+
 
 # Beta 0.1.0
 
 
 class VentanaVerVentas(BaseProjectWindowToplevel):
     # ---------------------------------- ventana Principal de la clase ----------------------------------------
-    def __init__(self, parent):
+    def __init__(self, parent, controller):
         super().__init__(parent, needs_cuadro=False)
         parent.withdraw()
+        self.controller = controller
         # ----------------------------------------- ventana ---------------------------------------------
         self.title(f'{parent.title()} - Listado de ventas')
         self.protocol("WM_DELETE_WINDOW", lambda: self.parent.destroy())
@@ -30,7 +33,7 @@ class VentanaVerVentas(BaseProjectWindowToplevel):
         # --------------------------- buttons --------------------------
 
         self.button_mode = ttk.Button(master=self, textvariable=self.mode_txt, width=17, style='my.TButton',
-                                      command=lambda: self.change_mode())
+                                      command=self.change_mode)
 
         # --------------------------- entry's --------------------------
 
@@ -43,7 +46,8 @@ class VentanaVerVentas(BaseProjectWindowToplevel):
         self.titulo_total_dia = ttk.Label(master=self.frame_para_total, textvariable=self.title_mode,
                                           font='Arial 15 bold')
 
-        # --------------------------- cuadro ---------------------------
+        # el cuadro de esta ventana es distinto al resto, por esto se redefine
+        # region --------------------------- cuadro ---------------------------
         style = ttk.Style()
         style.configure('Treeview', rowheight=30)
         self.cuadro = ttk.Treeview(master=self.sub_frame, columns=("col1", "col2", "col3", "col4"))
@@ -93,11 +97,17 @@ class VentanaVerVentas(BaseProjectWindowToplevel):
         style_scroll = ttk.Style()
         style_scroll.configure("Vertical.TScrollbar", troughcolor="white")
 
+        #endregion
+
         # -----------------------------------------------gestion de eventos----------------------------------------
         self.fecha_var.trace_add("write", self.realizar_busqueda_sale) # TODO CHECK THIS
         self.bind("<Configure>", self.on_resize)
 
         # ---------------------------------------------- placing widgets -----------------------------------------------
+
+
+    # ----------------------------------------- Métodos de esta clase ---------------------------------------------
+    def render_view(self):
         self.menu_button.place(x=15, rely=0.017, anchor='nw', height=35)
         self.frame.place(relx=0.5, rely=0.4, relwidth=0.9, relheight=0.5, anchor="center")
         self.cuadro.pack_configure(fill='both', expand=True)
@@ -110,25 +120,16 @@ class VentanaVerVentas(BaseProjectWindowToplevel):
         self.frame_para_total.place(relx=0.5, rely=0.87, anchor='center')
 
 
-    # ----------------------------------------- Métodos de esta clase ---------------------------------------------
     def realizar_busqueda_sale(self, _varname=None, _index=None, _mode=None):
-        if self.mode.get() == 1:
-            ventas_del_dia_listado = project_functions.busqueda_venta_fecha(self.fecha_var)
-            if ventas_del_dia_listado:
-                project_functions.pasar_al_cuadro_ventas(ventas_del_dia_listado, self.cuadro)
-                self.total_price_of_day.set(project_functions.calcular_total_del_dia(ventas_del_dia_listado))
-            else:
-                self.cuadro.delete(*self.cuadro.get_children())
-                self.total_price_of_day.set('$0.0')
-        else:
-            if self.fecha_var.get() != '':
-                ventas_del_mes_listado = project_functions.obtener_ventas_mes(self.fecha_var)
-                if ventas_del_mes_listado:
-                    project_functions.pasar_al_cuadro_ventas(ventas_del_mes_listado, self.cuadro)
-                    self.total_price_of_day.set(project_functions.calcular_total_del_dia(ventas_del_mes_listado))
-                else:
-                    self.cuadro.delete(*self.cuadro.get_children())
-                    self.total_price_of_day.set('$0.0')
+
+        fecha_del_dia = self.fecha_var.get()
+        fecha_obj = datetime.strptime(fecha_del_dia, "%d/%m/%y").date()  # convertir string a date object
+
+        if self.mode.get() == 1: # modo ventas del día
+            self.controller.get_ventas_del_dia(fecha_obj)
+        else: # modo ventas del mes
+            self.controller.get_ventas_del_mes(fecha_obj)
+
 
     def on_resize(self, event):
         """
@@ -147,6 +148,7 @@ class VentanaVerVentas(BaseProjectWindowToplevel):
         self.cuadro.column("col3", width=int(new_width / 5), anchor="center")
         self.cuadro.column("col4", width=int(new_width / 5), anchor="center")
 
+
     def change_mode(self):
         if self.mode.get() == 1:
             self.mode.set(2)
@@ -157,4 +159,20 @@ class VentanaVerVentas(BaseProjectWindowToplevel):
             self.title_mode.set('Total del Día:')
             self.mode_txt.set('Ver listado por mes')
         self.realizar_busqueda_sale()
+
+
+    def pasar_al_cuadro_ventas(self, ventas_list: list[Venta]):
+        self.cuadro.delete(*self.cuadro.get_children())
+        contador = 0
+        for venta in ventas_list:
+            hora = venta.fecha.strftime('%H:%M:%S')
+            fecha = venta.fecha.strftime('%d/%m/%Y')
+            tag = 'par' if contador % 2 == 0 else 'impar'
+            self.cuadro.insert("", "end", text=f'{venta.detalles[0].producto.producto}...',
+                               values=(f'{venta.detalles[0].cantidad}...' , f'${round(venta.total_price, 2)}', fecha, hora), tags=tag)
+            contador += 1
+
+
+    def mostrar_total_ventas(self, total_ventas: str):
+        self.total_price_of_day.set(total_ventas)
 

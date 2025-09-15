@@ -12,10 +12,10 @@ class DetalleVenta(Base):
     precio_unitario_actual = Column(Numeric, nullable=False)
 
     # Relación inversa con Venta
-    venta = relationship("Venta", back_populates="detalles")
+    venta = relationship("Venta", back_populates="detalles", lazy="joined")
 
     # Relación con Producto
-    producto = relationship("Producto")
+    producto = relationship("Producto", lazy="joined")
 
     def calcular_subtotal(self) -> float:
         return float(self.cantidad) * self.precio_unitario_actual
