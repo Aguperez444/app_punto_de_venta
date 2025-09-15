@@ -94,7 +94,7 @@ class VentanaVerVentas(BaseProjectWindowToplevel):
         style_scroll.configure("Vertical.TScrollbar", troughcolor="white")
 
         # -----------------------------------------------gestion de eventos----------------------------------------
-        self.fecha_var.trace_add("write", lambda *Args: self.realizar_busqueda_sale()) # TODO CHECK THIS
+        self.fecha_var.trace_add("write", self.realizar_busqueda_sale) # TODO CHECK THIS
         self.bind("<Configure>", self.on_resize)
 
         # ---------------------------------------------- placing widgets -----------------------------------------------
@@ -111,7 +111,7 @@ class VentanaVerVentas(BaseProjectWindowToplevel):
 
 
     # ----------------------------------------- Métodos de esta clase ---------------------------------------------
-    def realizar_busqueda_sale(self):
+    def realizar_busqueda_sale(self, _varname=None, _index=None, _mode=None):
         if self.mode.get() == 1:
             ventas_del_dia_listado = project_functions.busqueda_venta_fecha(self.fecha_var)
             if ventas_del_dia_listado:
@@ -131,6 +131,13 @@ class VentanaVerVentas(BaseProjectWindowToplevel):
                     self.total_price_of_day.set('$0.0')
 
     def on_resize(self, event):
+        """
+        Ajusta el tamaño de las columnas del treeview al redimensionar la ventana
+        El ajuste para esta ventana es distinto al de las otras ventanas
+        Por eso es necesario sobreescribir este method
+        :param event:
+        :return:
+        """
         new_width = event.width
         new_width = int(new_width * 0.9)
 

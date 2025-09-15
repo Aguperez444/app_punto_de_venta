@@ -14,7 +14,7 @@ class DetalleVenta(Base):
     # Relación inversa con Venta
     venta = relationship("Venta", back_populates="detalles")
 
-    # Relación con Producto (si querés acceso directo al producto)
+    # Relación con Producto
     producto = relationship("Producto")
 
     def calcular_subtotal(self) -> float:

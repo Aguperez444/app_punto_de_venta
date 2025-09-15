@@ -60,7 +60,7 @@ def abrir_ventana_edit_individual(parent, mod_ids_in):
         alert_window.destroy()
         parent.realizar_busqueda()
 
-    def actualizar_valor():
+    def actualizar_valor(_varname=None, _index=None, _mode=None):
         button_increment.config(text=f"Incrementar un %{porcentaje_var.get()} a el/los productos seleccionados")
 
     def actualizar_percent():
@@ -151,11 +151,11 @@ def abrir_ventana_edit_individual(parent, mod_ids_in):
     project_functions.pasar_al_cuadro(productos, cuadro)
 
     alert_window.bind("<Configure>", on_resize)
-    porcentaje_var.trace_add("write", lambda *args: actualizar_valor())
+    porcentaje_var.trace_add("write", actualizar_valor)
     cuadro.configure(yscrollcommand=scrollbar.set)
 
     relleno_superior = ttk.Frame(alert_window, height=44, width=0)
-    relleno_superior.pack(side=ttk.TOP)
+    relleno_superior.pack(side='top')
     label_alerta.pack()
     sub_label_alerta.pack()
     button_cancel.grid(row=0, column=0, padx=15)
@@ -174,7 +174,7 @@ def abrir_ventana_edit_individual(parent, mod_ids_in):
 
 class VentanaPrecios(BaseProjectWindowToplevel):
 
-    def edit_selected(self, event):
+    def edit_selected(self, _event):
         mod_ids = []
         tuple_items = self.cuadro.selection()
         for item in tuple_items:
@@ -182,35 +182,26 @@ class VentanaPrecios(BaseProjectWindowToplevel):
             mod_ids.append(valores[4])
         abrir_ventana_edit_individual(self, mod_ids)
 
-    def actualizar_valor(self, *args):
+    def actualizar_valor(self, *_args):
         self.button_increment.config(text=f"Incrementar un %{self.porcentaje_var.get()} a todos los precios")
 
-    def realizar_busqueda(self):
+    def realizar_busqueda(self, _varname=None, _index=None, _mode=None):
         a = project_functions.busqueda(self.str_buscado)
         if a:
-            if self.order_mode.get() == 1:
+            if self.alfabetico_checked.get() == 1:
                 a.sort(key=lambda x: x[1])
             project_functions.pasar_al_cuadro(a, self.cuadro)
         else:
             self.cuadro.delete(*self.cuadro.get_children())
             if self.str_buscado.get() == '':
                 a = project_functions.get_all()
-                if self.order_mode.get() == 1:
+                if self.alfabetico_checked.get() == 1:
                     a.sort(key=lambda x: x[1])
                 project_functions.pasar_al_cuadro(a, self.cuadro)
 
     def increment_all(self):
         abrir_ventana_alerta(self)
 
-    def on_resize(self, event):
-        new_width = event.width
-        new_width = int(new_width * 0.9)
-
-        self.cuadro.column("#0", width=int(new_width * 3 / 10), anchor="center")
-        self.cuadro.column("col1", width=int(new_width / 10), anchor="center")
-        self.cuadro.column("col2", width=int(new_width / 10), anchor="center")
-        self.cuadro.column("col3", width=int(new_width * 3 / 10), anchor="center")
-        self.cuadro.column("col4", width=int(new_width / 10), anchor="center")
 
     def __init__(self, parent):
         super().__init__(parent)
@@ -259,14 +250,14 @@ class VentanaPrecios(BaseProjectWindowToplevel):
         self.cuadro.bind("<Double-1>", self.edit_selected)
         self.cuadro.configure(yscrollcommand=self.scrollbar.set)
 
-        self.str_buscado.trace_add('write', lambda *args: self.realizar_busqueda())
+        self.str_buscado.trace_add('write', self.realizar_busqueda)
         self.porcentaje_var.trace_add("write", self.actualizar_valor)
 
         # ---------------------------------------------- placing widgets -----------------------------------------------
         self.menu_button.place(x=15, rely=0.017, anchor='nw', height=35)
         self.frame.place(relx=0.5, rely=0.4, relwidth=0.9, relheight=0.6, anchor="center")
         self.label_titulo.pack_configure(pady=10)
-        self.checkbutton.pack_configure(pady=10)
+        self.check.pack_configure(pady=10)
         self.entry.pack_configure(pady=10, fill='x', expand=True)
         self.cuadro.pack_configure(fill='both', expand=True)
         self.sub_frame.pack_configure(fill='both', expand=True)
@@ -276,4 +267,4 @@ class VentanaPrecios(BaseProjectWindowToplevel):
         self.increment_frame.place(relx=0.82, rely=0.017, anchor='ne')
 
         # se ejecuta instantáneamente
-        self.pasar_al_cuadro(project_functions.get_all()) #TODO CAMBIAR POR IMPLEMENTACION CON CONTROLLER
+        self.pasar_al_cuadro(project_functions.get_all()) #TODO CAMBIAR POR IMPLEMENTACIÓN CON CONTROLLER

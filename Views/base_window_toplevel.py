@@ -1,5 +1,5 @@
 import ttkbootstrap as ttk
-from tkinter import simpledialog, messagebox
+from tkinter import simpledialog, messagebox, PhotoImage
 from Controllers.common_window_innit_controller import CommonWindowInitController
 from PIL import Image, ImageTk
 
@@ -20,7 +20,7 @@ class BaseProjectWindow(ttk.Window):
         self.version = self.init_controller.get_version() # obtain the program version
         self.geometry = self.init_controller.calculate_window_resolution() # calculate the window resolution
         self.img = Image.open(self.icon_path)
-        self.icon = ImageTk.PhotoImage(self.img)
+        self.icon: PhotoImage = ImageTk.PhotoImage(self.img)
         self.theme = self.init_controller.obtener_tema_actual()
 
         self.minsize(400, 300)
@@ -41,7 +41,6 @@ class BaseProjectWindow(ttk.Window):
                                        command=self.cambiar_modo)
 
 
-
     def solicit_password(self, mode):
         correct_password_introduced = False
 
@@ -56,12 +55,14 @@ class BaseProjectWindow(ttk.Window):
             else:
                 messagebox.showerror("Error", "Contraseña incorrecta")
 
+
     def handle_correct_password(self, mode):
         """
         Handle the action to take when the correct password is entered.
         To be implemented in subclasses.
         """
         raise NotImplementedError("Subclasses should implement this method.")
+
 
     def cambiar_modo(self):
         if self.theme == 'journal':
@@ -77,12 +78,15 @@ class BaseProjectWindow(ttk.Window):
 
         self.init_controller.tema_cambiado(self.theme)
 
+
     def cerrar_ventana_alerta(self):
         raise NotImplementedError("Subclasses should implement this method.")
+
 
     @staticmethod
     def show_error(msg):
         messagebox.showerror('Ha ocurrido un error', msg)
+
 
 class BaseProjectWindowToplevel(ttk.Toplevel):
     """
@@ -102,7 +106,7 @@ class BaseProjectWindowToplevel(ttk.Toplevel):
         self.geometry = self.init_controller.calculate_window_resolution()
 
         self.img = parent.img
-        self.icon = ImageTk.PhotoImage(self.parent.img)
+        self.icon: PhotoImage = ImageTk.PhotoImage(self.parent.img)
         self.theme = self.parent.theme
 
         #self.iconbitmap(self.icon_path) funcionaba en windows no en linux
@@ -207,7 +211,8 @@ class BaseProjectWindowToplevel(ttk.Toplevel):
     def realizar_busqueda_alfabetica(self):
         raise NotImplementedError("Subclasses should implement this method.")
 
-    def realizar_busqueda(self):
+
+    def realizar_busqueda(self, _varname=None, _index=None, _mode=None):
         """
         Perform a search or sorting operation based on the order_mode variable.
         To be implemented in subclasses.
@@ -217,6 +222,7 @@ class BaseProjectWindowToplevel(ttk.Toplevel):
 
     def cerrar_ventana_alerta(self):
         raise NotImplementedError("Subclasses should implement this method.")
+
 
     def handle_correct_password(self, mode):
         """
@@ -283,6 +289,7 @@ class BaseProjectWindowToplevel(ttk.Toplevel):
             contador += 1
         return
 
+
     def pasar_unico_al_cuadro(self, product: dict):
         self.cuadro.delete(*self.cuadro.get_children())
         self.cuadro.insert("", "end", text=product['producto'], values=(product['codigo'],
@@ -294,6 +301,18 @@ class BaseProjectWindowToplevel(ttk.Toplevel):
 
     def clean_treeview(self):
         self.cuadro.delete(*self.cuadro.get_children())
+
+
+    def on_resize(self, event):
+        new_width = event.width
+        new_width = int(new_width * 0.9)
+
+        self.cuadro.column("#0", width=int(new_width * 3 / 10), anchor="center")
+        self.cuadro.column("col1", width=int(new_width / 10), anchor="center")
+        self.cuadro.column("col2", width=int(new_width / 10), anchor="center")
+        self.cuadro.column("col3", width=int(new_width * 3 / 10), anchor="center")
+        self.cuadro.column("col4", width=int(new_width / 10), anchor="center")
+
 
     @staticmethod
     def show_error(msg):

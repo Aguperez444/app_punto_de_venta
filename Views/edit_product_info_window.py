@@ -24,15 +24,6 @@ class CRUDWindow(BaseProjectWindowToplevel):
         self.destroy()
         self.parent.realizar_busqueda()
 
-    def on_resize(self, event):
-        new_width = event.width
-        new_width = int(new_width * 0.9)
-
-        self.cuadro.column("#0", width=int(new_width * 3 / 10), anchor="center")
-        self.cuadro.column("col1", width=int(new_width / 10), anchor="center")
-        self.cuadro.column("col2", width=int(new_width / 10), anchor="center")
-        self.cuadro.column("col3", width=int(new_width * 3 / 10), anchor="center")
-        self.cuadro.column("col4", width=int(new_width / 10), anchor="center")
 
     def reset_input_fields(self):
         self.product_name.set('')
@@ -196,14 +187,14 @@ class VentanaEditInfo(BaseProjectWindowToplevel):
         self.bind("<Configure>", self.on_resize)
         self.cuadro.bind("<Return>", self.edit_selected)
         self.cuadro.bind("<Double-1>", self.edit_selected)
-        self.str_buscado.trace_add('write', lambda *args: self.realizar_busqueda()) #TODO CHECK THIS
+        self.str_buscado.trace_add('write', self.realizar_busqueda) #TODO CHECK THIS
         self.cuadro.configure(yscrollcommand=self.scrollbar.set)
 
         # ---------------------------------------------- placing widgets -----------------------------------------------
         self.menu_button.place(x=15, rely=0.017, anchor='nw', height=35)
         self.frame.place(relx=0.5, rely=0.4, relwidth=0.9, relheight=0.6, anchor="center")
         self.label_titulo.pack_configure(pady=10)
-        self.checkbutton.pack_configure(pady=10)
+        self.check.pack_configure(pady=10)
         self.entry.pack_configure(pady=10, fill='x', expand=True)
         self.cuadro.pack_configure(fill='both', expand=True)
         self.sub_frame.pack_configure(fill='both', expand=True)
@@ -213,7 +204,7 @@ class VentanaEditInfo(BaseProjectWindowToplevel):
         self.pasar_al_cuadro(project_functions.get_all())
 
 
-    def edit_selected(self, event):
+    def edit_selected(self, _event):
         mod_ids = []
         tuple_items = self.cuadro.selection()
         for item in tuple_items:
@@ -221,7 +212,7 @@ class VentanaEditInfo(BaseProjectWindowToplevel):
             mod_ids.append(valores[4])
         CRUDWindow(self, mod_ids)
 
-    def realizar_busqueda(self):
+    def realizar_busqueda(self, _varname=None, _index=None, _mode=None):
         a = project_functions.busqueda(self.str_buscado)
         if a:
             if self.order_mode.get() == 1:
@@ -235,13 +226,5 @@ class VentanaEditInfo(BaseProjectWindowToplevel):
                     a.sort(key=lambda x: x[1])
                 project_functions.pasar_al_cuadro(a, self.cuadro)
 
-    def on_resize(self, event):
-        new_width = event.width
-        new_width = int(new_width * 0.9)
 
-        self.cuadro.column("#0", width=int(new_width * 3 / 10), anchor="center")
-        self.cuadro.column("col1", width=int(new_width / 10), anchor="center")
-        self.cuadro.column("col2", width=int(new_width / 10), anchor="center")
-        self.cuadro.column("col3", width=int(new_width * 3 / 10), anchor="center")
-        self.cuadro.column("col4", width=int(new_width / 10), anchor="center")
 

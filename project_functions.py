@@ -32,7 +32,7 @@ def is_first_time_running():
     global ruta_archivo
     ruta_archivo = os.path.join(ruta_carpeta, 'config.txt')
     try:
-        with open(ruta_archivo, 'rt') as archivo_config:
+        with open(ruta_archivo, 'rt') as _archivo_config:
             return False
     except FileNotFoundError:
         with open(ruta_archivo, 'wt') as archivo_config:
@@ -49,6 +49,7 @@ def obtener_config(config_deseada: str):
     tema = config_lines[0].replace('\n', '')
     if config_deseada.lower() == 'tema':
         return tema
+    return None
 
 
 def no_contiene_letras(cadena):
@@ -206,7 +207,7 @@ def busqueda(str_var_buscado):
 def busqueda_no_stock(str_var_buscado):
     buscado = str_var_buscado.get()
     if buscado == '':
-        return
+        return None
     global ruta_bdd
     connection = sqlite3.connect(ruta_bdd)
     cursor = connection.cursor()
@@ -222,7 +223,7 @@ def busqueda_no_stock(str_var_buscado):
 
 def busqueda_por_id(id_buscado):
     if id_buscado == '':
-        return
+        return None
     global ruta_bdd
     connection = sqlite3.connect(ruta_bdd)
     cursor = connection.cursor()
@@ -236,7 +237,7 @@ def busqueda_por_id(id_buscado):
 
 def busqueda_multiples_ids(ids_buscadas):
     if ids_buscadas == '' or ids_buscadas == () or ids_buscadas == []:
-        return
+        return None
     global ruta_bdd
     connection = sqlite3.connect(ruta_bdd)
     cursor = connection.cursor()
@@ -438,7 +439,7 @@ def update_price_to_new(ids_list, new_price):
 def busqueda_venta_fecha(str_fecha_buscada):
     buscado = str_fecha_buscada.get()
     if buscado == '':
-        return
+        return None
     global ruta_bdd
     connection = sqlite3.connect(ruta_bdd)
     cursor = connection.cursor()

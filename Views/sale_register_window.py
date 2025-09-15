@@ -65,7 +65,7 @@ class VentanaVenta(BaseProjectWindowToplevel):
         # Llamar a la función de actualización
         self.actualizar_cantidad(event)
 
-    def detener_actualizacion(self, event):
+    def detener_actualizacion(self, _event):
         # Marcar la tecla como liberada
         self.tecla_presionada = False
 
@@ -85,20 +85,12 @@ class VentanaVenta(BaseProjectWindowToplevel):
                 self.cantidad_vendida.set(str(nueva_cantidad))
 
                 # Llamar a la función de actualización nuevamente después de un breve retraso
-                self.after(100, lambda: self.actualizar_cantidad(event))
+                #self.after(100, lambda: self.actualizar_cantidad(event))
+                self.after(100, self.actualizar_cantidad, event)
 
     # endregion
 
     #region Funciones Para manejo de UI
-    def on_resize(self, event):
-        new_width = event.width
-        new_width = int(new_width * 0.9)
-
-        self.cuadro.column("#0", width=int(new_width * 3 / 10), anchor="center")
-        self.cuadro.column("col1", width=int(new_width / 10), anchor="center")
-        self.cuadro.column("col2", width=int(new_width / 10), anchor="center")
-        self.cuadro.column("col3", width=int(new_width * 3 / 10), anchor="center")
-        self.cuadro.column("col4", width=int(new_width / 10), anchor="center")
 
     def render_view(self):
         # ---------------------------------------------- placing widgets -----------------------------------------------

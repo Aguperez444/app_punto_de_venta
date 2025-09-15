@@ -1,9 +1,8 @@
 import ttkbootstrap as ttk
-import tkinter
 import project_functions
 
 # ----------------------------------------- Funciones ---------------------------------------------
-def realizar_busqueda(*args):
+def realizar_busqueda(*_args):
     a = project_functions.busqueda(str_buscado)
     if a:
         project_functions.pasar_al_cuadro(a, cuadro)

@@ -125,7 +125,7 @@ class ConfigFilesPersistence:
     def encontrar_ruta_icono():
         if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
             # En el caso de PyInstaller
-            base_path = sys._MEIPASS
+            base_path = getattr(sys, "_MEIPASS", os.path.abspath("."))
         else:
             # En el caso de ejecutar directamente el script
             base_path = os.path.abspath(".")
@@ -162,7 +162,7 @@ class ConfigFilesPersistence:
 
     def is_first_time_running(self):
         try:
-            with open(self.ruta_config, 'rt') as archivo_config:
+            with open(self.ruta_config, 'rt') as _archivo_config:
                 return False
         except FileNotFoundError:
             with open(self.ruta_config, 'wt') as archivo_config:

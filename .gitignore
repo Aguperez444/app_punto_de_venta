@@ -1,3 +1,6 @@
 ./__pycache__
 ./.git
 ./.idea
+./Views/__pycache__
+./Models/__pycache__
+./Controllers/__pycache__

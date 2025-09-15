@@ -3,7 +3,6 @@ import ttkbootstrap as ttk
 
 from Views.edit_prices_window import VentanaPrecios
 from Views.view_sales_window import VentanaVerVentas
-from Views.add_stock_window import VentanaStock
 from Views.edit_product_info_window import VentanaEditInfo
 from Views.no_stock_list_window import VentanaNoStock
 from Views.base_window_toplevel import BaseProjectWindow
