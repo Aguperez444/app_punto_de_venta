@@ -1,8 +1,7 @@
 import ttkbootstrap as ttk
 
-from Views.edit_prices_window import VentanaPrecios
-from Views.edit_product_info_window import VentanaEditInfo
 from Views.no_stock_list_window import VentanaNoStock
+
 from Views.base_window_toplevel import BaseProjectWindow
 
 from Controllers.add_product_controller import AddProductController
@@ -10,19 +9,17 @@ from Controllers.find_product_controller import FindProductController
 from Controllers.add_stock_controller import AddStockController
 from Controllers.view_sales_controller import ViewSalesController
 from Controllers.edit_prices_controller import EditPricesController
-
-# beta 0.1.1
-
+from Controllers.edit_product_info_controller import EditProductInfoController
 
 
 
 class MainWindowC(BaseProjectWindow):
 
-    def handle_correct_password(self, mode):
+    def handle_correct_password(self, mode: int):
         if mode == 0:
             EditPricesController(self)
         elif mode == 1:
-            VentanaEditInfo(self)
+            EditProductInfoController(self)
 
 
     def __init__(self):
@@ -61,7 +58,7 @@ class MainWindowC(BaseProjectWindow):
                                              command=lambda: AddProductController(self), width=23, style='my.TButton')
 
         self.button_edit_prices = ttk.Button(master=self.frame_for_buttons, text='Actualizar los precios',
-                                        command=lambda: self.solicit_password(0), width=23, style='my.TButton') # TODO CHEK THIS
+                                        command=lambda: self.solicit_password(0), width=23, style='my.TButton')
 
         self.button_view_sales = ttk.Button(master=self.frame_for_buttons, text='Listado de ventas',
                                        command=lambda: ViewSalesController(self), width=23, style='my.TButton')

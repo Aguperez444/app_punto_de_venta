@@ -9,7 +9,8 @@ class ProductoService:
 
 
     @staticmethod
-    def validate_price(precio: str) -> bool:
+    def validate_price(precio_param: str) -> bool:
+        precio = precio_param.replace(',', '.').replace(' ', '').replace('.', '')
         return precio.isdigit() or (precio.startswith('$') and precio[1:].isdigit())
 
 
@@ -155,16 +156,19 @@ class ProductoService:
 
 
     def update_product_info(self, id_producto: int, new_info: dict):
-        producto = self.repo.get_product_by_id(id_producto)
-
-        #if producto is None:
-        #    raise ValueError("Producto no encontrado.")
-
         # Validaciones
         if 'precio' in new_info and not self.validate_price(new_info['precio']):
             raise ValueError("Precio inválido.")
         if 'stock' in new_info and not self.validate_stock(str(new_info['stock'])):
             raise ValueError("Stock inválido.")
+
+        # buscar el producto por ID
+        producto = self.repo.get_product_by_id(id_producto)
+
+        if producto is None:
+            raise ValueError("Producto no encontrado.")
+        # si no existe producto con ese ID, lanzar error
+
 
         # Actualizar la información del producto
         for key, value in new_info.items():
@@ -176,7 +180,8 @@ class ProductoService:
                 setattr(producto, key, value)
 
         # Guardar los cambios en la base de datos
-        self.repo.save_product(producto)
+
+        self.repo.update_info_product_bdd(producto)
 
 
 

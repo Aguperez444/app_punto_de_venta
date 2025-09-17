@@ -104,7 +104,7 @@ class BaseProjectWindowToplevel(ttk.Toplevel):
 
         self.resolution = self.get_screen_resolution()
         self.resolution_str = f'{self.resolution[0]}x{self.resolution[1]}'
-        self.geometry = self.init_controller.calculate_window_resolution()
+        self.geometry(self.init_controller.calculate_window_resolution())
 
         self.img = parent.img
         self.icon: PhotoImage = ImageTk.PhotoImage(self.parent.img)

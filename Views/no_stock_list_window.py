@@ -3,8 +3,6 @@ import project_functions
 from Views.base_window_toplevel import BaseProjectWindowToplevel
 
 
-# Beta 0.1.0
-
 class VentanaNoStock(BaseProjectWindowToplevel):
 
     def __init__(self, parent):

@@ -5,25 +5,7 @@ class ProductoRepository:
 
 
     @staticmethod
-    def get_all_products():
-        with SessionLocal() as session:
-            return session.query(Producto).all()
-
-
-    @staticmethod
-    def get_all_no_stock():
-        with SessionLocal() as session:
-            return session.query(Producto).filter(Producto.stock < 1).all()
-
-
-    @staticmethod
-    def get_product_by_id(product_id: int) -> Producto | None:
-        with SessionLocal() as session:
-            return session.get(Producto, product_id)
-
-
-    @staticmethod
-    def save_product(product: Producto):
+    def save_product(product: Producto) -> None:
         with SessionLocal() as session:
             try:
                 session.add(product)
@@ -32,6 +14,18 @@ class ProductoRepository:
             except Exception:
                 session.rollback()
                 raise
+
+
+    @staticmethod
+    def get_all_products() -> list[Producto]:
+        with SessionLocal() as session:
+            return session.query(Producto).all()
+
+
+    @staticmethod
+    def get_all_products_alphabetically() -> list[Producto]:
+        with SessionLocal() as session:
+            return session.query(Producto).order_by(Producto.producto).all()
 
 
     @staticmethod
@@ -66,6 +60,12 @@ class ProductoRepository:
 
 
     @staticmethod
+    def get_all_no_stock() -> list[Producto] | None:
+        with SessionLocal() as session:
+            return session.query(Producto).filter(Producto.stock < 1).all()
+
+
+    @staticmethod
     def get_filtered_no_stock(buscado: str) -> list[Producto] | None:
         if buscado == '':
             return None
@@ -83,6 +83,12 @@ class ProductoRepository:
 
 
     @staticmethod
+    def get_product_by_id(product_id: int) -> Producto | None:
+        with SessionLocal() as session:
+            return session.get(Producto, product_id)
+
+
+    @staticmethod
     def get_products_by_id_list(ids_buscadas: list[int]) -> list[Producto] | None:
         if not ids_buscadas:
             return None
@@ -94,7 +100,7 @@ class ProductoRepository:
 
 
     @staticmethod
-    def add_stock(id_producto: int, cantidad: int):
+    def add_stock(id_producto: int, cantidad: int) -> None:
         with SessionLocal() as session:
             producto = session.query(Producto).filter_by(id=id_producto).first()
             if producto:
@@ -103,7 +109,18 @@ class ProductoRepository:
 
 
     @staticmethod
-    def update_stock(id_producto: int, cantidad: int):
+    def add_stock_to_multiple_products(ids_list: list, stock_to_add: int) -> None:
+
+        with SessionLocal() as session:
+            productos = session.query(Producto).filter(Producto.id.in_(ids_list)).all()
+            for producto in productos:
+                producto.stock += stock_to_add
+            session.commit()
+
+
+
+    @staticmethod
+    def update_stock(id_producto: int, cantidad: int) -> None:
         with SessionLocal() as session:
             producto = session.query(Producto).filter_by(id=id_producto).first()
             if producto:
@@ -112,7 +129,7 @@ class ProductoRepository:
 
 
     @staticmethod
-    def update_all_prices(percent_multiplier: float=1):
+    def update_all_prices(percent_multiplier: float=1) -> None:
 
         with SessionLocal() as session:
             productos = session.query(Producto).all()
@@ -139,7 +156,7 @@ class ProductoRepository:
 
 
     @staticmethod
-    def update_price_to_new_value(ids_list: list, new_price: float):
+    def update_price_to_new_value(ids_list: list, new_price: float) -> None:
 
         with SessionLocal() as session:
             productos = session.query(Producto).filter(Producto.id.in_(ids_list)).all()
@@ -149,16 +166,7 @@ class ProductoRepository:
 
 
     @staticmethod
-    def add_stock_to_multiple_products(ids_list: list, stock_to_add: int):
-
-        with SessionLocal() as session:
-            productos = session.query(Producto).filter(Producto.id.in_(ids_list)).all()
-            for producto in productos:
-                producto.stock += stock_to_add
-            session.commit()
-
-    @staticmethod
-    def update_stock_to_multiple_products(ids_list: list, new_stock: int):
+    def update_stock_to_multiple_products(ids_list: list, new_stock: int) -> None:
 
         with SessionLocal() as session:
             productos = session.query(Producto).filter(Producto.id.in_(ids_list)).all()
@@ -166,8 +174,9 @@ class ProductoRepository:
                 producto.stock += new_stock
             session.commit()
 
+
     @staticmethod
-    def update_info_product_bdd(producto_new: Producto):
+    def update_info_product_bdd(producto_new: Producto) -> None:
         with SessionLocal() as session:
             producto_old = session.get(Producto, producto_new.id)
             if producto_old:
@@ -180,8 +189,5 @@ class ProductoRepository:
 
                 session.commit()
 
-    @staticmethod
-    def get_all_products_alphabetically():
-        with SessionLocal() as session:
-            return session.query(Producto).order_by(Producto.producto).all()
+
 
