@@ -115,10 +115,6 @@ class IndividualEditPopup(BaseProjectWindowToplevel):
                              relwidth=0.8,
                              height=75, anchor='n')
 
-        #self.frame.place(relx=0.5, rely=0.4, relwidth=0.9, relheight=0.6, anchor="center")
-        #self.cuadro.pack_configure(fill='both', expand=True)
-
-
         self.button_cancel.place(relx=0.5, rely=0.90, height=40, width=200, anchor='s')
 
         self.controller.get_product_info()

@@ -1,7 +1,5 @@
 import ttkbootstrap as ttk
 
-from Views.no_stock_list_window import VentanaNoStock
-
 from Views.base_window_toplevel import BaseProjectWindow
 
 from Controllers.add_product_controller import AddProductController
@@ -10,7 +8,7 @@ from Controllers.add_stock_controller import AddStockController
 from Controllers.view_sales_controller import ViewSalesController
 from Controllers.edit_prices_controller import EditPricesController
 from Controllers.edit_product_info_controller import EditProductInfoController
-
+from Controllers.no_stock_controller import NoStockController
 
 
 class MainWindowC(BaseProjectWindow):
@@ -69,7 +67,7 @@ class MainWindowC(BaseProjectWindow):
                                       command=lambda: self.solicit_password(1), width=23, style='my.TButton')
 
         self.button_no_stock = ttk.Button(master=self.frame_for_buttons, text='Productos sin stock',
-                                     command=lambda: VentanaNoStock(self), width=23, style='my.TButton')
+                                     command=lambda: NoStockController(self), width=23, style='my.TButton')
         # ---------------------------label versión-------------------------
         self.version_label = ttk.Label(master=self, text=f'version: {self.version}')
 

@@ -1,9 +1,12 @@
 import ttkbootstrap as ttk
 from tkinter import filedialog, messagebox
 
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from Controllers.program_start_controller import ProgramStartController
 
 class FindBddWindow(ttk.Window):
-    def __init__(self, puntero_controller):
+    def __init__(self, puntero_controller: 'ProgramStartController'):
         super().__init__()
         self.title('Seleccionar ruta de la base de datos')
         self.geometry('500x400')

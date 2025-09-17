@@ -1,6 +1,6 @@
 import ttkbootstrap as ttk
 from Views.base_window_toplevel import BaseProjectWindowToplevel
-from Controllers.individual_edit_stock_controller import EditIndividualStockController
+from Controllers.individual_edit_stock_controller import IndividualEditStockController
 
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
@@ -75,7 +75,7 @@ class VentanaStock(BaseProjectWindowToplevel):
             valores = self.cuadro.item(item, option='values') # Obtiene los valores de las filas seleccionadas
             mod_ids.append(valores[4]) # El ID está en la columna oculta (col4), esta línea añade todos los ID seleccionados a una lista
 
-        EditIndividualStockController(self, mod_ids) # abre la ventana de edición individual
+        IndividualEditStockController(self, mod_ids) # abre la ventana de edición individual
 
 
     def realizar_busqueda(self, _varname=None, _index=None, _mode=None):

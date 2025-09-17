@@ -1,6 +1,6 @@
 import ttkbootstrap as ttk
 from tkinter import simpledialog, messagebox, PhotoImage
-from Controllers.common_window_innit_controller import CommonWindowInitController
+from Controllers.common_window_innit_controller import CommonWindowInitController #TODO CHECKEAR ORDEN DE INSTANCIAMIENTO DE CONTROLLERS
 from PIL import Image, ImageTk
 from tkinter import TclError
 

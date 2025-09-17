@@ -83,6 +83,23 @@ class ProductoRepository:
 
 
     @staticmethod
+    def get_filtered_no_stock_alphabetically(buscado: str) -> list[Producto] | None:
+        if buscado == '':
+            return None
+
+        with SessionLocal() as session:
+            encontrado = session.query(Producto).filter(
+                ((Producto.producto.ilike(f'%{buscado}%')) |
+                 (Producto.detalle.ilike(f'%{buscado}%')) |
+                 (Producto.codigo.ilike(f'%{buscado}%')) |
+                 (Producto.codigo_de_barras.ilike(f'%{buscado}%'))) &
+                (Producto.stock < 1)
+            ).order_by(Producto.producto).all()
+
+        return encontrado
+
+
+    @staticmethod
     def get_product_by_id(product_id: int) -> Producto | None:
         with SessionLocal() as session:
             return session.get(Producto, product_id)
