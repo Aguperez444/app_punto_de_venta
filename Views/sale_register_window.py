@@ -1,5 +1,4 @@
 import ttkbootstrap as ttk
-import project_functions
 from Views.base_window_toplevel import BaseProjectWindowToplevel
 
 from typing import TYPE_CHECKING
@@ -72,7 +71,7 @@ class VentanaVenta(BaseProjectWindowToplevel):
 
     def actualizar_cantidad(self, event):
         if self.tecla_presionada:
-            if self.cantidad_vendida.get() != '' and project_functions.no_contiene_letras(self.cantidad_vendida.get()):
+            if self.cantidad_vendida.get() != '' and not any(caracter.isalpha() for caracter in self.cantidad_vendida.get()):
                 if event.keysym == 'Up':
                     nueva_cantidad = int(self.cantidad_vendida.get()) + 1
                 elif event.keysym == 'Down':
