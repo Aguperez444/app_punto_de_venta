@@ -10,7 +10,7 @@ import sys
 # beta 0.1.1
 
 
-ruta_bdd = '/home/agustin/MEGA/AB No de la Facultad/Proyectos/Proyectos_personales/APP_FARMACIA/productos.db'
+ruta_bdd = '/home/agustin/MEGA/AB No de la Facultad/Proyectos/Proyectos_personales/APP_FARMACIA/productos.Database'
 ruta_archivo = '/home/agustin/Documents/catalogo/config.txt'
 
 

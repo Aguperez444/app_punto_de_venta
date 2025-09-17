@@ -1,6 +1,5 @@
 import ttkbootstrap as ttk
 
-
 from Views.edit_prices_window import VentanaPrecios
 from Views.edit_product_info_window import VentanaEditInfo
 from Views.no_stock_list_window import VentanaNoStock
@@ -10,6 +9,7 @@ from Controllers.add_product_controller import AddProductController
 from Controllers.find_product_controller import FindProductController
 from Controllers.add_stock_controller import AddStockController
 from Controllers.view_sales_controller import ViewSalesController
+from Controllers.edit_prices_controller import EditPricesController
 
 # beta 0.1.1
 
@@ -20,7 +20,7 @@ class MainWindowC(BaseProjectWindow):
 
     def handle_correct_password(self, mode):
         if mode == 0:
-            VentanaPrecios(self)
+            EditPricesController(self)
         elif mode == 1:
             VentanaEditInfo(self)
 

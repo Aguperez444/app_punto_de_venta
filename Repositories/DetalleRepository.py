@@ -1,4 +1,4 @@
-from Persistence.db_session import SessionLocal
+from Database.db_session import SessionLocal
 from Models.DetalleVenta import DetalleVenta
 
 class DetalleRepository:

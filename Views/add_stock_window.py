@@ -1,17 +1,17 @@
 import ttkbootstrap as ttk
 from Views.base_window_toplevel import BaseProjectWindowToplevel
-from Controllers.edit_individual_controller import EditIndividualController
+from Controllers.individual_edit_stock_controller import EditIndividualStockController
 
-
-# Beta 0.1.0
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from Controllers.add_stock_controller import AddStockController
 
 
 class VentanaStock(BaseProjectWindowToplevel):
 
 
-    def __init__(self, parent, controller):
+    def __init__(self, parent, controller: 'AddStockController'):
         super().__init__(parent)
-        self.edit_individual_controller = None # will be used later to manage the edit individual window
         self.actual_focus = 0
         self.controller = controller
         # ----------------------------------------- ventana ---------------------------------------------
@@ -76,7 +76,7 @@ class VentanaStock(BaseProjectWindowToplevel):
             valores = self.cuadro.item(item, option='values') # Obtiene los valores de las filas seleccionadas
             mod_ids.append(valores[4]) # El ID está en la columna oculta (col4), esta línea añade todos los ID seleccionados a una lista
 
-        self.edit_individual_controller = EditIndividualController(self, mod_ids) # abre la ventana de edición individual
+        EditIndividualStockController(self, mod_ids) # abre la ventana de edición individual
 
 
     def realizar_busqueda(self, _varname=None, _index=None, _mode=None):
@@ -84,7 +84,7 @@ class VentanaStock(BaseProjectWindowToplevel):
         if buscado == '':
             self.obtener_datos_productos()
         else:
-            self.controller.search_products(buscado)
+            self.controller.get_filtered_products(buscado)
 
 
     def realizar_busqueda_alfabetica(self):

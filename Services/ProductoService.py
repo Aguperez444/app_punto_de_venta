@@ -1,5 +1,5 @@
 from Models.Producto import Producto
-from Persistence.repositorys.producto_repository import ProductoRepository
+from Repositories.producto_repository import ProductoRepository
 from custom_errors import DomainValidationError
 
 
@@ -54,6 +54,10 @@ class ProductoService:
 
 
 
+    def save_product(self, producto: Producto):
+        self.repo.save_product(producto)
+
+
     def get_all_products(self) -> list:
         return self.repo.get_all_products()
 
@@ -66,15 +70,17 @@ class ProductoService:
         return self.repo.get_product_by_id(id_producto)
 
 
-    def save_product(self, producto: Producto):
-        self.repo.save_product(producto)
-
-
     def get_products_by_str_filter(self, buscado: str) -> list[Producto] | list:
         if not buscado:
             return []
         return self.repo.get_filtered(buscado)
 
+
+    def get_products_by_str_filter_alphabetically(self, search_criteria: str) -> list[Producto] | list:
+        pass
+        if not search_criteria:
+            return []
+        return self.repo.get_filtered_alphabetically(search_criteria)
 
     def get_products_by_str_filter_no_stock(self, buscado: str) -> list[Producto] | list:
         if not buscado:
@@ -88,22 +94,44 @@ class ProductoService:
         return self.repo.get_products_by_id_list(ids_buscadas)
 
 
+    def get_product_name_by_id(self, product_id: int) -> str:
+        producto = self.repo.get_product_by_id(product_id)
+        if producto is not None:
+            return producto.producto
+        return 'No encontrado'
+
+
+    def get_all_products_alphabetically(self):
+        return self.repo.get_all_products_alphabetically()
+
+
     def add_stock(self, id_producto: int, cantidad: int):
         self.repo.add_stock(id_producto, cantidad)
+
+
+    def add_stock_to_multiple_products(self, ids_list: list[int], stock_to_add: int):
+        if not ids_list:
+            return
+        for id_producto in ids_list:
+            self.repo.add_stock(id_producto, stock_to_add)
 
 
     def update_stock(self, id_producto: int, cantidad: int):
         self.repo.update_stock(id_producto, cantidad)
 
 
-    def update_all_prices(self, percent: int = 0):
+    def update_all_prices(self, percent: float = 0.0):
         # calcular el multiplicador
-        percent_multiplier = round((1 + int(percent) / 100.0), 2)
+        try:
+            percent_multiplier = round((1 + float(percent) / 100.0), 2)
+        except ValueError:
+            raise ValueError("El porcentaje debe ser un número válido.")
+
         # actualizar todos los precios
         self.repo.update_all_prices(percent_multiplier)
 
 
-    def update_selected_product_prices(self, ids_list: list[int], percent: int = 0):
+    def update_selected_product_prices(self, ids_list: list[int], percent: float = 0.0):
         if not ids_list:
             return
         percent_multiplier = round((1 + int(percent) / 100.0), 2)
@@ -118,13 +146,6 @@ class ProductoService:
 
         new_price_value = self.transform_price_to_float(new_price)
         self.repo.update_price_to_new_value(ids_list, new_price_value)
-
-
-    def add_stock_to_multiple_products(self, ids_list: list[int], stock_to_add: int):
-        if not ids_list:
-            return
-        for id_producto in ids_list:
-            self.repo.add_stock(id_producto, stock_to_add)
 
 
     def update_stock_to_multiple_products(self, ids_list: list[int], new_stock: int):
@@ -158,12 +179,4 @@ class ProductoService:
         self.repo.save_product(producto)
 
 
-    def get_product_name_by_id(self, product_id: int) -> str:
-        producto = self.repo.get_product_by_id(product_id)
-        if producto is not None:
-            return producto.producto
-        return 'No encontrado'
 
-
-    def get_all_products_alphabetically(self):
-        return self.repo.get_all_products_alphabetically()

@@ -2,11 +2,14 @@ import ttkbootstrap as ttk
 import project_functions
 from Views.base_window_toplevel import BaseProjectWindowToplevel
 
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from Controllers.register_sale_controller import RegisterSaleController
 
-# Ventana principal del módulo
+
 class VentanaVenta(BaseProjectWindowToplevel):
 
-    def __init__(self, parent, controller, product_data: dict):
+    def __init__(self, parent, controller: 'RegisterSaleController', product_data: dict): #TODO CHECK THIS
         super().__init__(parent)
         self.controller = controller
 

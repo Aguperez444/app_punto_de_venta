@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 from Models.Venta import Venta
-from Persistence.repositorys.venta_repository import VentaRepository
+from Repositories.venta_repository import VentaRepository
 
 
 class VentaService:

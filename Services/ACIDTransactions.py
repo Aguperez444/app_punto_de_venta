@@ -2,7 +2,7 @@ from datetime import datetime
 from Models.DetalleVenta import DetalleVenta
 from Models.Producto import Producto
 from Models.Venta import Venta
-from Persistence.db_session import SessionLocal
+from Database.db_session import SessionLocal
 from custom_errors import DomainValidationError
 
 

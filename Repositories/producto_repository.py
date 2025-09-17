@@ -1,4 +1,4 @@
-from Persistence.db_session import SessionLocal
+from Database.db_session import SessionLocal
 from Models.Producto import Producto
 
 class ProductoRepository:
@@ -46,6 +46,21 @@ class ProductoRepository:
                 (Producto.codigo.ilike(f'%{buscado}%')) |
                 (Producto.codigo_de_barras.ilike(f'%{buscado}%'))
             ).all()
+
+        return encontrado
+
+    @staticmethod
+    def get_filtered_alphabetically(search_criteria: str) -> list[Producto] | None:
+        if search_criteria == '':
+            return None
+
+        with SessionLocal() as session:
+            encontrado = session.query(Producto).filter(
+                (Producto.producto.ilike(f'%{search_criteria}%')) |
+                (Producto.detalle.ilike(f'%{search_criteria}%')) |
+                (Producto.codigo.ilike(f'%{search_criteria}%')) |
+                (Producto.codigo_de_barras.ilike(f'%{search_criteria}%'))
+            ).order_by(Producto.producto).all()
 
         return encontrado
 
@@ -104,18 +119,14 @@ class ProductoRepository:
 
             for producto in productos:
 
-                #OLD CODE
-                #current_price_str = producto.precio.replace(',', '.').replace('$', '') # Normalize price string to convert to float
-                #current_price = round(float(current_price_str), 2) # Convert to float and round to 2 decimal places
-
-                new_price = round((producto.precio * percent_multiplier), 2) # Calculate new price
+                new_price = round((float(producto.precio) * percent_multiplier), 2) # Calculate new price
                 producto.precio = new_price
 
             session.commit()
 
 
     @staticmethod
-    def update_selected_product_prices(ids_list: list, percent_multiplier: float=1):
+    def update_selected_product_prices(ids_list: list, percent_multiplier: float=1) -> None:
 
         with SessionLocal() as session:
             productos = session.query(Producto).filter(Producto.id.in_(ids_list)).all()
@@ -173,3 +184,4 @@ class ProductoRepository:
     def get_all_products_alphabetically():
         with SessionLocal() as session:
             return session.query(Producto).order_by(Producto.producto).all()
+

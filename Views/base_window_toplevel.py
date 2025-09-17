@@ -4,7 +4,7 @@ from Controllers.common_window_innit_controller import CommonWindowInitControlle
 from PIL import Image, ImageTk
 
 from Models.Producto import Producto
-from Models.Venta import Venta
+
 
 
 class BaseProjectWindow(ttk.Window):
@@ -315,6 +315,14 @@ class BaseProjectWindowToplevel(ttk.Toplevel):
         self.cuadro.column("col4", width=int(new_width / 10), anchor="center")
 
 
+    def render_view(self):
+        raise NotImplementedError("Subclasses should implement this method.")
+
+
     @staticmethod
     def show_error(msg):
         messagebox.showerror('Ha ocurrido un error', msg)
+
+    @staticmethod
+    def show_message(msg):
+        messagebox.showinfo('Atención', msg)

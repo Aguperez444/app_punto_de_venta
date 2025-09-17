@@ -1,5 +1,5 @@
 from Models.DetalleVenta import DetalleVenta
-from Persistence.repositorys.DetalleRepository import DetalleRepository
+from Repositories.DetalleRepository import DetalleRepository
 
 class DetalleService:
 

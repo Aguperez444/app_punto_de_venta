@@ -48,7 +48,7 @@ APP-MVC-Python-Tkinter-SQLAlchemy/
 │   ├── Venta.py
 │   └── DetalleVenta.py
 │
-├── Persistence/                      # Repositorios y gestión de persistencia
+├── Database/                      # Repositorios y gestión de persistencia
 │   └── db_session.py (y otros repositorios)
 │
 ├── ZOLD/                             # Código legado en proceso de eliminación

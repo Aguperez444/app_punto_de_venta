@@ -3,13 +3,14 @@ from datetime import datetime
 from Models.Venta import Venta
 from Views.base_window_toplevel import BaseProjectWindowToplevel
 
-
-# Beta 0.1.0
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from Controllers.register_sale_controller import RegisterSaleController
 
 
 class VentanaVerVentas(BaseProjectWindowToplevel):
     # ---------------------------------- ventana Principal de la clase ----------------------------------------
-    def __init__(self, parent, controller):
+    def __init__(self, parent, controller: 'RegisterSaleController'):
         super().__init__(parent, needs_cuadro=False)
         parent.withdraw()
         self.controller = controller
