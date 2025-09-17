@@ -1,5 +1,5 @@
-from Models.DetalleVenta import DetalleVenta
-from Repositories.DetalleRepository import DetalleRepository
+from Models.detalle_venta import DetalleVenta
+from Repositories.detalle_repository import DetalleRepository
 
 class DetalleService:
 

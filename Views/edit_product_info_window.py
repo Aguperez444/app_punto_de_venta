@@ -1,6 +1,6 @@
 import ttkbootstrap as ttk
 
-from Views.base_window_toplevel import BaseProjectWindowToplevel
+from Views.base_window_abstract_class import BaseProjectWindowToplevel
 
 from Controllers.individual_edit_info_controller import IndividualEditInfoController
 
@@ -9,7 +9,7 @@ if TYPE_CHECKING:
     from Controllers.edit_product_info_controller import EditProductInfoController
 
 
-class VentanaEditInfo(BaseProjectWindowToplevel):
+class EditProductInfoWindow(BaseProjectWindowToplevel):
 
     def __init__(self, parent, controller: 'EditProductInfoController'):
         super().__init__(parent)

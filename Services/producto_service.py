@@ -1,4 +1,4 @@
-from Models.Producto import Producto
+from Models.producto import Producto
 from Repositories.producto_repository import ProductoRepository
 from custom_errors import DomainValidationError
 

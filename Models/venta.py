@@ -1,4 +1,4 @@
-# Models/Venta.py
+# Models/venta.py
 
 from sqlalchemy import Column, Integer, Numeric, DateTime
 from sqlalchemy.orm import relationship

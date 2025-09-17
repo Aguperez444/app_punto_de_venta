@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from Models.Venta import Venta
+from Models.venta import Venta
 from Repositories.venta_repository import VentaRepository
 
 

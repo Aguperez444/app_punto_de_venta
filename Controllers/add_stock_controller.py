@@ -1,9 +1,9 @@
-from Views.add_stock_window import VentanaStock
-from Services.ProductoService import ProductoService
+from Views.add_stock_window import AddStockWindow
+from Services.producto_service import ProductoService
 
 class AddStockController:
     def __init__(self, invoqued_by_window):
-        self.view = VentanaStock(invoqued_by_window, self)
+        self.view = AddStockWindow(invoqued_by_window, self)
         self.producto_service = ProductoService()
 
         self.view.render_view()

@@ -1,17 +1,17 @@
 import ttkbootstrap as ttk
 
-from Views.base_window_toplevel import BaseProjectWindow
+from Views.base_window_abstract_class import BaseProjectWindow
 
 from Controllers.add_product_controller import AddProductController
-from Controllers.find_product_controller import FindProductController
+from Controllers.show_product_controller import ShowProductController
 from Controllers.add_stock_controller import AddStockController
-from Controllers.view_sales_controller import ViewSalesController
+from Controllers.show_sales_controller import ShowSalesController
 from Controllers.edit_prices_controller import EditPricesController
 from Controllers.edit_product_info_controller import EditProductInfoController
-from Controllers.no_stock_controller import NoStockController
+from Controllers.show_no_stock_controller import ShowNoStockController
 
 
-class MainWindowC(BaseProjectWindow):
+class MainMenuWindow(BaseProjectWindow):
 
     def handle_correct_password(self, mode: int):
         if mode == 0:
@@ -49,7 +49,7 @@ class MainWindowC(BaseProjectWindow):
         # ---------------------------botones ventanas internas-------------------------
 
         self.button_search = ttk.Button(master=self.frame_for_buttons, text='Buscar productos',
-                                        command=lambda: FindProductController(self), width=23, style='my.TButton')
+                                        command=lambda: ShowProductController(self), width=23, style='my.TButton')
 
         self.button_add_product = ttk.Button(master=self.frame_for_buttons, text='Añadir nuevos productos',
                                              command=lambda: AddProductController(self), width=23, style='my.TButton')
@@ -58,7 +58,7 @@ class MainWindowC(BaseProjectWindow):
                                         command=lambda: self.solicit_password(0), width=23, style='my.TButton')
 
         self.button_view_sales = ttk.Button(master=self.frame_for_buttons, text='Listado de ventas',
-                                       command=lambda: ViewSalesController(self), width=23, style='my.TButton')
+                                            command=lambda: ShowSalesController(self), width=23, style='my.TButton')
 
         self.button_add_stock = ttk.Button(master=self.frame_for_buttons, text='Añadir Stock',
                                       command=lambda: AddStockController(self), width=23, style='my.TButton')
@@ -67,7 +67,7 @@ class MainWindowC(BaseProjectWindow):
                                       command=lambda: self.solicit_password(1), width=23, style='my.TButton')
 
         self.button_no_stock = ttk.Button(master=self.frame_for_buttons, text='Productos sin stock',
-                                     command=lambda: NoStockController(self), width=23, style='my.TButton')
+                                          command=lambda: ShowNoStockController(self), width=23, style='my.TButton')
         # ---------------------------label versión-------------------------
         self.version_label = ttk.Label(master=self, text=f'version: {self.version}')
 

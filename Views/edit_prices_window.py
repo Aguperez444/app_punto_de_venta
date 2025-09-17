@@ -3,14 +3,14 @@ import ttkbootstrap as ttk
 from Controllers.individual_edit_price_controller import IndividualEditPriceController
 from Controllers.update_all_prices_controller import UpdateAllPricesController
 
-from Views.base_window_toplevel import BaseProjectWindowToplevel
+from Views.base_window_abstract_class import BaseProjectWindowToplevel
 
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from Controllers.edit_prices_controller import EditPricesController
 
 
-class VentanaPrecios(BaseProjectWindowToplevel):
+class EditPricesWindow(BaseProjectWindowToplevel):
 
     def __init__(self, parent, controller: 'EditPricesController'):
         super().__init__(parent)

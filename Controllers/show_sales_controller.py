@@ -1,11 +1,11 @@
 from datetime import datetime
-from Views.view_sales_window import VentanaVerVentas
-from Services.VentaService import VentaService
+from Views.show_sales_list_window import ShowSalesListWindow
+from Services.venta_service import VentaService
 
 
-class ViewSalesController:
+class ShowSalesController:
     def __init__(self, invoqued_by_window):
-        self.view_pointer = VentanaVerVentas(invoqued_by_window, self)
+        self.view_pointer = ShowSalesListWindow(invoqued_by_window, self)
         self.sales_service_pointer = VentaService()
 
         self.view_pointer.render_view()

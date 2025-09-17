@@ -1,11 +1,11 @@
-from Views.add_products_window import VentanaAddProducts
-from Services.ProductoService import ProductoService
+from Views.add_products_window import AddProductsWindow
+from Services.producto_service import ProductoService
 from custom_errors import DomainValidationError
 
 
 class AddProductController:
     def __init__(self, invoqued_by_window):
-        self.view_pointer = VentanaAddProducts(invoqued_by_window, self)
+        self.view_pointer = AddProductsWindow(invoqued_by_window, self)
         self.view_pointer.render_view()
         self.product_service_pointer = ProductoService()
         #self.view.show()

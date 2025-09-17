@@ -1,5 +1,5 @@
 import ttkbootstrap as ttk
-from Views.base_window_toplevel import BaseProjectWindowToplevel
+from Views.base_window_abstract_class import BaseProjectWindowToplevel
 
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
@@ -9,7 +9,7 @@ if TYPE_CHECKING:
 #TODO PASAR ESTA VENTANA A UNA CLASE APARTE, PARA QUE NO SE MEZCLEN LOS CÓDIGOS DE LAS VENTANAS
 
 
-class VentanaAddProducts(BaseProjectWindowToplevel):
+class AddProductsWindow(BaseProjectWindowToplevel):
 
     # ------------------------------ ventana Principal de la clase (init) -----------------------------------
     def __init__(self, parent, controller: 'AddProductController'):

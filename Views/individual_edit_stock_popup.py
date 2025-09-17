@@ -1,12 +1,12 @@
 import ttkbootstrap as ttk
-from Views.base_window_toplevel import BaseProjectWindowToplevel
+from Views.base_window_abstract_class import BaseProjectWindowToplevel
 
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from Controllers.individual_edit_stock_controller import IndividualEditStockController
 
 
-class VentanaEditIndividual(BaseProjectWindowToplevel):
+class IndividualEditStockPopup(BaseProjectWindowToplevel):
 
     def __init__(self, parent, controller: 'IndividualEditStockController'):
         super().__init__(parent)

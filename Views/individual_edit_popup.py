@@ -1,7 +1,7 @@
 import ttkbootstrap as ttk
 import project_functions
 from tkinter import messagebox
-from Views.base_window_toplevel import BaseProjectWindowToplevel
+from Views.base_window_abstract_class import BaseProjectWindowToplevel
 
 #TODO ESTA VENTANA SIGUE EN LA VERSION VIEJA
 

@@ -1,16 +1,16 @@
 import ttkbootstrap as ttk
 from datetime import datetime
-from Models.Venta import Venta
-from Views.base_window_toplevel import BaseProjectWindowToplevel
+from Models.venta import Venta
+from Views.base_window_abstract_class import BaseProjectWindowToplevel
 
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
-    from Controllers.view_sales_controller import ViewSalesController
+    from Controllers.show_sales_controller import ShowSalesController
 
 
-class VentanaVerVentas(BaseProjectWindowToplevel):
+class ShowSalesListWindow(BaseProjectWindowToplevel):
     # ---------------------------------- ventana Principal de la clase ----------------------------------------
-    def __init__(self, parent, controller: 'ViewSalesController'):
+    def __init__(self, parent, controller: 'ShowSalesController'):
         super().__init__(parent, needs_cuadro=False)
         parent.withdraw()
         self.controller = controller

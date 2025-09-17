@@ -1,7 +1,7 @@
-from Views.no_stock_list_window import VentanaNoStock
-from Services.ProductoService import ProductoService
+from Views.show_no_stock_list_window import VentanaNoStock
+from Services.producto_service import ProductoService
 
-class NoStockController:
+class ShowNoStockController:
     def __init__(self, invoqued_by_window):
 
         self.product_service = ProductoService()

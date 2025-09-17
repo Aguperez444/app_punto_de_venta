@@ -1,9 +1,9 @@
-from Models.DetalleVenta import DetalleVenta
-from Services.VentaService import VentaService
-from Views.sale_register_window import VentanaVenta
-from Services.ProductoService import ProductoService
-from Services.DetalleService import DetalleService
-from Services.ACIDTransactions import AcidTransaction
+from Models.detalle_venta import DetalleVenta
+from Services.venta_service import VentaService
+from Views.sale_register_window import SalesRegisterWindow
+from Services.producto_service import ProductoService
+from Services.detalle_service import DetalleService
+from Services.ACID_transactions import AcidTransaction
 from datetime import datetime
 from custom_errors import DomainValidationError
 
@@ -20,7 +20,7 @@ class RegisterSaleController:
 
         print('\n\nproduct_data:', product_data, '\n\n')
 
-        self.view_pointer = VentanaVenta(invoqued_by_window, self, product_data)
+        self.view_pointer = SalesRegisterWindow(invoqued_by_window, self, product_data)
 
         self.view_pointer.render_view()
 
