@@ -20,7 +20,7 @@ class VentanaEditInfo(BaseProjectWindowToplevel):
         self.parent.withdraw()
         self.title(f'{self.parent.title()} - Editar info productos')
         self.protocol("WM_DELETE_WINDOW", lambda: self.parent.destroy())
-        self.attributes('-zoomed', True)
+        self.maximizar()
 
         # -----------------------------------------------frames---------------------------------------------------
 

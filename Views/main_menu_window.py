@@ -32,8 +32,7 @@ class MainWindowC(BaseProjectWindow):
         self.password = '777fer'
         # -----------------------------------------ventana_menu-------------------------------------------------
         self.title(f'Catalogo-{self.version}')
-        #self.state('zoomed') funcionaba en windows no en linux
-        self.attributes('-zoomed', True)
+        self.maximizar()
 
         # -----------------------------------------bootstrap widgets----------------------------------------------
         # ---------------------------- estilos ---------------------------

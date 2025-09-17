@@ -5,20 +5,19 @@ from Views.base_window_toplevel import BaseProjectWindowToplevel
 
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
-    from Controllers.register_sale_controller import RegisterSaleController
+    from Controllers.view_sales_controller import ViewSalesController
 
 
 class VentanaVerVentas(BaseProjectWindowToplevel):
     # ---------------------------------- ventana Principal de la clase ----------------------------------------
-    def __init__(self, parent, controller: 'RegisterSaleController'):
+    def __init__(self, parent, controller: 'ViewSalesController'):
         super().__init__(parent, needs_cuadro=False)
         parent.withdraw()
         self.controller = controller
         # ----------------------------------------- ventana ---------------------------------------------
         self.title(f'{parent.title()} - Listado de ventas')
         self.protocol("WM_DELETE_WINDOW", lambda: self.parent.destroy())
-        #self.state('zoomed') funciona en windows no en linux
-        self.attributes('-zoomed', True)
+        self.maximizar()
         self.resolution = self.get_screen_resolution()
         self.resolution_str = f'{self.resolution[0]}x{self.resolution[1]}'
         # -----------------------------------------------frames---------------------------------------------------
@@ -124,8 +123,8 @@ class VentanaVerVentas(BaseProjectWindowToplevel):
     def realizar_busqueda_sale(self, _varname=None, _index=None, _mode=None):
 
         fecha_del_dia = self.fecha_var.get()
-        fecha_obj = datetime.strptime(fecha_del_dia, "%d/%m/%y").date()  # convertir string a date object
-
+        fecha_obj = datetime.strptime(fecha_del_dia, "%d/%m/%y")  # convertir string a datetime object
+        #TODO CHEQUEAR EL TEMA DE LA FECHA EN date o datetime
         if self.mode.get() == 1: # modo ventas del día
             self.controller.get_ventas_del_dia(fecha_obj)
         else: # modo ventas del mes

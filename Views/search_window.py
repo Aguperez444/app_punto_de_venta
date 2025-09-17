@@ -20,9 +20,7 @@ class VentanaBuscar(BaseProjectWindowToplevel):
         parent.withdraw()
         self.title(f'{parent.title()} - Busqueda de productos')
         self.protocol("WM_DELETE_WINDOW", lambda: self.parent.destroy())
-        #self.state('zoomed') funcionaba en windows no en linux
-        self.attributes('-zoomed', True)
-
+        self.maximizar()
         # -----------------------------------------------frames---------------------------------------------------
 
         # Esta clase no implementa frames propios

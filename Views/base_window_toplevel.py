@@ -2,6 +2,7 @@ import ttkbootstrap as ttk
 from tkinter import simpledialog, messagebox, PhotoImage
 from Controllers.common_window_innit_controller import CommonWindowInitController
 from PIL import Image, ImageTk
+from tkinter import TclError
 
 from Models.Producto import Producto
 
@@ -87,6 +88,13 @@ class BaseProjectWindow(ttk.Window):
     @staticmethod
     def show_error(msg):
         messagebox.showerror('Ha ocurrido un error', msg)
+
+
+    def maximizar(self):
+        try:
+            self.attributes('-zoomed', True)
+        except TclError:
+            self.state('zoomed')
 
 
 class BaseProjectWindowToplevel(ttk.Toplevel):
@@ -198,7 +206,6 @@ class BaseProjectWindowToplevel(ttk.Toplevel):
             style_scroll.configure("Vertical.TScrollbar", troughcolor="white")
 
 
-
     def toggle_busqueda_alfabetica(self):
 
         ordenado_alfabetico = True if int(self.alfabetico_checked.get()) == 1 else False
@@ -271,8 +278,7 @@ class BaseProjectWindowToplevel(ttk.Toplevel):
 
     def volver_al_menu(self):
         self.destroy()
-        # ventana_principal.state('zoomed') funciona en windows, no en linux
-        self.parent.attributes('-zoomed', True)
+        self.parent.maximizar()
         self.parent.deiconify()
 
 
@@ -319,9 +325,17 @@ class BaseProjectWindowToplevel(ttk.Toplevel):
         raise NotImplementedError("Subclasses should implement this method.")
 
 
+    def maximizar(self):
+        try:
+            self.attributes('-zoomed', True)
+        except TclError:
+            self.state('zoomed')
+
+
     @staticmethod
     def show_error(msg):
         messagebox.showerror('Ha ocurrido un error', msg)
+
 
     @staticmethod
     def show_message(msg):
