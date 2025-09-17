@@ -20,9 +20,7 @@ class VentanaPrecios(BaseProjectWindowToplevel):
         self.parent.withdraw() # esconder la ventana padre
         self.title(f'{self.parent.title()} - Editar precios')
         self.protocol("WM_DELETE_WINDOW", lambda: self.parent.destroy()) # se encarga de cerrar la ventana padre al cerrarse esta
-        #self.state('zoomed')
-        #self.iconbitmap(parent.icon_path)
-        self.attributes('-zoomed', True)  # funciona en linux y windows
+        self.maximizar()
 
         # -----------------------------------------------frames---------------------------------------------------
         self.increment_frame = ttk.Frame(master=self)

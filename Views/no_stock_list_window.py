@@ -12,8 +12,7 @@ class VentanaNoStock(BaseProjectWindowToplevel):
         self.title(f'{self.parent.title()} - Añadir stock')
         self.protocol("WM_DELETE_WINDOW", lambda: self.parent.destroy())
 
-        #self.state('zoomed') funciona en windows no en linux
-        self.attributes('-zoomed', True)
+        self.maximizar()
 
         # -----------------------------------------------frames---------------------------------------------------
 

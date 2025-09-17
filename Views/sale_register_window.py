@@ -40,8 +40,6 @@ class VentanaVenta(BaseProjectWindowToplevel):
         self.entry_cantidad_vendida = ttk.Entry(master=self.entry_frame, textvariable=self.cantidad_vendida, width=3)
 
         # -----------------------------Buttons------------------------------
-        #self.confirm_button = ttk.Button(master=self, text='Confirmar venta', style='success',
-        #                            command=lambda: self.venta_confirm(product_id, self.cantidad_vendida.get())) #TODO CHECK THIS
 
         self.confirm_button = ttk.Button(master=self, text='Confirmar venta', style='success',
                                     command=self.venta_confirm) #TODO CHECK THIS

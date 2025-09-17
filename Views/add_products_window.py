@@ -23,8 +23,7 @@ class VentanaAddProducts(BaseProjectWindowToplevel):
         self.title(f'{self.parent.title()} - Busqueda de productos')
         self.protocol("WM_DELETE_WINDOW", lambda: self.parent.destroy())
 
-        #self.state('zoomed') funciona en windows no en linux
-        self.attributes('-zoomed', True)
+        self.maximizar()
 
 
         # -----------------------------------------ttk_variables-----------------------------------------
