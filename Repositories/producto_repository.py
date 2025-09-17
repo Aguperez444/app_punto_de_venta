@@ -1,5 +1,5 @@
 from Database.db_session import SessionLocal
-from Models.Producto import Producto
+from Models.producto import Producto
 
 class ProductoRepository:
 

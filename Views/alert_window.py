@@ -1,5 +1,5 @@
 import ttkbootstrap as ttk
-from Views.base_window_toplevel import BaseProjectWindowToplevel, BaseProjectWindow
+from Views.base_window_abstract_class import BaseProjectWindowToplevel, BaseProjectWindow
 
 
 class AlertWindow(ttk.Toplevel):

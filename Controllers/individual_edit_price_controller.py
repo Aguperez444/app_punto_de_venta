@@ -1,11 +1,11 @@
-from Views.individual_edit_price_popup import IndividualEditPricesPopup
-from Services.ProductoService import ProductoService
+from Views.individual_edit_price_popup import IndividualEditPricePopup
+from Services.producto_service import ProductoService
 
 
 class IndividualEditPriceController:
 
     def __init__(self, invoqued_by_window, mod_ids_in: list[int]):
-        self.view = IndividualEditPricesPopup(invoqued_by_window, self)
+        self.view = IndividualEditPricePopup(invoqued_by_window, self)
         self.mainwindow = invoqued_by_window
         self.producto_service = ProductoService() #TODO CHECK THIS
         self.mod_ids_in = mod_ids_in

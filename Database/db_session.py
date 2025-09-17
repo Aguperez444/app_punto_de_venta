@@ -1,7 +1,7 @@
 # /persistence/db_session.py
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
-from Database.config_files_persistance import ConfigFilesPersistence
+from Config.config_files_persistance import ConfigFilesPersistence
 
 config = ConfigFilesPersistence()
 

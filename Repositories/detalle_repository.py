@@ -1,5 +1,5 @@
 from Database.db_session import SessionLocal
-from Models.DetalleVenta import DetalleVenta
+from Models.detalle_venta import DetalleVenta
 
 class DetalleRepository:
     @staticmethod

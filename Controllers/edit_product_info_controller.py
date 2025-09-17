@@ -1,10 +1,10 @@
-from Views.edit_product_info_window import VentanaEditInfo
-from Services.ProductoService import ProductoService
+from Views.edit_product_info_window import EditProductInfoWindow
+from Services.producto_service import ProductoService
 
 class EditProductInfoController:
     def __init__(self, invoqued_by_window):
         self.product_service = ProductoService()
-        self.view = VentanaEditInfo(invoqued_by_window, self)
+        self.view = EditProductInfoWindow(invoqued_by_window, self)
 
         self.view.render_view()
 

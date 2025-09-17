@@ -1,14 +1,14 @@
 import ttkbootstrap as ttk
-from Views.base_window_toplevel import BaseProjectWindowToplevel
+from Views.base_window_abstract_class import BaseProjectWindowToplevel
 from Controllers.individual_edit_stock_controller import IndividualEditStockController
 
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
-    from Controllers.no_stock_controller import NoStockController
+    from Controllers.show_no_stock_controller import ShowNoStockController
 
 class VentanaNoStock(BaseProjectWindowToplevel):
 
-    def __init__(self, parent, controller: 'NoStockController'):
+    def __init__(self, parent, controller: 'ShowNoStockController'):
         super().__init__(parent)
 
         self.controller = controller

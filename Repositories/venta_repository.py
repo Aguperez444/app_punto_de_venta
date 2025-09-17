@@ -3,7 +3,7 @@ from datetime import datetime
 from sqlalchemy import and_
 
 from Database.db_session import SessionLocal
-from Models.Venta import Venta
+from Models.venta import Venta
 
 class VentaRepository:
     @staticmethod

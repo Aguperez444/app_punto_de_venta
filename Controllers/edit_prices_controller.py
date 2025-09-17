@@ -1,11 +1,11 @@
-from Views.edit_prices_window import VentanaPrecios
-from Services.ProductoService import ProductoService
+from Views.edit_prices_window import EditPricesWindow
+from Services.producto_service import ProductoService
 
 class EditPricesController:
     def __init__(self, invoqued_by_window):
         self.product_service = ProductoService()
 
-        self.view = VentanaPrecios(invoqued_by_window, self)
+        self.view = EditPricesWindow(invoqued_by_window, self)
         self.view.render_view()
 
 

@@ -1,12 +1,12 @@
 import ttkbootstrap as ttk
-from Views.base_window_toplevel import BaseProjectWindowToplevel
+from Views.base_window_abstract_class import BaseProjectWindowToplevel
 
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from Controllers.update_all_prices_controller import UpdateAllPricesController
 
 
-class VentanaIndividualEditPrice(BaseProjectWindowToplevel):
+class UpdateAllPricesPopup(BaseProjectWindowToplevel):
 
     def __init__(self, parent_window, controller: 'UpdateAllPricesController'):
         super().__init__(parent_window, needs_cuadro=False)
@@ -43,7 +43,6 @@ class VentanaIndividualEditPrice(BaseProjectWindowToplevel):
 
     def cancelar(self):
         self.controller.cancelar_cambios()
-
 
 
     def render_view(self):

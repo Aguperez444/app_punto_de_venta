@@ -1,5 +1,5 @@
 import ttkbootstrap as ttk
-from Views.base_window_toplevel import BaseProjectWindowToplevel
+from Views.base_window_abstract_class import BaseProjectWindowToplevel
 from Controllers.individual_edit_stock_controller import IndividualEditStockController
 
 from typing import TYPE_CHECKING
@@ -7,7 +7,7 @@ if TYPE_CHECKING:
     from Controllers.add_stock_controller import AddStockController
 
 
-class VentanaStock(BaseProjectWindowToplevel):
+class AddStockWindow(BaseProjectWindowToplevel):
 
 
     def __init__(self, parent, controller: 'AddStockController'):

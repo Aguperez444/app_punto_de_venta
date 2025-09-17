@@ -1,10 +1,10 @@
-from Services.ProductoService import ProductoService
-from Views.search_window import VentanaBuscar
+from Services.producto_service import ProductoService
+from Views.show_products_window import ShowProductsWindow
 from Controllers.register_sale_controller import RegisterSaleController
 
-class FindProductController:
+class ShowProductController:
     def __init__(self, invoqued_by_window):
-        self.view_pointer = VentanaBuscar(invoqued_by_window, self)
+        self.view_pointer = ShowProductsWindow(invoqued_by_window, self)
         self.product_service = ProductoService()
         self.venta_controller = None
 

@@ -1,5 +1,5 @@
-from Views.individual_edit_info_popup import IndividualEditPopup
-from Services.ProductoService import ProductoService
+from Views.individual_edit_info_popup import IndividualEditInfoPopup
+from Services.producto_service import ProductoService
 
 
 class IndividualEditInfoController:
@@ -7,7 +7,7 @@ class IndividualEditInfoController:
         self.product_service = ProductoService()
         self.main_window = invoqued_by_window
         self.mod_ids_in = mod_ids_in
-        self.view = IndividualEditPopup(invoqued_by_window, self)
+        self.view = IndividualEditInfoPopup(invoqued_by_window, self)
 
         self.view.render_view()
 

@@ -1,9 +1,9 @@
-from Services.ProductoService import ProductoService
-from Views.update_all_prices_popup import VentanaIndividualEditPrice
+from Services.producto_service import ProductoService
+from Views.update_all_prices_popup import UpdateAllPricesPopup
 
 class UpdateAllPricesController:
     def __init__(self, invoqued_by_window):
-        self.view = VentanaIndividualEditPrice(invoqued_by_window, self)
+        self.view = UpdateAllPricesPopup(invoqued_by_window, self)
         self.main_window = invoqued_by_window
         self.producto_service = ProductoService()
 

@@ -1,7 +1,7 @@
 from datetime import datetime
-from Models.DetalleVenta import DetalleVenta
-from Models.Producto import Producto
-from Models.Venta import Venta
+from Models.detalle_venta import DetalleVenta
+from Models.producto import Producto
+from Models.venta import Venta
 from Database.db_session import SessionLocal
 from custom_errors import DomainValidationError
 
