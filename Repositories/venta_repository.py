@@ -2,7 +2,7 @@ from datetime import datetime
 
 from sqlalchemy import and_
 
-from Persistence.db_session import SessionLocal
+from Database.db_session import SessionLocal
 from Models.Venta import Venta
 
 class VentaRepository:

@@ -19,6 +19,7 @@ class AddStockController:
         self.view.pasar_al_cuadro(products)
 
 
-    def search_products(self, search_term):
+    def get_filtered_products(self, search_term):
         products = self.producto_service.get_products_by_str_filter(search_term)
         self.view.pasar_al_cuadro(products)
+

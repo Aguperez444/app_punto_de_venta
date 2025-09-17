@@ -1,5 +1,5 @@
 from Views.find_bdd_window import FindBddWindow
-from Persistence.config_files_persistance import ConfigFilesPersistence
+from Database.config_files_persistance import ConfigFilesPersistence
 
 class ProgramStartController:
     def __init__(self):

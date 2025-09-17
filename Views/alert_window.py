@@ -1,6 +1,7 @@
 import ttkbootstrap as ttk
 from Views.base_window_toplevel import BaseProjectWindowToplevel, BaseProjectWindow
 
+
 class AlertWindow(ttk.Toplevel):
 
     def __init__(self, parent_window: BaseProjectWindowToplevel | BaseProjectWindow, success: bool, error_msg: str='Error Desconocido'):

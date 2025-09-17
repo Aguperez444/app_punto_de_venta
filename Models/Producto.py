@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, String, Float
-from Persistence.db_session import Base
+from Database.db_session import Base
 
 
 class Producto(Base):

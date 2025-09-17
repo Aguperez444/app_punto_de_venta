@@ -1,4 +1,4 @@
-from Persistence.config_files_persistance import ConfigFilesPersistence
+from Database.config_files_persistance import ConfigFilesPersistence
 from screeninfo import get_monitors
 
 class CommonWindowInitController:

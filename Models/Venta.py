@@ -3,7 +3,7 @@
 from sqlalchemy import Column, Integer, Numeric, DateTime
 from sqlalchemy.orm import relationship
 
-from Persistence.db_session import Base
+from Database.db_session import Base
 
 class Venta(Base):
     __tablename__ = 'Ventas'

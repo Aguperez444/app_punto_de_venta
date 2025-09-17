@@ -1,13 +1,17 @@
 import ttkbootstrap as ttk
 from Views.base_window_toplevel import BaseProjectWindowToplevel
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from Controllers.find_product_controller import FindProductController
 
 # Beta 0.1.1
 
 
 class VentanaBuscar(BaseProjectWindowToplevel):
 
-    def __init__(self, parent, controller):
+    def __init__(self, parent, controller: 'FindProductController'):
         super().__init__(parent)
         self.controller = controller
 

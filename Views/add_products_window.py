@@ -2,6 +2,10 @@ import ttkbootstrap as ttk
 from Views.base_window_toplevel import BaseProjectWindowToplevel
 #from Views.alert_window import AlertWindow
 
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from Controllers.add_product_controller import AddProductController
+
 
 # alpha 0.0.9
 
@@ -68,7 +72,7 @@ def abrir_ventana_alerta(parent_window, success, error_msg='Error Desconocido'):
 class VentanaAddProducts(BaseProjectWindowToplevel):
 
     # ------------------------------ ventana Principal de la clase (init) -----------------------------------
-    def __init__(self, parent, controller):
+    def __init__(self, parent, controller: 'AddProductController'):
         self.alert_window = None
         self.add_product_controller = controller
         super().__init__(parent, needs_cuadro=False)
