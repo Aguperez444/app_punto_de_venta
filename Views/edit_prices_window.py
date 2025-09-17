@@ -97,7 +97,6 @@ class VentanaPrecios(BaseProjectWindowToplevel):
 
 
     def realizar_busqueda(self, _varname=None, _index=None, _mode=None):
-
         filtro_busqueda = self.str_buscado.get()
 
         if filtro_busqueda == '':

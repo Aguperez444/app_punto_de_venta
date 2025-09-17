@@ -1,72 +1,12 @@
 import ttkbootstrap as ttk
 from Views.base_window_toplevel import BaseProjectWindowToplevel
-#from Views.alert_window import AlertWindow
 
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from Controllers.add_product_controller import AddProductController
 
 
-# alpha 0.0.9
-
 #TODO PASAR ESTA VENTANA A UNA CLASE APARTE, PARA QUE NO SE MEZCLEN LOS CÓDIGOS DE LAS VENTANAS
-
-def abrir_ventana_alerta(parent_window, success, error_msg='Error Desconocido'):
-    def aceptar():
-        alert_window.destroy()
-        parent_window.focus_set()
-        parent_window.actual_focus = 0
-        parent_window.entrys[0].focus_set()
-        parent_window.grab_set()
-        return
-
-    ancho = int(parent_window.winfo_width() / 4)
-    alto = int(parent_window.winfo_height() / 6)
-    x = (parent_window.winfo_screenwidth() - ancho) // 2
-    y = (parent_window.winfo_screenheight() - alto) // 2
-
-    # ventana
-
-    alert_window = ttk.Toplevel(parent_window)
-    alert_window.title('alerta - Error')
-    if success:
-        alert_window.title('alerta - Producto agregado exitosamente')
-    alert_window.geometry(f'{ancho}x{alto}+{x}+{y}')
-    alert_window.focus_set()
-    alert_window.grab_set()
-    # alert_window.iconbitmap(parent_window.parent.icon_path)
-    # self.iconbitmap(parent.icon_path) funciona en windows no en linux
-    alert_window.wm_iconphoto(False, parent_window.parent.icon)
-
-    # label
-
-    label_alerta = ttk.Label(master=alert_window, text='Algo malio sal :(')
-    if success:
-        label_alerta = ttk.Label(master=alert_window, text='producto agregado exitosamente')
-    label_alerta.configure(font='Arial 20 bold')
-
-    msg = ttk.StringVar()
-    msg.set(error_msg)
-    label_msg = ttk.Label(master=alert_window, textvariable=msg, font='Arial 12 bold', wraplength=250)
-
-
-    # confirm_button
-
-    button_confirm = ttk.Button(master=alert_window, text='Aceptar', style='success')
-    button_confirm.configure(width=15, command=aceptar)
-
-    # widget placing
-
-    label_alerta.pack()
-    button_confirm.place(relx=0.5, rely=0.8, anchor='center', width=100, height=40)
-    if not success:
-        label_msg.pack()
-
-
-    # mainloop
-
-    alert_window.mainloop()
-
 
 
 class VentanaAddProducts(BaseProjectWindowToplevel):
@@ -147,17 +87,17 @@ class VentanaAddProducts(BaseProjectWindowToplevel):
 
     # ----------------------------------------- Métodos de esta clase ---------------------------------------------
     def render_view(self):
-        # ----------------------------------------- Colocación de widgets ---------------------------------------------
-            self.button_theme.place(relx=0.990, rely=0.017, height=35, anchor='ne')
-            self.menu_button.place(x=15, rely=0.017, anchor='nw', height=35)
-            self.label_msg.grid(row=0, column=1, pady=6)
-            for i in range(len(self.labels)):
-                self.labels[i].grid(row=i + 1, column=0)
-            for i in range(len(self.entrys)):
-                self.entrys[i].grid(row=i + 1, column=1, pady=6)
-            self.button_add.grid(row=3, column=2, padx=20)
-            self.button_new.grid(row=4, column=2, padx=20)
-            self.input_frame.place(relx=0.5, rely=0.5, anchor='center')
+        # ----------------------------------------- Colocación de widgets -----------------------------------------
+        self.button_theme.place(relx=0.990, rely=0.017, height=35, anchor='ne')
+        self.menu_button.place(x=15, rely=0.017, anchor='nw', height=35)
+        self.label_msg.grid(row=0, column=1, pady=6)
+        for i in range(len(self.labels)):
+            self.labels[i].grid(row=i + 1, column=0)
+        for i in range(len(self.entrys)):
+            self.entrys[i].grid(row=i + 1, column=1, pady=6)
+        self.button_add.grid(row=3, column=2, padx=20)
+        self.button_new.grid(row=4, column=2, padx=20)
+        self.input_frame.place(relx=0.5, rely=0.5, anchor='center')
 
 
     def find_focus(self, _event):
@@ -206,6 +146,7 @@ class VentanaAddProducts(BaseProjectWindowToplevel):
 
         return dict_datos
 
+
     #TODO CHECK THIS
     def cerrar_ventana_alerta(self):
         self.alert_window.destroy()
@@ -218,9 +159,11 @@ class VentanaAddProducts(BaseProjectWindowToplevel):
 
     def product_data_acquired(self):
         datos_producto = self.get_input_data()
-        if any(not str(x).strip() for x in datos_producto):
-            abrir_ventana_alerta(self, success=False, error_msg='Completá todos los campos')
-            return
+
+        for key, value in datos_producto.items():
+            if str(value) == '' or str(value).isspace(): # TODO CHECK THIS LATER
+                self.show_error("Completá todos los campos")
+                return
         self.add_product_controller.add_product(datos_producto)
 
 
@@ -235,7 +178,7 @@ class VentanaAddProducts(BaseProjectWindowToplevel):
         self.entrys[0].focus_set()
 
     def show_success_message(self):
-        abrir_ventana_alerta(self, success=True)
+        self.show_message('Producto agregado con éxito', )
 
     def show_error_message(self, msg):
-        abrir_ventana_alerta(self, success=False, error_msg=msg)
+        self.show_error(msg)
