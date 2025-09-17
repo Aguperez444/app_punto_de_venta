@@ -89,6 +89,12 @@ class ProductoService:
         return self.repo.get_filtered_no_stock(buscado)
 
 
+    def get_products_by_str_filter_no_stock_alphabetically(self, buscado: str) -> list[Producto] | list:
+        if not buscado:
+            return []
+        return self.repo.get_filtered_no_stock_alphabetically(buscado)
+
+
     def get_products_by_id_list(self, ids_buscadas: list) -> list[Producto] | list:
         if not ids_buscadas:
             return []

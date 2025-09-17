@@ -1,7 +1,7 @@
 from Views.individual_edit_stock_popup import VentanaEditIndividual
 from Services.ProductoService import ProductoService
 
-class EditIndividualStockController:
+class IndividualEditStockController:
     def __init__(self, invoqued_by_window, products_ids):
         self.view = VentanaEditIndividual(invoqued_by_window, self)
         self.producto_service = ProductoService()

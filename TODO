@@ -2,3 +2,4 @@
 -Añadir mensaje indicando que la venta fue registrada correctamente
 -Añadir funcionalidad para ver el detalle de una venta en el listado
 -Cambiar el mensaje que se muestra al registrar una nueva venta
+-Añadir funcionalidad para elegir un precio personalizado en la view de actualizar precios

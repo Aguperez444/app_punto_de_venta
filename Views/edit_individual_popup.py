@@ -3,33 +3,9 @@ import project_functions
 from tkinter import messagebox
 from Views.base_window_toplevel import BaseProjectWindowToplevel
 
-
-# Beta 0.1.0
+#TODO ESTA VENTANA SIGUE EN LA VERSION VIEJA
 
 class EditIndividual(BaseProjectWindowToplevel):
-
-    def aceptar(self):
-        try:
-            project_functions.update_price_to_new(self.parent.mod_ids, self.precio_var.get()) #TODO CHECK THIS
-            self.destroy()
-            self.parent.realizar_busqueda()
-        except SyntaxError:
-            messagebox.showinfo('Error con el precio', 'El precio solo puede '
-                                                       'ser un numero entero positivo')
-
-    def cancelar(self):
-        self.destroy()
-        self.parent.realizar_busqueda()
-
-    def actualizar_valor(self, _varname=None, _index=None, _mode=None):
-        self.button_increment.config(
-            text=f"Incrementar un %{self.porcentaje_var.get()} a el/los productos seleccionados")
-
-    def actualizar_percent(self):
-        project_functions.update_selected(self.parent.mod_ids, self.porcentaje_var.get()) #TODO CHECK THIS
-        self.destroy()
-        self.parent.realizar_busqueda()
-
 
     def __init__(self, parent):
         super().__init__(parent)
@@ -45,7 +21,7 @@ class EditIndividual(BaseProjectWindowToplevel):
         self.porcentaje_var = ttk.StringVar(value='10')
         self.precio_var = ttk.StringVar(value='$')
 
-        productos = project_functions.busqueda_multiples_ids(parent.mod_ids) #TODO CHECK THIS
+        productos = project_functions.busqueda_multiples_ids(parent.mod_ids)  # TODO CHECK THIS
 
         self.input_frame = ttk.Frame(master=self)
         self.increment_frame = ttk.Frame(master=self)
@@ -55,21 +31,23 @@ class EditIndividual(BaseProjectWindowToplevel):
 
         self.label_input = ttk.Label(master=self.input_frame, text='Ingrese el nuevo precio:', font='Arial 12 bold')
         self.label_alerta = ttk.Label(master=self, text='Aumentar precio manualmente',
-                                 font='Arial 20 bold', wraplength=550)
+                                      font='Arial 20 bold', wraplength=550)
         self.sub_label_alerta = ttk.Label(master=self, text='Esto solo va a afectar a los productos seleccionados',
-                                     font='arial 15 italic')
+                                          font='arial 15 italic')
         self.sub_label_2 = ttk.Label(master=self, text='Productos seleccionados para el cambio:',
-                                font='arial 15 italic')
+                                     font='arial 15 italic')
         self.button_confirm = ttk.Button(master=self.buttons_frame, text='Actualizar precio', style='success')
         self.button_confirm.configure(width=15, command=self.aceptar)
         self.button_cancel = ttk.Button(master=self.buttons_frame, text='Cancelar', style='danger')
         self.button_cancel.configure(width=15, command=self.aceptar)
-        self.button_increment = ttk.Button(master=self.increment_frame, text=f'Incrementar un %{self.porcentaje_var.get()} a'
-                                                                        f' el/los productos seleccionados',
+        self.button_increment = ttk.Button(master=self.increment_frame,
+                                           text=f'Incrementar un %{self.porcentaje_var.get()} a'
+                                                f' el/los productos seleccionados',
                                            style='warning', command=self.actualizar_percent)
 
-        self.porcentajes = ['0,5','1', '1,5', '2', '3', '5', '7', '10', '15', '20', '25', '50', '75', '100', '-50']
-        self.porcentaje_combobox = ttk.Combobox(master=self.increment_frame, textvariable=self.porcentaje_var, values=self.porcentajes)
+        self.porcentajes = ['0,5', '1', '1,5', '2', '3', '5', '7', '10', '15', '20', '25', '50', '75', '100', '-50']
+        self.porcentaje_combobox = ttk.Combobox(master=self.increment_frame, textvariable=self.porcentaje_var,
+                                                values=self.porcentajes)
         self.porcentaje_combobox.configure(width=3, state='readonly')
         self.porcentaje_combobox.set(self.porcentajes[1])
 
@@ -102,3 +80,27 @@ class EditIndividual(BaseProjectWindowToplevel):
         self.sub_label_2.pack()
         self.cuadro.pack_configure(fill='both', expand=True)
         self.frame_cuadro.place(relx=0.5, rely=0.75, relwidth=0.8, relheight=0.4, anchor='center')
+
+    def aceptar(self):
+        try:
+            project_functions.update_price_to_new(self.parent.mod_ids, self.precio_var.get()) #TODO CHECK THIS
+            self.destroy()
+            self.parent.realizar_busqueda()
+        except SyntaxError:
+            messagebox.showinfo('Error con el precio', 'El precio solo puede '
+                                                       'ser un numero entero positivo')
+
+    def cancelar(self):
+        self.destroy()
+        self.parent.realizar_busqueda()
+
+    def actualizar_valor(self, _varname=None, _index=None, _mode=None):
+        self.button_increment.config(
+            text=f"Incrementar un %{self.porcentaje_var.get()} a el/los productos seleccionados")
+
+    def actualizar_percent(self):
+        project_functions.update_selected(self.parent.mod_ids, self.porcentaje_var.get()) #TODO CHECK THIS
+        self.destroy()
+        self.parent.realizar_busqueda()
+
+

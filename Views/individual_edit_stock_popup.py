@@ -3,12 +3,12 @@ from Views.base_window_toplevel import BaseProjectWindowToplevel
 
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
-    from Controllers.individual_edit_stock_controller import EditIndividualStockController
+    from Controllers.individual_edit_stock_controller import IndividualEditStockController
 
 
 class VentanaEditIndividual(BaseProjectWindowToplevel):
 
-    def __init__(self, parent, controller: 'EditIndividualStockController'):
+    def __init__(self, parent, controller: 'IndividualEditStockController'):
         super().__init__(parent)
         self.controller = controller
         self.title('Actualizar Stock de productos seleccionados')
