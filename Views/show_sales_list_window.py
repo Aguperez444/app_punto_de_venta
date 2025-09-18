@@ -1,10 +1,10 @@
 import ttkbootstrap as ttk
 from datetime import datetime
-from Models.venta import Venta
 from Views.base_window_abstract_class import BaseProjectWindowToplevel
 
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
+    from Models.venta import Venta
     from Controllers.show_sales_controller import ShowSalesController
 
 
@@ -161,7 +161,7 @@ class ShowSalesListWindow(BaseProjectWindowToplevel):
         self.realizar_busqueda_sale()
 
 
-    def pasar_al_cuadro_ventas(self, ventas_list: list[Venta]):
+    def pasar_al_cuadro_ventas(self, ventas_list: list['Venta']):
         self.cuadro.delete(*self.cuadro.get_children())
         contador = 0
         for venta in ventas_list:

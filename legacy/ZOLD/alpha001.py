@@ -1,5 +1,5 @@
 import ttkbootstrap as ttk
-import project_functions
+from legacy import project_functions
 
 # ----------------------------------------- Funciones ---------------------------------------------
 def realizar_busqueda(*_args):

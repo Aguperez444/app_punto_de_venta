@@ -1,12 +1,12 @@
 import ttkbootstrap as ttk
-from Views.base_window_abstract_class import BaseProjectWindowToplevel
+from Views.base_window_abstract_class import BaseProjectPopupWindow
 
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from Controllers.individual_edit_stock_controller import IndividualEditStockController
 
 
-class IndividualEditStockPopup(BaseProjectWindowToplevel):
+class IndividualEditStockPopup(BaseProjectPopupWindow):
 
     def __init__(self, parent, controller: 'IndividualEditStockController'):
         super().__init__(parent)
@@ -41,15 +41,7 @@ class IndividualEditStockPopup(BaseProjectWindowToplevel):
 
 
     def render_view(self):
-        self.relleno_superior.pack(side='top')
-        self.label_alerta.pack()
-        self.sub_label_alerta.pack()
-        self.button_cancel.grid(row=0, column=0, padx=15)
-        self.button_confirm.grid(row=0, column=1, padx=15)
-        self.label_input.grid(row=0, column=0)
-        self.entry.grid(row=0, column=1)
-        self.input_frame.pack()
-        self.buttons_frame.pack(pady=15)
+        super().render_view()
         self.increment_frame.place(relx=0.99, rely=0.017, anchor='ne')
         self.sub_label_2.pack()
         self.frame.place(relx=0.5, rely=0.75, relwidth=0.8, relheight=0.4, anchor="center")

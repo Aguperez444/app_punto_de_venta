@@ -125,10 +125,10 @@ class ConfigFilesPersistence:
     def encontrar_ruta_icono():
         if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
             # En el caso de PyInstaller
-            base_path = getattr(sys, "_MEIPASS", os.path.abspath("../Database"))
+            base_path = getattr(sys, "_MEIPASS", os.path.abspath("./"))
         else:
             # En el caso de ejecutar directamente el script
-            base_path = os.path.abspath("../Database")
+            base_path = os.path.abspath("./")
 
         # Construir la ruta al archivo de icono
         icon_path = os.path.join(base_path, "Resources/program_icon.png")

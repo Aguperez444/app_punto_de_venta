@@ -17,6 +17,17 @@ class CommonWindowInitController:
         y = (monitores[0].height - alto) // 2
         return f'{ancho}x{alto}+{x}+{y}'
 
+
+    @staticmethod
+    def calculate_popup_resolution():
+        monitores = get_monitors()
+        ancho = int(monitores[0].width // 2)
+        alto = int(monitores[0].height // 1.5)
+        x = (monitores[0].width - ancho) // 2
+        y = (monitores[0].height - alto) // 2
+        return f'{ancho}x{alto}+{x}+{y}'
+
+
     @staticmethod
     def get_screen_resolution():
         monitores = get_monitors()

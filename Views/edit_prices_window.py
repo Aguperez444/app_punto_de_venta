@@ -1,8 +1,5 @@
 import ttkbootstrap as ttk
 
-from Controllers.individual_edit_price_controller import IndividualEditPriceController
-from Controllers.update_all_prices_controller import UpdateAllPricesController
-
 from Views.base_window_abstract_class import BaseProjectWindowToplevel
 
 from typing import TYPE_CHECKING
@@ -86,8 +83,7 @@ class EditPricesWindow(BaseProjectWindowToplevel):
             valores = self.cuadro.item(item, option='values')
             mod_ids.append(valores[4])
 
-
-        IndividualEditPriceController(self, mod_ids)
+        self.controller.open_individual_edit_price_window(mod_ids)
 
 
     def actualizar_valor(self, *_args):
@@ -106,7 +102,7 @@ class EditPricesWindow(BaseProjectWindowToplevel):
 
 
     def increment_all(self):
-        UpdateAllPricesController(self)
+        self.controller.open_update_all_prices_window()
 
 
     def confirmar_cambios(self):

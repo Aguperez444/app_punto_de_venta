@@ -1,3 +1,4 @@
+from Controllers.individual_edit_info_controller import IndividualEditInfoController
 from Views.edit_product_info_window import EditProductInfoWindow
 from Services.producto_service import ProductoService
 
@@ -28,3 +29,6 @@ class EditProductInfoController:
             self.view.pasar_al_cuadro(found_products)
         else:
             self.view.clean_treeview()
+
+    def open_individual_edit_info_window(self, id_producto):
+        IndividualEditInfoController(self.view, id_producto)
