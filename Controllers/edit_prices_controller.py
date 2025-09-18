@@ -1,3 +1,5 @@
+from Controllers.individual_edit_price_controller import IndividualEditPriceController
+from Controllers.update_all_prices_controller import UpdateAllPricesController
 from Views.edit_prices_window import EditPricesWindow
 from Services.producto_service import ProductoService
 
@@ -36,3 +38,9 @@ class EditPricesController:
             self.view.pasar_al_cuadro(found_products)
         else:
             self.view.clean_treeview()
+
+    def open_individual_edit_price_window(self, mod_ids):
+        IndividualEditPriceController(self.view, mod_ids)
+
+    def open_update_all_prices_window(self):
+        UpdateAllPricesController(self)

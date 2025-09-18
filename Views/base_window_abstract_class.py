@@ -1,6 +1,6 @@
 import ttkbootstrap as ttk
 from tkinter import simpledialog, messagebox, PhotoImage
-from Controllers.common_window_innit_controller import CommonWindowInitController #TODO CHECKEAR ORDEN DE INSTANCIAMIENTO DE CONTROLLERS
+from Controllers.common_window_innit_controller import CommonWindowInitController
 from PIL import Image, ImageTk
 from tkinter import TclError
 
@@ -18,8 +18,8 @@ class BaseProjectWindow(ttk.Window):
         # -----------------------------------------comunicación con Controllers--------------------------------
         self.init_controller = CommonWindowInitController()
         # -----------------------------------------atributos principales----------------------------------------
-        self.icon_path = self.init_controller.get_icon_path() # obtain the path to the icon
-        self.version = self.init_controller.get_version() # obtain the program version
+        self.icon_path = self.init_controller.get_icon_path() # get the path to the icon
+        self.version = self.init_controller.get_version() # get the program version
         self.geometry = self.init_controller.calculate_window_resolution() # calculate the window resolution
         self.img = Image.open(self.icon_path)
         self.icon: PhotoImage = ImageTk.PhotoImage(self.img)
@@ -289,7 +289,7 @@ class BaseProjectWindowToplevel(ttk.Toplevel):
         # Añadir nuevas filas
         for product in product_list:
             tag = 'par' if contador % 2 == 0 else 'impar'
-            self.cuadro.insert("", "end", text=product.producto, values=(product.codigo,
+            self.cuadro.insert("", "end", iid=str(product.id), text=product.producto, values=(product.codigo,
                                                                           f'${product.precio}', product.detalle,
                                                                           product.stock, product.id),
                                tags=tag)
@@ -299,10 +299,9 @@ class BaseProjectWindowToplevel(ttk.Toplevel):
 
     def pasar_unico_al_cuadro(self, product: dict):
         self.cuadro.delete(*self.cuadro.get_children())
-        self.cuadro.insert("", "end", text=product['producto'], values=(product['codigo'],
+        self.cuadro.insert("", "end", iid=str(product["id"]), text=product['producto'], values=(product['codigo'],
                                                                       f'${product['precio']}', product['detalle'],
-                                                                      product['stock'], product['id']),
-                           tags=('par',))
+                                                                      product['stock'], product['id']), tags=('par',))
         return
 
 
@@ -340,3 +339,31 @@ class BaseProjectWindowToplevel(ttk.Toplevel):
     @staticmethod
     def show_message(msg):
         messagebox.showinfo('Atención', msg)
+
+
+class BaseProjectPopupWindow(BaseProjectWindowToplevel):
+    def __init__(self, parent, needs_cuadro=True):
+        super().__init__(parent, needs_cuadro)
+        self.buttons_frame = None
+        self.input_frame = None
+        self.entry = None
+        self.label_input = None
+        self.button_confirm = None
+        self.button_cancel = None
+        self.sub_label_alerta = None
+        self.label_alerta = None
+        self.relleno_superior = None
+        self.parent = parent
+        self.geometry(self.init_controller.calculate_popup_resolution())
+        self.minsize(600,500)
+
+    def render_view(self):
+        self.relleno_superior.pack(side='top')
+        self.label_alerta.pack()
+        self.sub_label_alerta.pack()
+        self.button_cancel.grid(row=0, column=0, padx=15)
+        self.button_confirm.grid(row=0, column=1, padx=15)
+        self.label_input.grid(row=0, column=0)
+        self.entry.grid(row=0, column=1)
+        self.input_frame.pack()
+        self.buttons_frame.pack(pady=15)

@@ -6,7 +6,7 @@ class IndividualEditPriceController:
 
     def __init__(self, invoqued_by_window, mod_ids_in: list[int]):
         self.view = IndividualEditPricePopup(invoqued_by_window, self)
-        self.mainwindow = invoqued_by_window
+        self.main_window = invoqued_by_window
         self.producto_service = ProductoService() #TODO CHECK THIS
         self.mod_ids_in = mod_ids_in
 
@@ -27,7 +27,7 @@ class IndividualEditPriceController:
         self.producto_service.update_selected_product_prices(self.mod_ids_in, porcentaje)
         self.view.show_message("Se han actualizado correctamente los precios")
         self.view.destroy()
-        self.mainwindow.realizar_busqueda()
+        self.main_window.realizar_busqueda()
 
     def update_price_to_new(self, nuevo_precio_str):
         try:
@@ -38,9 +38,9 @@ class IndividualEditPriceController:
 
         self.view.show_message("Se han actualizado correctamente los precios")
         self.view.destroy()
-        self.mainwindow.realizar_busqueda()
+        self.main_window.realizar_busqueda()
 
 
     def cancelar_cambios(self):
         self.view.destroy()
-        self.mainwindow.realizar_busqueda()
+        self.main_window.realizar_busqueda()

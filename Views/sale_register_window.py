@@ -8,28 +8,24 @@ if TYPE_CHECKING:
 
 class SalesRegisterWindow(BaseProjectWindowToplevel):
 
-    def __init__(self, parent, controller: 'RegisterSaleController', product_data: dict): #TODO CHECK THIS
+    def __init__(self, parent, controller: 'RegisterSaleController'):
         super().__init__(parent)
         self.controller = controller
 
         # ----------------------------------------- ventana ---------------------------------------------
         self.tecla_presionada = False
-            # TODO hasta donde entiendo, de esto se debería encargar la clase padre
 
         self.focus_set()
-        self.grab_set()
         # -------------------------------------obtención de datos ----------------------------------------
 
         # datos del producto
-        self.producto = product_data
-        self.product_name = self.producto['producto']
 
         # -----------------------------------------ttk_variables------------------------------------------------
         self.cantidad_vendida = ttk.StringVar()
         self.cantidad_vendida.set('1')
-        self.title = f'¿Desea registrar una venta de: {self.product_name}?'
+        self.title = ttk.StringVar()
         # -----------------------------------------bootstrap widgets------------------------------------------------
-        self.label_titulo = ttk.Label(master=self, text=f'{self.title}', font='Calibri 20 bold')
+        self.label_titulo = ttk.Label(master=self, text=f'{self.title.get()}', font='Calibri 20 bold')
         self.label_subtitulo = ttk.Label(master=self, text='Info del producto:', font='Calibri 16 bold')
 
         self.sub_frame = ttk.Frame(master=self, width=1000, height=12)
@@ -90,11 +86,11 @@ class SalesRegisterWindow(BaseProjectWindowToplevel):
 
     # endregion
 
+
     #region Funciones Para manejo de UI
 
     def render_view(self):
         # ---------------------------------------------- placing widgets -----------------------------------------------
-        self.pasar_unico_al_cuadro(self.producto)
 
         self.label_titulo.pack()
         self.label_subtitulo.pack()
@@ -108,23 +104,27 @@ class SalesRegisterWindow(BaseProjectWindowToplevel):
         self.label_entry.place(relx=0, rely=0, anchor='nw')
         self.entry_cantidad_vendida.place(relx=1, rely=0, anchor='ne')
 
+        self.controller.show_product_data()
+
+    def adjust_product_text(self, product_name: str):
+        self.title.set(f'¿Desea registrar una venta de: {product_name}?')
+        self.label_titulo.configure(text=f'{self.title.get()}')
+        self.adjust_view_for_resolution()
+
     def adjust_view_for_resolution(self):
         if self.resolution[0] == '615x461':
-            if len(self.title) > 50:
+            if len(self.title.get()) > 50:
                 self.label_titulo.configure(font='Calibri 15 bold')
                 self.label_subtitulo.configure(font='Calibri 13 bold')
             self.label_entry.configure(font='Calibri 12 bold')
 
     # endregion
 
+
     def venta_confirm(self):
         amount_in = self.cantidad_vendida.get()
-        self.controller.register_new_sale(self.producto, amount_in)
+        self.controller.register_new_sale(amount_in)
 
-    def sale_registered(self):
-        self.parent.realizar_busqueda()
-        self.destroy()
 
     def venta_cancel(self):
         self.destroy()
-

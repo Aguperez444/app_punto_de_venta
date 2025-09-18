@@ -2,7 +2,6 @@ import ttkbootstrap as ttk
 
 from Views.base_window_abstract_class import BaseProjectWindowToplevel
 
-from Controllers.individual_edit_info_controller import IndividualEditInfoController
 
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
@@ -84,7 +83,8 @@ class EditProductInfoWindow(BaseProjectWindowToplevel):
             self.show_error("No hay ningún producto seleccionado")
         else:
             id_producto = mod_ids[0]
-            IndividualEditInfoController(self, id_producto)
+            self.controller.open_individual_edit_info_window(id_producto)
+
 
 
     def realizar_busqueda(self, _varname=None, _index=None, _mode=None):

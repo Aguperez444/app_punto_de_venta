@@ -70,6 +70,7 @@ class ShowProductsWindow(BaseProjectWindowToplevel):
 
     def get_info_from_selected_item(self):
         tuple_item = self.cuadro.selection()
+        print(tuple_item)
         item = tuple_item[0]
         if item:
             valores = self.cuadro.item(item, option='values')

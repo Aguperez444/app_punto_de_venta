@@ -1,3 +1,4 @@
+from Controllers.individual_edit_stock_controller import IndividualEditStockController
 from Views.add_stock_window import AddStockWindow
 from Services.producto_service import ProductoService
 
@@ -22,4 +23,7 @@ class AddStockController:
     def get_filtered_products(self, search_term):
         products = self.producto_service.get_products_by_str_filter(search_term)
         self.view.pasar_al_cuadro(products)
+
+    def open_individual_edit_window(self, mod_ids):
+        IndividualEditStockController(self.view, mod_ids)  # abre la ventana de edición individual
 

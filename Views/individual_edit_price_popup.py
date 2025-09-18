@@ -1,11 +1,11 @@
 import ttkbootstrap as ttk
-from Views.base_window_abstract_class import BaseProjectWindowToplevel
+from Views.base_window_abstract_class import BaseProjectPopupWindow
 
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from Controllers.individual_edit_price_controller import IndividualEditPriceController
 
-class IndividualEditPricePopup(BaseProjectWindowToplevel):
+class IndividualEditPricePopup(BaseProjectPopupWindow):
 
     def __init__(self, parent, controller: 'IndividualEditPriceController'):
 
@@ -19,7 +19,7 @@ class IndividualEditPricePopup(BaseProjectWindowToplevel):
 
         self.title('Actualizar precio manualmente')
         self.geometry = f'{self.ancho}x{self.alto}+{self.x}+{self.y}'
-        # alert_window.iconbitmap(parent.parent.icon_path)
+
         self.focus_set()
 
         self.porcentaje_var = ttk.StringVar(value='10')
@@ -77,28 +77,9 @@ class IndividualEditPricePopup(BaseProjectWindowToplevel):
         porcentaje_str = self.porcentaje_var.get()
         self.controller.update_price_by_percentage(porcentaje_str)
 
-    def on_resize(self, event):
-        new_width = event.width
-        new_width = int(new_width * 0.9)
-
-        self.cuadro.column("#0", width=int(new_width * 3 / 10), anchor="center")
-        self.cuadro.column("col1", width=int(new_width / 10), anchor="center")
-        self.cuadro.column("col2", width=int(new_width / 10), anchor="center")
-        self.cuadro.column("col3", width=int(new_width * 3 / 10), anchor="center")
-        self.cuadro.column("col4", width=int(new_width / 10), anchor="center")
-
-
 
     def render_view(self):
-        self.relleno_superior.pack(side='top')
-        self.label_alerta.pack()
-        self.sub_label_alerta.pack()
-        self.button_cancel.grid(row=0, column=0, padx=15)
-        self.button_confirm.grid(row=0, column=1, padx=15)
-        self.label_input.grid(row=0, column=0)
-        self.entry.grid(row=0, column=1)
-        self.input_frame.pack()
-        self.buttons_frame.pack(pady=15)
+        super().render_view()
         self.button_increment.grid(row=0, column=0)
         self.porcentaje_combobox.grid(row=0, column=1)
         self.increment_frame.place(relx=0.99, rely=0.017, anchor='ne')
