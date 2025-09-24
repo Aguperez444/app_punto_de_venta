@@ -43,4 +43,4 @@ class EditPricesController:
         IndividualEditPriceController(self.view, mod_ids)
 
     def open_update_all_prices_window(self):
-        UpdateAllPricesController(self)
+        UpdateAllPricesController(self.view)

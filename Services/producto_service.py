@@ -44,7 +44,7 @@ class ProductoService:
         nuevo_producto = Producto(
             producto=producto,
             codigo=codigo,
-            precio=int(precio.replace("$", "")),
+            precio=float(precio.replace("$", "")),
             detalle=detalle,
             codigo_de_barras=codigo_de_barras,
             stock=int(stock)
@@ -130,7 +130,7 @@ class ProductoService:
     def update_all_prices(self, percent: float = 0.0):
         # calcular el multiplicador
         try:
-            percent_multiplier = round((1 + float(percent) / 100.0), 2)
+            percent_multiplier = round((1 + float(percent) / 100.0), 4)
         except ValueError:
             raise ValueError("El porcentaje debe ser un número válido.")
 
@@ -141,7 +141,7 @@ class ProductoService:
     def update_selected_product_prices(self, ids_list: list[int], percent: float = 0.0):
         if not ids_list:
             return
-        percent_multiplier = round((1 + int(percent) / 100.0), 2)
+        percent_multiplier = round((1 + float(percent) / 100.0), 4)
         if percent_multiplier == 0:
             raise ValueError("El multiplicador no puede ser cero.")
         self.repo.update_selected_product_prices(ids_list, percent_multiplier)
