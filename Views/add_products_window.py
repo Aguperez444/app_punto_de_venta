@@ -159,10 +159,6 @@ class AddProductsWindow(BaseProjectWindowToplevel):
     def product_data_acquired(self):
         datos_producto = self.get_input_data()
 
-        for key, value in datos_producto.items():
-            if str(value) == '' or str(value).isspace(): # TODO CHECK THIS LATER
-                self.show_error("Completá todos los campos")
-                return
         self.add_product_controller.add_product(datos_producto)
 
 
