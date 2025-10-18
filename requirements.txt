@@ -1,3 +1,11 @@
-sqlalchemy>=2.0.0
-ttkbootstrap>=1.10.1
+pillow>=11.3.0
+sqlalchemy>=2.0.44
+ttkbootstrap>=1.14.7
 screeninfo>=0.8.1
+tkrouter==0.2.0
+pytest>=8.4.2
+pytest-mock>=3.15.1
+pytest-cov>=7.0.0
+freezegun>=1.5.5
+faker>=37.11.0
+psycopg>=3.2.10

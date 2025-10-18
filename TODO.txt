@@ -3,3 +3,14 @@
 -Añadir funcionalidad para ver el detalle de una venta en el listado
 
 -Añadir funcionalidad para elegir un precio personalizado en la view de actualizar precios
+
+-Cambiar la forma de navegar entre ventanas a tkrouter)? maybe
+
+-Añadir funcionalidad para eliminar productos
+
+-Cambiar los popups para que también usen el custom widget del cuadro en vez de implementar su propio widget
+
+
+
+
+
