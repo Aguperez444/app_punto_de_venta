@@ -2,7 +2,7 @@ from typing import Callable
 from sqlalchemy.orm import Session
 
 
-from app.application.ports.unit_of_work import IUnitOfWork
+from app.infrastructure.database.sqlalchemy.unit_of_work.unit_of_work import IUnitOfWork
 from app.infrastructure.database.sqlalchemy.repositories.producto_repository_impl import ProductoRepositoryImpl
 from app.infrastructure.database.sqlalchemy.repositories.venta_repository_impl import SaleRepositoryImpl
 
@@ -50,4 +50,4 @@ class SqlAlchemyUnitOfWork(IUnitOfWork):
         assert self.session is not None, "UoW sin session"
         self.session.rollback()
 
-UowFactory = Callable[[], SqlAlchemyUnitOfWork]
+UowFactory = Callable[[], IUnitOfWork]

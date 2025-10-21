@@ -1,7 +1,7 @@
 from app.application.use_cases.query_products import QueryProducts
 from app.application.use_cases.update_price import UpdatePrice
 from app.infrastructure.ui.tkinter.views.popups.individual_edit_price_popup import IndividualEditPricePopup
-from app.infrastructure.database.sqlalchemy.uow_factory import uow_factory
+from app.infrastructure.database.sqlalchemy.unit_of_work.uow_factory import uow_factory
 
 class IndividualEditPriceController:
 

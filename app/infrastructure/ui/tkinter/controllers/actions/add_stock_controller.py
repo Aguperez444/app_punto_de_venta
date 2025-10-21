@@ -1,6 +1,6 @@
 from app.application.use_cases.query_products import QueryProducts
 from app.infrastructure.ui.tkinter.controllers.individual_action.individual_edit_stock_controller import IndividualEditStockController
-from app.infrastructure.database.sqlalchemy.uow_factory import uow_factory
+from app.infrastructure.database.sqlalchemy.unit_of_work.uow_factory import uow_factory
 
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:

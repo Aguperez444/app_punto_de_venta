@@ -1,5 +1,5 @@
 from app.application.use_cases.query_products import QueryProducts
-from app.infrastructure.database.sqlalchemy.uow_factory import uow_factory
+from app.infrastructure.database.sqlalchemy.unit_of_work.uow_factory import uow_factory
 from app.infrastructure.ui.tkinter.controllers.individual_action.register_sale_controller import RegisterSaleController
 
 from typing import TYPE_CHECKING

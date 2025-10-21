@@ -1,7 +1,7 @@
 from app.application.use_cases.query_products import QueryProducts
 from app.application.use_cases.edit_stock import EditStock
 from app.infrastructure.ui.tkinter.views.popups.individual_edit_stock_popup import IndividualEditStockPopup
-from app.infrastructure.database.sqlalchemy.uow_factory import uow_factory
+from app.infrastructure.database.sqlalchemy.unit_of_work.uow_factory import uow_factory
 
 
 class IndividualEditStockController:

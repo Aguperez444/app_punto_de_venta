@@ -5,7 +5,9 @@ from sqlalchemy.orm import Session
 
 from app.application.ports.sale_repository import ISaleRepository
 from app.domain.models.venta import Venta
-from app.infrastructure.database.sqlalchemy.orm import VentaORM, VentaMapper
+
+from app.infrastructure.database.sqlalchemy.models.venta_orm import VentaORM
+from app.infrastructure.database.sqlalchemy.mappers.venta_mapper import VentaMapper
 
 
 class SaleRepositoryImpl(ISaleRepository):

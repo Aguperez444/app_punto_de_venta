@@ -2,8 +2,8 @@ import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from app.infrastructure.database.sqlalchemy.orm import Base
-from app.infrastructure.database.sqlalchemy.unit_of_work_impl import SqlAlchemyUnitOfWork
+from app.infrastructure.database.sqlalchemy.base import Base
+from app.infrastructure.database.sqlalchemy.unit_of_work.unit_of_work_impl import SqlAlchemyUnitOfWork
 
 pytestmark = pytest.mark.integration
 

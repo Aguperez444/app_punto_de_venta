@@ -27,7 +27,7 @@ def test_register_sale_decreases_stock_and_commits(fake_uow_factory_with_product
 
 
 @pytest.mark.unit
-def test_register_sale_not_found_raises(fake_uow_factory):
-    uc = RegisterSale(fake_uow_factory)
+def test_register_sale_not_found_raises(fake_uow_factory_with_product):
+    uc = RegisterSale(fake_uow_factory_with_product)
     with pytest.raises(NotFoundProductError):
         uc.execute(product_id=999, amount=1)

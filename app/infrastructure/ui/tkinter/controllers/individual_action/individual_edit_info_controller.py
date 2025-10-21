@@ -1,5 +1,5 @@
 from app.application.use_cases.query_products import QueryProducts
-from app.infrastructure.database.sqlalchemy.uow_factory import uow_factory
+from app.infrastructure.database.sqlalchemy.unit_of_work.uow_factory import uow_factory
 from app.infrastructure.ui.tkinter.views.popups.individual_edit_info_popup import IndividualEditInfoPopup
 from app.application.use_cases.edit_product_info import EditProductInfo
 

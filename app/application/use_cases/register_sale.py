@@ -2,7 +2,7 @@ from datetime import datetime
 from app.domain.custom_errors import NotFoundProductError
 from app.domain.models.venta import Venta
 from app.domain.models.detalle_venta import DetalleVenta
-from app.infrastructure.database.sqlalchemy.unit_of_work_impl import UowFactory
+from app.infrastructure.database.sqlalchemy.unit_of_work.unit_of_work_impl import UowFactory
 
 
 class RegisterSale:

@@ -5,6 +5,8 @@ from app.domain.models.stock import Stock
 
 
 class IProductoRepository(ABC):
+    updated: list
+
     @abstractmethod
     def save_product(self, product: Producto) -> None:
         pass

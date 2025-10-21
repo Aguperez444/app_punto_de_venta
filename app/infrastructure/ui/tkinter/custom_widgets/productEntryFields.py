@@ -47,7 +47,7 @@ class ProductEntryFields(ttk.Frame):
                        self.label_details, self.label_stock, self.label_bar_code]
 
         # ----------------------------buttons---------------------------
-        self.button_add = ttk.Button(master=self, text='Actualizar datos', width=18, style='success',
+        self.button_add = ttk.Button(master=self, text='Guardar Producto', width=18, style='success',
                                      command=self.parent.entry_field_accept)
 
         self.button_new = ttk.Button(master=self, text='Restablecer datos',

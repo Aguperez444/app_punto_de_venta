@@ -5,7 +5,9 @@ from sqlalchemy.orm import Session
 from app.application.ports.producto_repository import IProductoRepository
 from app.domain.models.precio import Precio
 from app.domain.models.stock import Stock
-from app.infrastructure.database.sqlalchemy.orm import ProductoORM, ProductoMapper
+from app.infrastructure.database.sqlalchemy.models.producto_orm import ProductoORM
+from app.infrastructure.database.sqlalchemy.mappers.producto_mapper import ProductoMapper
+
 from app.domain.models.producto import Producto
 
 class ProductoRepositoryImpl(IProductoRepository):

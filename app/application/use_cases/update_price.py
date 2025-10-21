@@ -1,5 +1,5 @@
 from app.domain.models.precio import Precio
-from app.infrastructure.database.sqlalchemy.unit_of_work_impl import UowFactory
+from app.infrastructure.database.sqlalchemy.unit_of_work.unit_of_work_impl import UowFactory
 
 
 class UpdatePrice:

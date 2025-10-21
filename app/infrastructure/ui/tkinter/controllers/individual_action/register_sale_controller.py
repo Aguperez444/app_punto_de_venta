@@ -1,6 +1,6 @@
 from app.domain.models.detalle_venta import DetalleVenta
 
-from app.infrastructure.database.sqlalchemy.uow_factory import uow_factory
+from app.infrastructure.database.sqlalchemy.unit_of_work.uow_factory import uow_factory
 
 from app.application.use_cases.query_products import QueryProducts
 from app.application.use_cases.register_sale import RegisterSale

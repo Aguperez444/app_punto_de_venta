@@ -2,7 +2,7 @@ from app.domain.models.producto import Producto
 from app.domain.models.precio import Precio
 from app.domain.models.stock import Stock
 
-from app.infrastructure.database.sqlalchemy.unit_of_work_impl import UowFactory
+from app.infrastructure.database.sqlalchemy.unit_of_work.unit_of_work_impl import UowFactory
 
 
 class EditProductInfo:

@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from app.application.use_cases.query_sales import QuerySales
-from app.infrastructure.database.sqlalchemy.uow_factory import uow_factory
+from app.infrastructure.database.sqlalchemy.unit_of_work.uow_factory import uow_factory
 
 from typing import TYPE_CHECKING
 

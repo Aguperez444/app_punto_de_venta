@@ -38,13 +38,14 @@ class _FakeUoW:
 def _factory(uow):
     return lambda: uow
 
-
-@pytest.mark.unit
-def test_get_all_returns_products():
-    prods = [
+prods = [
         Producto(1, "B", "B1", Precio.from_string("10"), "", "1", Stock.from_string("1")),
         Producto(2, "A", "A1", Precio.from_string("20"), "", "2", Stock.from_string("2")),
     ]
+
+
+@pytest.mark.unit
+def test_get_all_returns_products():
     repo = _FakeProductRepo(prods)
     uow = _FakeUoW(repo)
     uc = QueryProducts(_factory(uow))
@@ -56,10 +57,6 @@ def test_get_all_returns_products():
 
 @pytest.mark.unit
 def test_get_all_alphabetically_sorts_by_name():
-    prods = [
-        Producto(1, "B", "B1", Precio.from_string("10"), "", "1", Stock.from_string("1")),
-        Producto(2, "A", "A1", Precio.from_string("20"), "", "2", Stock.from_string("2")),
-    ]
     repo = _FakeProductRepo(prods)
     uow = _FakeUoW(repo)
     uc = QueryProducts(_factory(uow))
@@ -80,7 +77,7 @@ def test_get_product_name_by_id_returns_empty_when_not_found():
 
 @pytest.mark.unit
 def test_get_product_name_by_id_returns_name():
-    p = Producto(5, "Vitamina C", "VITC", Precio.from_string("30"), "", "5", Stock.from_string("3"))
+    p = Producto(5, "Vitamina C", "VITO", Precio.from_string("30"), "", "5", Stock.from_string("3"))
     repo = _FakeProductRepo([p])
     uow = _FakeUoW(repo)
     uc = QueryProducts(_factory(uow))

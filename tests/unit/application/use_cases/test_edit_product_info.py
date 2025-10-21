@@ -1,13 +1,69 @@
 import pytest
 from decimal import Decimal
 
+from app.application.ports.producto_repository import IProductoRepository
 from app.application.use_cases.edit_product_info import EditProductInfo
 from app.domain.models.producto import Producto
 from app.domain.models.precio import Precio
 from app.domain.models.stock import Stock
+from app.infrastructure.database.sqlalchemy.unit_of_work.unit_of_work import IUnitOfWork
 
 
-class _FakeProductRepo:
+class _FakeProductRepo(IProductoRepository):
+    def save_product(self, product: Producto) -> None:
+        pass
+
+    def get_all_products(self) -> list[Producto]:
+        pass
+
+    def get_all_products_alphabetically(self) -> list[Producto]:
+        pass
+
+    def get_filtered(self, buscado: str) -> list[Producto] | None:
+        pass
+
+    def get_filtered_alphabetically(self, search_criteria: str) -> list[Producto] | None:
+        pass
+
+    def get_all_no_stock(self) -> list[Producto] | None:
+        pass
+
+    def get_all_no_stock_alphabetically(self) -> list[Producto] | None:
+        pass
+
+    def get_filtered_no_stock(self, buscado: str) -> list[Producto] | None:
+        pass
+
+    def get_filtered_no_stock_alphabetically(self, buscado: str) -> list[Producto] | None:
+        pass
+
+    def get_by_id(self, product_id: int) -> Producto | None:
+        pass
+
+    def get_products_by_id_list(self, ids_buscadas: list[int]) -> list[Producto] | None:
+        pass
+
+    def add_stock(self, id_producto: int, cantidad: int) -> None:
+        pass
+
+    def add_stock_to_multiple_products(self, ids_list: list, stock_to_add: int) -> None:
+        pass
+
+    def set_stock(self, id_producto: int, cantidad: Stock) -> None:
+        pass
+
+    def update_all_prices(self, percent_multiplier: float = 1) -> None:
+        pass
+
+    def update_selected_product_prices(self, ids_list: list, percent_multiplier: float = 1) -> None:
+        pass
+
+    def update_price_to_new_value(self, ids_list: list, new_price: Precio) -> None:
+        pass
+
+    def set_stock_bulk(self, ids_list: list, new_stock: Stock) -> None:
+        pass
+
     def __init__(self):
         self.updated = []
 
@@ -15,7 +71,7 @@ class _FakeProductRepo:
         self.updated.append(product)
 
 
-class _FakeUoW:
+class _FakeUoW(IUnitOfWork):
     def __init__(self):
         self.product_repo = _FakeProductRepo()
         self.sale_repo = None
@@ -39,7 +95,7 @@ def _uow_factory():
 
 @pytest.mark.unit
 def test_edit_product_info_updates_repo_and_commits():
-    # Arrange a single UoW instance so we can assert after execute
+    # Arrange a single UoW instance so we can assert after execute()
     uow_instance = _FakeUoW()
 
     def factory():
@@ -68,10 +124,6 @@ def test_edit_product_info_updates_repo_and_commits():
 
 @pytest.mark.unit
 def test_edit_product_info_parses_value_objects(monkeypatch):
-    seen = {}
-
-    def fake_update(self, product: Producto):
-        seen["product"] = product
 
     # Arrange uow with repo capturing product
     class UoW(_FakeUoW):
@@ -93,7 +145,7 @@ def test_edit_product_info_parses_value_objects(monkeypatch):
         codigo_de_barras="7790000000000",
     )
 
-    # We can't access the internal uow from uc; replicate minimal checks by re-parsing expected values
+    # We can't access the internal uow from uc; replicate minimal checks by reparsing expected values
     p = Precio.from_string("123,45")
     s = Stock.from_string("10")
     assert isinstance(p, Precio)

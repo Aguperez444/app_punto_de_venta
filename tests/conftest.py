@@ -1,5 +1,4 @@
-import sys
-from types import SimpleNamespace
+
 from decimal import Decimal
 import pytest
 from faker import Faker
@@ -52,7 +51,10 @@ class FakeProductRepo:
 
     # Used by RegisterSale
     def get_by_id(self, product_id: int) -> Producto | None:
-        return self._product
+        self._product.id_producto = 1
+        if self._product.id_producto == product_id:
+            return self._product
+        return None
 
     def update_info_product(self, product: Producto) -> None:
         self.updated_products.append(product)
@@ -96,7 +98,7 @@ class FakeUoW:
 
 @pytest.fixture()
 def fake_uow_factory():
-    # returns a callable that builds a new FakeUoW (without preloaded product)
+    # returns a callable that builds a new FakeUoW (without a preloaded product)
     def factory():
         return FakeUoW()
     return factory

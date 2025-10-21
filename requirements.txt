@@ -9,3 +9,4 @@ pytest-cov>=7.0.0
 freezegun>=1.5.5
 faker>=37.11.0
 psycopg>=3.2.10
+alembic>=1.17.0

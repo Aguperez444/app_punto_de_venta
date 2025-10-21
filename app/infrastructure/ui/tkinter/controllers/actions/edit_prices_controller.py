@@ -2,7 +2,7 @@ from app.infrastructure.ui.tkinter.controllers.individual_action.individual_edit
 from app.infrastructure.ui.tkinter.controllers.confirm_action.update_all_prices_controller import UpdateAllPricesController
 from app.application.use_cases.update_price import UpdatePrice
 from app.application.use_cases.query_products import QueryProducts
-from app.infrastructure.database.sqlalchemy.uow_factory import uow_factory
+from app.infrastructure.database.sqlalchemy.unit_of_work.uow_factory import uow_factory
 
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:

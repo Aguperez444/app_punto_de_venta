@@ -1,5 +1,5 @@
 from app.domain.models.stock import Stock
-from app.infrastructure.database.sqlalchemy.unit_of_work_impl import UowFactory
+from app.infrastructure.database.sqlalchemy.unit_of_work.unit_of_work_impl import UowFactory
 
 
 class EditStock:
