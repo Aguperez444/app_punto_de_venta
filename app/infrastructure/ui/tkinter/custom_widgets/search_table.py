@@ -117,6 +117,7 @@ class SearchTable(ttk.Frame):
         self.cuadro.bind("<Double-1>", self.parent.table_action)
         self.str_buscado.trace_add('write', self.parent.entry_action)
 
+        self.grab_focus()
 
     def toggle_alphabetic(self):
 
@@ -199,3 +200,31 @@ class SearchTable(ttk.Frame):
 
     def get_search(self) -> str:
         return self.str_buscado.get()
+
+    def grab_focus(self):
+        self.entry.focus_set()
+
+    def grab_focus_cuadro(self, going_up: bool = False):
+
+        self.cuadro.focus_set()
+
+        children = self.cuadro.get_children()
+
+        if not children:
+            return
+
+        selection = self.cuadro.selection()
+
+        if not going_up:
+                selection = self.cuadro.selection()
+                if selection == () or selection[0] == children[0]:
+                    first = children[0]
+                    self.cuadro.selection_set(first)
+                    self.cuadro.focus(first)
+                    self.cuadro.see(first)
+        else:
+            if selection[0] == children[0]:
+                self.cuadro.selection_clear()
+                self.cuadro.focus('')
+                self.entry.focus_set()
+

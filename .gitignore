@@ -1,21 +1,71 @@
-# Cache de Python
+# =========================
+# Python
+# =========================
 __pycache__/
 *.py[cod]
-*.pyo
+*$py.class
 
-# Config IDE
-.idea/
-.vscode/
+# Archivos de distribución
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Logs
+*.log
 
 # Archivos temporales
-*.log
 *.tmp
+*.swp
 
-# Distribución
-dist/
-build/
-*.spec
+# =========================
+# Jupyter Notebook
+# =========================
+.ipynb_checkpoints/
 
-# otros
-junie_suggestion.txt
-test.py
+# =========================
+# VS Code
+# =========================
+.vscode/
+
+# =========================
+# PyCharm / IntelliJ
+# =========================
+.idea/
+*.iml
+
+# =========================
+# OS (por si acaso)
+# =========================
+.DS_Store
+Thumbs.db
+
+# =========================
+# Variables de entorno
+# =========================
+.env
+.env.*
+
+# =========================
+# Coverage / testing
+# =========================
+.coverage
+htmlcov/
+.pytest_cache/
+
+# =========================
+# mypy / type checking
+# =========================
+.mypy_cache/
+.dmypy.json
+
+# =========================
+# Ruff / linters
+# =========================
+.ruff_cache/
+
+# =========================
+# FastAPI / uvicorn (opcional)
+# =========================
+*.pid
+

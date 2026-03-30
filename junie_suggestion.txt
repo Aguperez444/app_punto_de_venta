@@ -1,0 +1,194 @@
+Revisión integral del proyecto: APP_FARMACIA_HEX
+Fecha: 2025-10-14 16:23
+
+Resumen ejecutivo
+- El proyecto presenta una arquitectura hexagonal razonable (domain, application, infrastructure, UI) con separación de capas y uso de UoW y repositorios.
+- Hay buenas prácticas en Value Objects (Price, Stock) y entidades (Producto, Venta, DetalleVenta), aunque faltan algunas validaciones y tests.
+- La capa de infraestructura con SQLAlchemy es funcional, pero hay detalles a mejorar en transacciones, logging, N+1, manejo de errores y naming consistente.
+- La UI con Tkinter está estructurada en controladores y vistas, pero faltan validaciones consistentes, mensajes de error homogéneos, y una mejor separación de responsabilidades.
+- Documentación y pruebas son escasas; sería valioso un plan de testing, README más completo y automatización básica.
+
+Acciones priorizadas (Quick Wins)
+
+2) Validaciones y mensajes de error unificados
+   - AddProductController: validación de inputs vacíos correcta; agregar normalización y feedback campo por campo.
+
+
+5) Manejo de errores y UX
+   - UI: capturar DomainValidationError correctamente y mostrar mensajes amigables; evitar mostrar excepciones genéricas al usuario. Registrar los detalles en logs.
+   - Repositorios: cuando no se encuentra producto, devolver None y dejar que Application lance errores específicos (ya se hace en RegisterSale).
+
+6) Documentación mínima
+   - README: agregar instrucciones de instalación, ejecución, estructura del proyecto, y breve explicación de arquitectura hexagonal.
+   - TODO.txt: priorizar tareas, vincular con este documento.
+
+Detalles por capa
+
+Capa Domain
+- app/domain/models/Producto.py
+  - Pros: Value Objects Price y Stock integrados; método factory from_string centraliza validación/parsing.
+  - Mejoras:
+    1. Validar nombre, código y código de barras (no vacíos, trims, longitudes máximas).
+    2. Disminuir_stock: evitar stock negativo. Si Stock.value - amount < 0 → lanzar DomainValidationError específico.
+    3. Considerar __repr__ y __eq__ para facilitar debugging y testing.
+    4. Propiedades solo de lectura salvo id_producto; evaluar inmutabilidad parcial y métodos para cambio controlado (p. ej. cambiar_precio, actualizar_detalle) para encapsular reglas.
+
+- app/domain/models/price.py
+  - Pros: Value object inmutable con validación de negativo; formateo amigable en __str__.
+  - Mejoras:
+    1. Eliminar print(normalized).
+    2. Manejar separadores de miles/decimales de forma más robusta (soporte de distintos locales), o definir explícitamente el formato esperado y documentarlo.
+    3. __str__: evitar lógica manual de entero/decimal si Decimal.quantize puede simplificarlo; asegurar 2 decimales fijos con ROUND_HALF_UP.
+    4. From_string: capturar excepciones y adjuntar el valor original y causa, pero sin exponer stacktrace al usuario.
+
+- app/domain/models/stock.py
+  - Pros: Value object simple con from_string y __str__.
+  - Mejoras:
+    1. Validar no-negativo en construcción; hoy acepta negativos si se construye con int directo.
+    2. From_string: aceptar números con espacios; lanzar DomainValidationError específico (ya usa StockInvalidError).
+
+- app/domain/models/DetalleVenta.py
+  - Pros: create_new válida cantidad y precio; subtotal como Decimal con redondeo a 2.
+  - Mejoras:
+    1. Tipos: producto y venta opcionales; documentar lifecycle.
+    2. Calcular_subtotal: usar quantize(Decimal('0.01'), rounding=ROUND_HALF_UP) en vez de round, para consistencia contable.
+
+- app/domain/models/Venta.py (no abierto aquí, pero por contexto)
+  - Confirmar: tiene nueva(date), agregar_detalle, update_price; verificar que impida ventas sin detalles y calcule total con Decimal.
+
+Capa Application
+- add_product.py
+  - Pros: Caso de uso minimalista con Producto.from_string.
+  - Mejoras:
+    1. No hace commit; depende de que el controller use with uow(): correcto si la convención es “commit en controller”. Mantener convención uniforme.
+    2. Manejo de errores: capturar y traducir errores de dominio si aplica; hoy el controller lo hace.
+
+- register_sale.py
+  - Pros: Válida existencia de producto; disminuye stock; crea Venta y Detalle; persiste venta y actualiza producto; hace commit.
+  - Mejoras:
+    1. Eliminar print de depuración.
+    2. Consistencia de transacciones: o todos los casos de uso comitean o ninguno.
+    3. Posible mejora: producto_repository.update_stock(product) en lugar de update_info_product si solo cambia stock.
+
+- Otros casos de uso (edit./update/query): revisar que no consulten directamente infraestructura y que usen puertos. Asegurar que no haya lógica de presentación.
+
+- Puertos (IProductoRepository, ISaleRepository, IUnitOfWork)
+  - Confirmar que definan claramente contrato de contexto (enter/exit) y commit/rollback. Documentar.
+
+Capa Infrastructure (DB/ORM)
+- producto_repository_impl.py
+  - Pros: Métodos útiles (filtros, ordenamientos, bulk updates). Uso de mapper ProductoMapper para traducir ORM↔dominio.
+  - Mejoras:
+    1. Get_* que devuelven None cuando no hay resultados: preferible devolver lista vacía para evitar cheques nulos en clientes y ser más Pythonic.
+    2. Filtros: construir patrones de búsqueda con sanitización básica (escapado está cubierto por bindings, pero normalizar whitespace y lower).
+    3. Bulk operations update_all_prices/update_selected_product_prices: asegurar redondeo consistente a 2 decimales (Decimal + quantize) en DB y dominio.
+    4. Add_stock / set_stock: validar no-negativo y evitar condiciones de carrera (usar "UPDATE ... WHERE id=?", con verificación).
+    5. Performance: agregar índices en columnas usadas en filtros (nombre, detalle, codigo, codigo_de_barras, stock).
+    6. Paginación: para listas grandes, proveer métodos con limit/offset.
+    7. Naming: algunos métodos mezclan retornos None/list; unificar.
+
+- ORM y mapeos (app/infrastructure/database/sqlalchemy/orm.py)
+  - Revisar: tipos de columnas apropiados (Decimal para precio, Integer para stock), constraints (UNIQUE para código/código de barras), y relaciones entre Venta/DetalleVenta/Producto.
+
+- UoW (unit_of_work_impl.py, uow_factory.py)
+  - Asegurar que el context manager maneje rollback en excepción y cierre la sesión siempre.
+  - Añadir logging en begin/commit/rollback.
+
+Capa UI (Tkinter)
+- Controladores
+  - AddProductController:
+    1. Validación campo por campo con mensajes específicos (e.g., “El precio debe ser mayor o igual a 0”).
+    2. Normalizar entradas (trim, reemplazar comas/puntos donde aplique).
+    3. Manejo de errores: no relanzar excepción genérica tras mostrar el error (raise e), dejar que el logger registre; el relanzamiento puede romper el loop de UI.
+  - Otros controllers: aplicar el mismo patrón de validación y manejo de errores.
+
+- Vistas y widgets
+  - Unificar componentes de entrada (productEntryFields.py) con validadores; feedback inmediato (colorear campo inválido).
+  - Internacionalización: strings al español ya están, pero externalizarlos para futura i18n.
+
+- Navegación y Router (customRouter.py)
+  - Documentar rutas, simplificar API, y evitar acoplamiento circular controlador↔vista.
+
+Errores, Logging y Observabilidad
+- Implementar logging estructurado
+  - Crear módulo de logging en infrastructure/config (logging.conf o configuración programática).
+  - Niveles: DEBUG para desarrollo, INFO/WARN para producción; logs en archivo rotativo.
+  - Reemplazar prints y raises sin contexto por logs con contexto (IDs, parámetros de entrada), sin exponer datos sensibles.
+
+Testing
+- No se observan tests en el repo (salvo test.py suelto). Propuesta:
+  1. Tests de dominio: Price, Stock, Producto.disminuir_stock, DetalleVenta.calcular_subtotal.
+  2. Tests de application: AddProduct, RegisterSale (mock repos/UoW).
+  3. Tests de infraestructura: repos con DB temporal (sqlite en memoria) y fixtures de datos.
+  4. Tests de UI: smoke tests de construcción de vistas/controladores y validadores puros.
+  5. Integración: flujo de alta de producto y registro de venta con UoW real sqlite memoria.
+
+Base de datos y migraciones
+- Agregar herramienta de migraciones (Alembic) para versionado del esquema.
+- Constraints sugeridos:
+  - UNIQUE(codigo), UNIQUE(codigo_de_barras) si aplica.
+  - CHECK stock >= 0, precio >= 0.
+- Índices:
+  - idx_producto_nombre, idx_producto_codigo, idx_producto_codigo_barras, idx_producto_stock.
+
+Configuración y despliegue
+- requirements.txt: revisar versiones pinneadas y vulnerabilidades.
+- Separar config por entorno (dev/prod), rutas a DB, etc.
+- Empaque: script de arranque (runners/Programa_catalogo.py) con manejo de errores y logs.
+- Considerar empaquetado (PyInstaller) si la app es de escritorio para facilitar distribución.
+
+Seguridad
+- Sanitizar entradas (aunque SQLAlchemy usa parámetros, normalizar y limitar longitudes).
+- Evitar mostrar excepciones crudas al usuario en UI.
+- Backup/Restore de DB: documentar y proveer script simple.
+
+Estilo y calidad
+- PEP8: renombrar archivos de clases a snake_case; imports absolutos ya se usan correctamente.
+- Añadir pyproject.toml con black/ruff/isort para formato y linting.
+- Type hints: ya se usan; ejecutar mypy y corregir inconsistencias (retornos None/list).
+- Docstrings: añadir docstrings a casos de uso y repos para contratos claros.
+
+Riesgos y edge cases detectados
+- Stock negativo: actualmente posible si disminuir_stock no valida con el valor actual (depende de NumericBase.__sub__). Agregar verificación explícita y tests.
+- Redondeo monetario: usar Decimal.quantize con ROUND_HALF_UP en todo cálculo monetario (subtotal, total, cambios de precio).
+- Consistencia de commit: mezclar commits en controller y en caso de uso es fuente de errores; estandarizar.
+
+Sugerencias de cambios concretos (mínimos)
+1) Eliminar prints y agregar logging (ejemplos):
+   - price.py → quitar print(normalized)
+   - register_sale.py → quitar print de VENTA ID
+
+2) Asegurar no stock negativo:
+   - Producto.disminuir_stock → comprobar self._stock.value - amount >= 0, de lo contrario lanzar DomainValidationError.
+
+3) Unificar retornos en repositorios:
+   - Métodos get_* que devuelven None cuando no hay resultados → devolver lista vacía [].
+
+4) Manejo de errores en UI:
+   - AddProductController.add_product → remover raise e y registrar via logger.
+
+5) Documentación rápida:
+   - README: instalación, ejecución, estructura, captura de pantalla, breve nota de arquitectura.
+
+Checklist de implementación (propuesta)
+- [ ] Reemplazar prints por logging y añadir configuración básica de logging.
+- [ ] Validar stock no negativo en dominio y añadir test.
+- [ ] Unificar retornos [] en repositorios de consulta (backwards-compatible audit required).
+- [ ] Revisar y estandarizar política de commit en casos de uso/controladores.
+- [ ] Mejorar mensajes de error y validaciones en UI.
+- [ ] Agregar índices/constraints en ORM y plan de migraciones (Alembic).
+- [ ] Escribir tests esenciales de dominio y application.
+- [ ] Mejorar README y TODO con prioridades.
+
+Notas adicionales encontradas al revisar archivos recientes
+- app/infrastructure/ui/tkinter/controllers/confirm_action/update_all_prices_controller.py: revisar validación de porcentaje y asegurar actualización atómica con UoW.
+- app/infrastructure/ui/tkinter/controllers/individual_action/register_sale_controller.py: manejo de errores de NotFoundProductError y validación de cantidad positiva.
+- app/infrastructure/database/sqlalchemy/uow_factory.py y unit_of_work_impl.py: asegurar cierre de sesión en __exit__ con rollback en excepción y commit explícito.
+
+Criterios de aceptación sugeridos
+- No debe ser posible que el stock de un producto quede negativo desde UI ni desde Application.
+- No deben quedar prints en producción; los eventos relevantes deben registrarse en logs.
+- Consultas de repositorios devuelven listas (posiblemente vacías) y no None.
+- README con pasos para correr la app y explicación de capas.
+
+Fin del informe.
