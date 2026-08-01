@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from decimal import Decimal
+from decimal import Decimal, ROUND_HALF_UP
 
 from app.application.building_blocks.numeric_base import NumericBase
 from app.domain.custom_errors import PriceInvalidError
@@ -27,8 +27,8 @@ class Precio(NumericBase):
         return cls(value)
 
     def __str__(self):
-        entero, decimal = divmod(self.value, 1)
-        entero = int(entero)
-        decimal = int((decimal * 100).quantize(Decimal("1")))
+        quantized = self.value.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+        entero, decimal = divmod(quantized, Decimal("1"))
+        centavos = int((decimal * 100).to_integral_value(rounding=ROUND_HALF_UP))
 
-        return f"${entero:,.0f}".replace(",", ".") + f",{decimal:02d}"
+        return f"${int(entero):,}".replace(",", ".") + f",{centavos:02d}"

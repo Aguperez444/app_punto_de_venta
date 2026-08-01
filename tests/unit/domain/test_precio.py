@@ -20,6 +20,8 @@ def test_precio_str_formatting():
     assert str(Precio(Decimal("0"))) == "$0,00"
     assert str(Precio(Decimal("12.3"))) == "$12,30"
     assert str(Precio(Decimal("1234.56"))) == "$1.234,56"
+    assert str(Precio(Decimal("1.999"))) == "$2,00"
+    assert str(Precio(Decimal("999.995"))) == "$1.000,00"
 
 
 def test_precio_from_string_invalid_raises():

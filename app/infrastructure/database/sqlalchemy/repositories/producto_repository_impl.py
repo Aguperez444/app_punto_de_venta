@@ -225,7 +225,7 @@ class ProductoRepositoryImpl(IProductoRepository):
     def set_stock_bulk(self, ids_list: list, new_stock: Stock) -> None:
         productos = self.session.query(ProductoORM).filter(ProductoORM.id.in_(ids_list)).all()
         for producto in productos:
-            producto.stock += new_stock.value
+            producto.stock = new_stock.value
         # el commit se hace en el uow
 
 

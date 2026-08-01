@@ -6,11 +6,15 @@ from app.application.use_cases.edit_stock import EditStock
 class _FakeProductRepo:
     def __init__(self):
         self.add_calls = []
+        self.add_bulk_calls = []
         self.set_calls = []
         self.set_bulk_calls = []
 
     def add_stock(self, product_id: int, cantidad: int) -> None:
         self.add_calls.append((product_id, cantidad))
+
+    def add_stock_to_multiple_products(self, ids_list, stock_to_add: int) -> None:
+        self.add_bulk_calls.append((list(ids_list), stock_to_add))
 
     def set_stock(self, product_id: int, stock_obj) -> None:
         # accept Stock object
@@ -83,3 +87,24 @@ def test_set_stock_bulk_calls_repo_and_commits():
 
     assert uow.commits >= 1
     assert uow.product_repo.set_bulk_calls == [([1, 2, 3], 11)]
+
+
+@pytest.mark.unit
+def test_add_stock_to_multiple_products_calls_repo_and_commits():
+    uow = _FakeUoW()
+    uc = EditStock(_factory(uow))
+
+    uc.add_stock_to_multiple_products([1, 2], 4)
+
+    assert uow.commits >= 1
+    assert uow.product_repo.add_bulk_calls == [([1, 2], 4)]
+
+
+@pytest.mark.unit
+def test_add_stock_to_multiple_products_handles_empty_list():
+    uow = _FakeUoW()
+    uc = EditStock(_factory(uow))
+
+    assert uc.add_stock_to_multiple_products([], 4) is None
+    assert uow.commits == 0
+    assert uow.product_repo.add_bulk_calls == []

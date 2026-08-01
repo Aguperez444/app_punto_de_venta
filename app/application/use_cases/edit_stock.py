@@ -16,9 +16,8 @@ class EditStock:
     def add_stock_to_multiple_products(self, ids_list: list[int], stock_to_add: int) -> None:
         if not ids_list:
             return
-        with self.uow_factory as uow:
-            for id_producto in ids_list:
-                uow.product_repo.add_stock(id_producto, stock_to_add)
+        with self.uow_factory() as uow:
+            uow.product_repo.add_stock_to_multiple_products(ids_list, stock_to_add)
             uow.commit()
         return
 
