@@ -21,11 +21,10 @@ class IndividualEditStockController:
 
 
     def confirmar_cambios(self, quantity: int):
-
         if quantity < 0:
             self.view.show_error('Error con la cantidad de stock, La cantidad a agregar solo puede '
-                                                                      'ser un numero entero positivo')
-
+                                 'ser un numero entero positivo')
+            return
 
         EditStock(self.uow_factory).add_stock_to_multiple_products(self.products_ids, quantity)
 

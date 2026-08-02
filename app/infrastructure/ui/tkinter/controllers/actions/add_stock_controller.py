@@ -31,8 +31,10 @@ class AddStockController:
 
     def get_filtered_products(self, search_term: str):
         products = QueryProducts(self.uow_factory).get_filtered(search_term)
-
-        self.view.pasar_al_cuadro(products)
+        if products is not None:
+            self.view.pasar_al_cuadro(products)
+        else:
+            self.view.clean_treeview()
 
 
     def get_filtered_products_alphabetically(self, search_criteria: str):

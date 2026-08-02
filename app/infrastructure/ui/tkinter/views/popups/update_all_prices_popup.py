@@ -18,7 +18,7 @@ class UpdateAllPricesPopup(BaseProjectPopupWindow):
         self.y = (parent_window.winfo_screenheight() - self.alto) // 2
 
         self.title('Confirmar Actualización de precios')
-        self.geometry = f'{self.ancho}x{self.alto}+{self.x}+{self.y}'
+        self.geometry(f'{self.ancho}x{self.alto}+{self.x}+{self.y}')
 
         self.focus_set()
         self.grab_set()

@@ -27,7 +27,8 @@ class BaseProjectWindow(ttk.Window):
         # -----------------------------------------atributos principales----------------------------------------
         self.icon_path = self.init_controller.get_icon_path() # get the path to the icon
         self.version = self.init_controller.get_version() # get the program version
-        self.geometry = self.init_controller.calculate_window_resolution() # calculate the window resolution
+        self.window_geometry = self.init_controller.calculate_window_resolution() # calculate the window resolution
+        self.geometry(self.window_geometry)
         self.img = Image.open(self.icon_path)
         self.icon: PhotoImage = ImageTk.PhotoImage(self.img)
         self.theme = self.init_controller.obtener_tema_actual()
@@ -178,12 +179,8 @@ class BaseProjectView(StyledRoutedView):
     def cambiar_modo(self):
         if self.parent.theme == 'journal':
             self.parent.style.theme_use('darkly')
-            self.parent.style.theme_use('darkly')
-            self.parent.theme = 'darkly'
             self.parent.theme = 'darkly'
             self.str_modo.set('Modo claro')
-
-
         else:
             self.parent.style.theme_use('journal')
             self.parent.theme = 'journal'

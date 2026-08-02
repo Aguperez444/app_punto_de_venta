@@ -48,10 +48,6 @@ class ShowProductsView(BaseProjectView, IHasTable, MixinTableNavigation):
         self.table.show_products(product_list)
 
 
-    def clean_treeview(self):
-        pass
-
-
     def entry_action(self, *args):
         self.realizar_busqueda()
 
@@ -81,12 +77,16 @@ class ShowProductsView(BaseProjectView, IHasTable, MixinTableNavigation):
 
     def registrar_venta(self, _event):
         valores = self.get_info_from_selected_item()
+        if not valores:
+            return
         product_id = valores[4]
         self.controller.open_sale_register_window(product_id)
 
 
     def get_info_from_selected_item(self):
         tuple_item = self.table.get_selected()
+        if not tuple_item:
+            return None
         item = tuple_item[0]
         if item:
             valores = self.table.get_item_data(item)

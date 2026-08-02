@@ -277,7 +277,7 @@ class SearchTable(ttk.Frame):
                     self.cuadro.focus(first)
                     self.cuadro.see(first)
         else:
-            if selection[0] == children[0]:
+            if selection and selection[0] == children[0]:
                 self.cuadro.selection_clear()
                 self.cuadro.focus('')
                 self.entry.focus_set()

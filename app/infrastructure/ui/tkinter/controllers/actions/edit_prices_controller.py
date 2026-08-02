@@ -53,8 +53,6 @@ class EditPricesController:
 
     def get_all_products_alphabetically(self):
         productos = QueryProducts(self.uow_factory).get_all_alphabetically()
-        print("entro alpha")
-
         self.view.pasar_al_cuadro(productos)
 
     def open_individual_edit_price_window(self, mod_ids):

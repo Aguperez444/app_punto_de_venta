@@ -34,7 +34,6 @@ class SaleRepositoryImpl(ISaleRepository):
         venta_orm = VentaMapper.new_to_orm_venta(venta)  # copia fecha, total y detalles
         self.session.add(venta_orm)
         self.session.flush()               # obtenemos id de la DB
-        print(f"VENTA ID EN EL REPO: {venta_orm.id}\n\n\n\n")
         venta.id_venta = venta_orm.id                       # propagamos id al dominio
 
 
