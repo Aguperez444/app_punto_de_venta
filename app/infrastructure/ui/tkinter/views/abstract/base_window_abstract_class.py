@@ -1,5 +1,8 @@
+import logging
 import ttkbootstrap as ttk
 from tkinter import simpledialog, messagebox, PhotoImage
+
+logger = logging.getLogger(__name__)
 
 from tkrouter import RouteLinkButton, get_router
 
@@ -94,6 +97,10 @@ class BaseProjectWindow(ttk.Window):
     def show_error(msg):
         messagebox.showerror('Ha ocurrido un error', msg)
 
+
+    def report_callback_exception(self, exc, val, tb):
+        logger.exception("Error no controlado en callback de Tkinter", exc_info=(exc, val, tb))
+        self.show_error(f"Ocurrió un error inesperado: {val}")
 
     def maximizar(self):
         try:
@@ -211,6 +218,10 @@ class BaseProjectView(StyledRoutedView):
     def render_view(self):
         raise NotImplementedError("Subclasses should implement this method.")
 
+
+    def report_callback_exception(self, exc, val, tb):
+        logger.exception("Error no controlado en callback de Tkinter", exc_info=(exc, val, tb))
+        self.show_error(f"Ocurrió un error inesperado: {val}")
 
     def maximizar(self):
         try:
@@ -363,6 +374,10 @@ class BaseProjectPopupWindow(ttk.Toplevel):
     def volver_al_menu(self, _varname=None, _index=None, _mode=None):
         self.destroy()
 
+
+    def report_callback_exception(self, exc, val, tb):
+        logger.exception("Error no controlado en callback de Tkinter", exc_info=(exc, val, tb))
+        self.show_error(f"Ocurrió un error inesperado: {val}")
 
     def maximizar(self):
         try:

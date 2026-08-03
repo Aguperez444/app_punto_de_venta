@@ -1,7 +1,12 @@
+import logging
+
 from app.application.use_cases.query_products import QueryProducts
+from app.domain.custom_errors import DomainValidationError
 from app.infrastructure.database.sqlalchemy.unit_of_work.uow_factory import uow_factory
 from app.infrastructure.ui.tkinter.views.popups.individual_edit_info_popup import IndividualEditInfoPopup
 from app.application.use_cases.edit_product_info import EditProductInfo
+
+logger = logging.getLogger(__name__)
 
 
 class IndividualEditInfoController:
@@ -17,6 +22,10 @@ class IndividualEditInfoController:
     def get_product_info(self) -> None:
         producto = QueryProducts(self.uow_factory).get_by_id(self.mod_id)
 
+        if producto is None:
+            self.view.show_error("No se encontró el producto seleccionado.")
+            self.view.destroy()
+            return
 
         self.view.pasar_al_cuadro([producto])
         self.view.mostrar_datos(producto)
@@ -31,10 +40,12 @@ class IndividualEditInfoController:
             self.view.show_message("Producto actualizado correctamente.")
             self.view.destroy()
             self.main_window.realizar_busqueda()
-        except ValueError as e:
+        except (ValueError, DomainValidationError) as e:
+            logger.warning("Error de validación al editar producto %s: %s", self.mod_id, e)
             self.view.show_error(str(e))
-            raise e #TODO ENVIAR ERRORES A UN LOGGER
-            return
+        except Exception as e:
+            logger.exception("Error inesperado al actualizar producto %s", self.mod_id)
+            self.view.show_error(f"Error al actualizar el producto: {e}")
 
     def cancelar_cambios(self):
         self.view.destroy()

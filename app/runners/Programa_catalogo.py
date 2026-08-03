@@ -1,4 +1,7 @@
+from app.infrastructure.config.logging_config import configure_logging
 from app.infrastructure.ui.tkinter.controllers.common.program_start_controller import ProgramStartController
+
+configure_logging()
 
 # -------------------------------------------- Chequear_primer_arranque ------------------------------------------------
 

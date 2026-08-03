@@ -1,8 +1,12 @@
+import logging
+
 from app.application.use_cases.query_products import QueryProducts
 from app.application.use_cases.update_price import UpdatePrice
 from app.domain.custom_errors import PriceInvalidError
 from app.infrastructure.ui.tkinter.views.popups.individual_edit_price_popup import IndividualEditPricePopup
 from app.infrastructure.database.sqlalchemy.unit_of_work.uow_factory import uow_factory
+
+logger = logging.getLogger(__name__)
 
 class IndividualEditPriceController:
 
@@ -28,11 +32,11 @@ class IndividualEditPriceController:
             return
 
         try:
-
             UpdatePrice(self.uow_factory).update_selected(self.mod_ids_in, porcentaje)
         except Exception as e:
+            logger.exception("Error al actualizar precios por porcentaje")
             self.view.show_error(str(e))
-            raise e #TODO ENVIAR ERRORES A UN LOGGER
+            return
         self.view.show_message("Se han actualizado correctamente los precios")
         self.view.destroy()
         self.main_window.realizar_busqueda()
@@ -41,9 +45,11 @@ class IndividualEditPriceController:
         try:
             UpdatePrice(self.uow_factory).update_to_new_value(self.mod_ids_in, nuevo_precio_str)
         except (ValueError, PriceInvalidError) as e:
+            logger.warning("Precio inválido ingresado: %s", e)
             self.view.show_error(f"El precio debe ser un número válido: {e}")
             return
         except Exception as e:
+            logger.exception("Error inesperado al actualizar precio manual")
             self.view.show_error(str(e))
             return
 

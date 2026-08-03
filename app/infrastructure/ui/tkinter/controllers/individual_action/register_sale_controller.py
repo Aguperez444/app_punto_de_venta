@@ -1,3 +1,5 @@
+import logging
+
 from app.domain.models.detalle_venta import DetalleVenta
 
 from app.infrastructure.database.sqlalchemy.unit_of_work.uow_factory import uow_factory
@@ -8,6 +10,8 @@ from app.application.use_cases.register_sale import RegisterSale
 from app.infrastructure.ui.tkinter.views.popups.sale_register_popup import SalesRegisterWindow
 from datetime import datetime
 from app.domain.custom_errors import DomainValidationError
+
+logger = logging.getLogger(__name__)
 
 
 class RegisterSaleController:
@@ -56,9 +60,10 @@ class RegisterSaleController:
             self.view.show_error(str(dve))
             return
         except Exception as e:
-            self.view.show_error(f'Error Desconocido al registrar la venta. Por favor,'
-                                 f' contacte al administrador del sistema {str(e)}')
-            raise e #TODO implementar logger de errores donde se guarde la exception capturada
+            logger.exception("Error inesperado al registrar la venta del producto %s", self.product_id)
+            self.view.show_error(f'Error desconocido al registrar la venta. Por favor,'
+                                 f' contacte al administrador del sistema: {str(e)}')
+            return
 
         if success:
             self.view.show_message('Venta registrada correctamente.')

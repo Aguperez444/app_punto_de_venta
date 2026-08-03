@@ -1,6 +1,9 @@
+import logging
 import os
 import subprocess
 import sys
+
+logger = logging.getLogger(__name__)
 
 class ConfigFilesPersistence:
     """
@@ -90,8 +93,7 @@ class ConfigFilesPersistence:
                 if out and out != '$HOME':
                     docs = out
             except Exception as e:
-                print(e) # TODO IMPLEMENTAR LOGGER
-                pass
+                logger.debug("No se pudo ejecutar xdg-user-dir: %s", e)
 
             # 2) Respaldo: leer ~/.config/user-dirs.dirs
             if not docs:
@@ -104,8 +106,7 @@ class ConfigFilesPersistence:
                                 docs = value.replace('$HOME', home)
                                 break
                 except Exception as e:
-                    print(e) # TODO IMPLEMENTAR LOGGER
-                    pass
+                    logger.debug("No se pudo leer user-dirs.dirs: %s", e)
 
             # 3) Último recurso
             if not docs:

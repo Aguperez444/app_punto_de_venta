@@ -1,3 +1,5 @@
+import logging
+
 from app.infrastructure.database.sqlalchemy.unit_of_work.uow_factory import uow_factory
 from app.application.use_cases.add_product import AddProduct
 from app.domain.custom_errors import DomainValidationError
@@ -6,6 +8,9 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from app.infrastructure.ui.tkinter.views.views.add_product_view import AddProductsView
+
+logger = logging.getLogger(__name__)
+
 
 class AddProductController:
     def __init__(self, view: 'AddProductsView'):
@@ -33,10 +38,11 @@ class AddProductController:
             self.view.show_success_message()
 
         except DomainValidationError as dve:
+            logger.warning("Validación fallida al agregar producto: %s", dve)
             self.view.show_error_message(str(dve))
         except Exception as e:
+            logger.exception("Error inesperado al agregar producto")
             self.view.show_error_message(f"Error al agregar el producto: {str(e)}")
-            raise e # TODO añadir logger para guardar el log de los errores
 
 
         
