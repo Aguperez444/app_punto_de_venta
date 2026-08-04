@@ -6,6 +6,7 @@ logger = logging.getLogger(__name__)
 
 from tkrouter import RouteLinkButton, get_router
 
+from app.infrastructure.config.auth_service import AuthService
 from app.infrastructure.ui.tkinter.controllers.common.common_window_innit_controller import CommonWindowInitController
 from PIL import Image, ImageTk
 from tkinter import TclError
@@ -24,7 +25,7 @@ class BaseProjectWindow(ttk.Window):
     """
     def __init__(self):
         super().__init__()
-        self.password = '777fer'  # Default password, can be overridden in subclasses
+        self.auth_service = AuthService()
         # -----------------------------------------comunicación con Controllers--------------------------------
         self.init_controller = CommonWindowInitController()
         # -----------------------------------------atributos principales----------------------------------------
@@ -52,6 +53,32 @@ class BaseProjectWindow(ttk.Window):
 
 
     def solicit_password(self, mode):
+        if not self.auth_service.is_password_configured():
+            new_pwd = simpledialog.askstring(
+                "Configurar contraseña",
+                "No hay contraseña administrativa configurada.\nIngrese una nueva contraseña (mínimo 4 caracteres):",
+                show="*",
+            )
+            if new_pwd is None:
+                return
+            confirm_pwd = simpledialog.askstring(
+                "Confirmar contraseña",
+                "Vuelva a ingresar la contraseña:",
+                show="*",
+            )
+            if confirm_pwd is None:
+                return
+            if new_pwd != confirm_pwd:
+                messagebox.showerror("Error", "Las contraseñas no coinciden.")
+                return
+            try:
+                self.auth_service.set_password(new_pwd)
+                messagebox.showinfo("Contraseña configurada", "Contraseña administrativa guardada correctamente.")
+                self.handle_correct_password(mode)
+            except Exception as exc:
+                messagebox.showerror("Error", str(exc))
+            return
+
         correct_password_introduced = False
 
         while not correct_password_introduced:
@@ -59,7 +86,7 @@ class BaseProjectWindow(ttk.Window):
 
             if dialog is None:
                 break
-            elif dialog == self.password:
+            elif self.auth_service.verify_password(dialog):
                 self.handle_correct_password(mode)
                 correct_password_introduced = True
             else:
@@ -118,9 +145,8 @@ class BaseProjectView(StyledRoutedView):
         # -----------------------------------------comunicación con Controllers--------------------------------
         self.init_controller = CommonWindowInitController()
         # -----------------------------------------atributos principales----------------------------------------
-        self.password = '777fer'
-
         self.parent = master.parent
+        self.auth_service = getattr(self.parent, "auth_service", AuthService())
 
         self.resolution = self.get_screen_resolution()
         self.resolution_str = f'{self.resolution[0]}x{self.resolution[1]}'
@@ -169,6 +195,32 @@ class BaseProjectView(StyledRoutedView):
 
 
     def solicit_password(self, mode):
+        if not self.auth_service.is_password_configured():
+            new_pwd = simpledialog.askstring(
+                "Configurar contraseña",
+                "No hay contraseña administrativa configurada.\nIngrese una nueva contraseña (mínimo 4 caracteres):",
+                show="*",
+            )
+            if new_pwd is None:
+                return
+            confirm_pwd = simpledialog.askstring(
+                "Confirmar contraseña",
+                "Vuelva a ingresar la contraseña:",
+                show="*",
+            )
+            if confirm_pwd is None:
+                return
+            if new_pwd != confirm_pwd:
+                messagebox.showerror("Error", "Las contraseñas no coinciden.")
+                return
+            try:
+                self.auth_service.set_password(new_pwd)
+                messagebox.showinfo("Contraseña configurada", "Contraseña administrativa guardada correctamente.")
+                self.handle_correct_password(mode)
+            except Exception as exc:
+                messagebox.showerror("Error", str(exc))
+            return
+
         correct_password_introduced = False
 
         while not correct_password_introduced:
@@ -176,7 +228,7 @@ class BaseProjectView(StyledRoutedView):
 
             if dialog is None:
                 break
-            elif dialog == self.password:
+            elif self.auth_service.verify_password(dialog):
                 self.handle_correct_password(mode)
                 correct_password_introduced = True
             else:
@@ -248,8 +300,7 @@ class BaseProjectPopupWindow(ttk.Toplevel):
         self.init_controller = CommonWindowInitController()
         # -----------------------------------------atributos principales----------------------------------------
         self.parent = parent
-
-        self.password = '777fer'
+        self.auth_service = getattr(parent, "auth_service", AuthService())
 
         self.resolution = self.get_screen_resolution()
         self.resolution_str = f'{self.resolution[0]}x{self.resolution[1]}'
@@ -336,6 +387,32 @@ class BaseProjectPopupWindow(ttk.Toplevel):
 
 
     def solicit_password(self, mode):
+        if not self.auth_service.is_password_configured():
+            new_pwd = simpledialog.askstring(
+                "Configurar contraseña",
+                "No hay contraseña administrativa configurada.\nIngrese una nueva contraseña (mínimo 4 caracteres):",
+                show="*",
+            )
+            if new_pwd is None:
+                return
+            confirm_pwd = simpledialog.askstring(
+                "Confirmar contraseña",
+                "Vuelva a ingresar la contraseña:",
+                show="*",
+            )
+            if confirm_pwd is None:
+                return
+            if new_pwd != confirm_pwd:
+                messagebox.showerror("Error", "Las contraseñas no coinciden.")
+                return
+            try:
+                self.auth_service.set_password(new_pwd)
+                messagebox.showinfo("Contraseña configurada", "Contraseña administrativa guardada correctamente.")
+                self.handle_correct_password(mode)
+            except Exception as exc:
+                messagebox.showerror("Error", str(exc))
+            return
+
         correct_password_introduced = False
 
         while not correct_password_introduced:
@@ -343,7 +420,7 @@ class BaseProjectPopupWindow(ttk.Toplevel):
 
             if dialog is None:
                 break
-            elif dialog == self.password:
+            elif self.auth_service.verify_password(dialog):
                 self.handle_correct_password(mode)
                 correct_password_introduced = True
             else:

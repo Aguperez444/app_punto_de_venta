@@ -107,8 +107,6 @@ class MainMenuWindow(BaseProjectWindow):
         create_router(self.ROUTES, self.outlet)
         get_router().navigate("/")
 
-        # -----------------------------------------variables principales----------------------------------------
-        self.password = '777fer'
         # -----------------------------------------ventana_menu-------------------------------------------------
         self.title(f'Catalogo-{self.version}')
         self.maximizar()
