@@ -1,5 +1,8 @@
 from decimal import Decimal
+import pytest
 from freezegun import freeze_time
+
+from app.domain.custom_errors import EmptySaleError
 from app.domain.models.venta import Venta
 from app.domain.models.detalle_venta import DetalleVenta
 from app.domain.models.precio import Precio
@@ -22,3 +25,9 @@ def test_venta_aggregate_and_update_price():
     assert v.total == Decimal("25.51")
     v.update_price()
     assert str(v.total_price) == "$25,51"
+
+
+def test_venta_validar_no_vacia_raises_when_empty():
+    v = Venta.nueva()
+    with pytest.raises(EmptySaleError):
+        v.validar_no_vacia()
