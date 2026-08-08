@@ -59,6 +59,9 @@ class FakeProductRepo:
     def update_info_product(self, product: Producto) -> None:
         self.updated_products.append(product)
 
+    def set_stock(self, product_id: int, stock) -> None:
+        self.updated_products.append((product_id, stock))
+
 
 class FakeSaleRepo:
     def __init__(self):

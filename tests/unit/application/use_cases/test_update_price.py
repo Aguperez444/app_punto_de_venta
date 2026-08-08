@@ -1,3 +1,4 @@
+from decimal import Decimal
 import pytest
 
 from app.application.use_cases.update_price import UpdatePrice
@@ -9,10 +10,10 @@ class _FakeProductRepo:
         self.update_selected_calls = []
         self.update_to_value_calls = []
 
-    def update_all_prices(self, multiplier: float):
+    def update_all_prices(self, multiplier: Decimal):
         self.update_all_calls.append(multiplier)
 
-    def update_selected_product_prices(self, ids_list, multiplier: float):
+    def update_selected_product_prices(self, ids_list, multiplier: Decimal):
         self.update_selected_calls.append((list(ids_list), multiplier))
 
     def update_price_to_new_value(self, ids_list, new_price):
@@ -24,12 +25,19 @@ class _FakeUoW:
     def __init__(self):
         self.product_repo = _FakeProductRepo()
         self.sale_repo = None
+        self.commits = 0
 
     def __enter__(self):
         return self
 
     def __exit__(self, exc_type, exc, tb):
         return False
+
+    def commit(self):
+        self.commits += 1
+
+    def rollback(self):
+        pass
 
 
 def _factory(uow):
@@ -41,9 +49,10 @@ def test_update_all_parses_percent_and_calls_repo():
     uow = _FakeUoW()
     uc = UpdatePrice(_factory(uow))
 
-    uc.update_all(10)  # +10% => 1.1
+    uc.update_all(10)  # +10% => 1.1000
 
-    assert uow.product_repo.update_all_calls == [1.1]
+    assert uow.product_repo.update_all_calls == [Decimal("1.1000")]
+    assert uow.commits == 1
 
 
 @pytest.mark.unit
@@ -53,6 +62,8 @@ def test_update_all_invalid_percent_raises():
 
     with pytest.raises(ValueError):
         uc.update_all("abc")
+    with pytest.raises(ValueError):
+        uc.update_all("-150")
 
 
 @pytest.mark.unit
@@ -62,6 +73,7 @@ def test_update_selected_handles_empty_ids():
 
     assert uc.update_selected([], 5) is None
     assert uow.product_repo.update_selected_calls == []
+    assert uow.commits == 0
 
 
 @pytest.mark.unit
@@ -80,7 +92,8 @@ def test_update_selected_calls_repo():
 
     uc.update_selected([1, 2], 5.0)
 
-    assert uow.product_repo.update_selected_calls == [([1, 2], 1.05)]
+    assert uow.product_repo.update_selected_calls == [([1, 2], Decimal("1.0500"))]
+    assert uow.commits == 1
 
 
 @pytest.mark.unit
@@ -93,4 +106,5 @@ def test_update_to_new_value_wraps_precio():
     assert len(uow.product_repo.update_to_value_calls) == 1
     ids, price_value = uow.product_repo.update_to_value_calls[0]
     assert ids == [3, 4]
-    assert float(price_value) == 12.34
+    assert price_value == Decimal("12.34")
+    assert uow.commits == 1

@@ -2,11 +2,11 @@ import pytest
 from decimal import Decimal
 
 from app.application.ports.producto_repository import IProductoRepository
+from app.application.ports.unit_of_work import IUnitOfWork
 from app.application.use_cases.edit_product_info import EditProductInfo
 from app.domain.models.producto import Producto
 from app.domain.models.precio import Precio
 from app.domain.models.stock import Stock
-from app.infrastructure.database.sqlalchemy.unit_of_work.unit_of_work import IUnitOfWork
 
 
 class _FakeProductRepo(IProductoRepository):
