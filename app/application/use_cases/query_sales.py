@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from datetime import datetime, timedelta
 
 from app.application.ports.unit_of_work import UowFactory
@@ -7,6 +9,10 @@ from app.domain.models.venta import Venta
 class QuerySales:
     def __init__(self, uow_factory: UowFactory):
         self.uow_factory = uow_factory
+
+    def get_by_id(self, venta_id: int) -> Venta | None:
+        with self.uow_factory() as uow:
+            return uow.sale_repo.get_by_id(venta_id)
 
     def by_date(self, date: datetime) -> list[Venta]:
         inicio = datetime(date.year, date.month, date.day, 0, 0, 0)
