@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from app.domain.models.producto import Producto
 from app.domain.models.precio import Precio
+from app.domain.models.producto import Producto
 from app.domain.models.stock import Stock
 from app.infrastructure.database.sqlalchemy.models.producto_orm import ProductoORM
 
@@ -14,9 +14,10 @@ class ProductoMapper:
             nombre=row.nombre,
             codigo=row.codigo,
             precio=Precio(row.precio),
-            detalle=row.detalle,
-            codigo_de_barras=row.codigo_de_barras,
-            stock=Stock(row.stock)
+            detalle=row.detalle or "",
+            codigo_de_barras=row.codigo_de_barras or "",
+            stock=Stock(row.stock),
+            activo=bool(getattr(row, "activo", True)),
         )
 
     @staticmethod
@@ -28,7 +29,8 @@ class ProductoMapper:
             precio=product.precio.value,
             detalle=product.detalle,
             codigo_de_barras=product.codigo_de_barras,
-            stock=product.stock.value
+            stock=product.stock.value,
+            activo=product.activo,
         )
 
     @staticmethod
@@ -39,5 +41,6 @@ class ProductoMapper:
             precio=product.precio.value,
             detalle=product.detalle,
             codigo_de_barras=product.codigo_de_barras,
-            stock=product.stock.value
+            stock=product.stock.value,
+            activo=product.activo,
         )
