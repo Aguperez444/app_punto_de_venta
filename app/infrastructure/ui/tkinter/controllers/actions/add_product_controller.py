@@ -13,9 +13,12 @@ logger = logging.getLogger(__name__)
 
 
 class AddProductController:
-    def __init__(self, view: 'AddProductsView'):
-
-        self.uow_factory = uow_factory
+    def __init__(self, view: 'AddProductsView', uow_factory_param=None):
+        container = getattr(view, "container", None)
+        self.uow_factory = (
+            uow_factory_param
+            or (container.uow_factory if container is not None else uow_factory)
+        )
         self.view = view
 
     def finished_init(self):

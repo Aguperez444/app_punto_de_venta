@@ -10,9 +10,13 @@ if TYPE_CHECKING:
     from app.infrastructure.ui.tkinter.views.views.show_sales_list_view import ShowSalesListView
 
 class ShowSalesController:
-    def __init__(self, view: 'ShowSalesListView'):
+    def __init__(self, view: 'ShowSalesListView', uow_factory_param=None):
         self.view = view
-        self.uow_factory = uow_factory
+        container = getattr(view, "container", None)
+        self.uow_factory = (
+            uow_factory_param
+            or (container.uow_factory if container is not None else uow_factory)
+        )
 
 
     def finished_init(self):

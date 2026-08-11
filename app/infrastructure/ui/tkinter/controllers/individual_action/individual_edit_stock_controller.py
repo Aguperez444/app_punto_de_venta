@@ -5,9 +5,13 @@ from app.infrastructure.database.sqlalchemy.unit_of_work.uow_factory import uow_
 
 
 class IndividualEditStockController:
-    def __init__(self, invoked_by_window, products_ids):
+    def __init__(self, invoked_by_window, products_ids, uow_factory_param=None):
         self.view = IndividualEditStockPopup(invoked_by_window, self)
-        self.uow_factory = uow_factory
+        container = getattr(invoked_by_window, "container", None)
+        self.uow_factory = (
+            uow_factory_param
+            or (container.uow_factory if container is not None else uow_factory)
+        )
         self.products_ids = products_ids
 
         self.view.render_view()

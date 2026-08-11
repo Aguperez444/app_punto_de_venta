@@ -9,10 +9,14 @@ if TYPE_CHECKING:
 
 
 class ShowProductController:
-    def __init__(self, view: 'ShowProductsView'):
+    def __init__(self, view: 'ShowProductsView', uow_factory_param=None):
         self.view = view
         self.venta_controller = None
-        self.uow_factory = uow_factory
+        container = getattr(view, "container", None)
+        self.uow_factory = (
+            uow_factory_param
+            or (container.uow_factory if container is not None else uow_factory)
+        )
 
     def search_products(self, search_criteria: str):
 

@@ -15,12 +15,17 @@ logger = logging.getLogger(__name__)
 
 
 class RegisterSaleController:
-    def __init__(self, invoked_by_controller, invoked_by_window, product_id: int):
+    def __init__(self, invoked_by_controller, invoked_by_window, product_id: int, uow_factory_param=None):
         self.parent_controller = invoked_by_controller
 
         self.product_id = product_id
         self.main_window = invoked_by_window
-        self.uow_factory = uow_factory
+        container = getattr(invoked_by_window, "container", None)
+        self.uow_factory = (
+            uow_factory_param
+            or (container.uow_factory if container is not None else uow_factory)
+        )
+        self.clock = container.clock if container is not None else None
 
         self.view = SalesRegisterWindow(invoked_by_window, self)
 

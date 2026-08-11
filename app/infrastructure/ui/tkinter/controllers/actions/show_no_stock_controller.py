@@ -7,9 +7,12 @@ if TYPE_CHECKING:
     from app.infrastructure.ui.tkinter.views.views.show_no_stock_list_view import ShowNoStockView
 
 class ShowNoStockController:
-    def __init__(self, view: 'ShowNoStockView'):
-
-        self.uow_factory = uow_factory
+    def __init__(self, view: 'ShowNoStockView', uow_factory_param=None):
+        container = getattr(view, "container", None)
+        self.uow_factory = (
+            uow_factory_param
+            or (container.uow_factory if container is not None else uow_factory)
+        )
         self.view = view
 
     def finished_init(self):

@@ -10,10 +10,14 @@ logger = logging.getLogger(__name__)
 
 class IndividualEditPriceController:
 
-    def __init__(self, invoked_by_window, mod_ids_in: list[int]):
+    def __init__(self, invoked_by_window, mod_ids_in: list[int], uow_factory_param=None):
         self.view = IndividualEditPricePopup(invoked_by_window, self)
         self.main_window = invoked_by_window
-        self.uow_factory = uow_factory
+        container = getattr(invoked_by_window, "container", None)
+        self.uow_factory = (
+            uow_factory_param
+            or (container.uow_factory if container is not None else uow_factory)
+        )
         self.mod_ids_in = mod_ids_in
 
         self.view.render_view()

@@ -2,8 +2,8 @@ from app.infrastructure.config.config_files_persistance import ConfigFilesPersis
 from screeninfo import get_monitors
 
 class CommonWindowInitController:
-    def __init__(self):
-        self.config_pointer = ConfigFilesPersistence()
+    def __init__(self, config_persistence: ConfigFilesPersistence | None = None):
+        self.config_pointer = config_persistence or ConfigFilesPersistence()
         self.icon_path = self.config_pointer.encontrar_ruta_icono()
         self.version = self.config_pointer.program_version
         self.theme = self.config_pointer.obtener_tema()

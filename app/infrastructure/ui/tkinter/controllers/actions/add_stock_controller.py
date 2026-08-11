@@ -8,9 +8,13 @@ if TYPE_CHECKING:
 
 
 class AddStockController:
-    def __init__(self, view: 'AddStockView'):
+    def __init__(self, view: 'AddStockView', uow_factory_param=None):
         self.view = view
-        self.uow_factory = uow_factory
+        container = getattr(view, "container", None)
+        self.uow_factory = (
+            uow_factory_param
+            or (container.uow_factory if container is not None else uow_factory)
+        )
 
 
     def finished_init(self):

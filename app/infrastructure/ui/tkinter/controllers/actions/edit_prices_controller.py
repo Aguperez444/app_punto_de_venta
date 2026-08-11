@@ -9,8 +9,12 @@ if TYPE_CHECKING:
     from app.infrastructure.ui.tkinter.views.views.edit_prices_view import EditPricesView
 
 class EditPricesController:
-    def __init__(self, view: 'EditPricesView'):
-        self.uow_factory = uow_factory
+    def __init__(self, view: 'EditPricesView', uow_factory_param=None):
+        container = getattr(view, "container", None)
+        self.uow_factory = (
+            uow_factory_param
+            or (container.uow_factory if container is not None else uow_factory)
+        )
         self.view = view
 
 

@@ -10,10 +10,14 @@ logger = logging.getLogger(__name__)
 
 
 class IndividualEditInfoController:
-    def __init__(self, invoked_by_window, mod_id: int):
+    def __init__(self, invoked_by_window, mod_id: int, uow_factory_param=None):
         self.main_window = invoked_by_window
         self.mod_id = mod_id
-        self.uow_factory = uow_factory
+        container = getattr(invoked_by_window, "container", None)
+        self.uow_factory = (
+            uow_factory_param
+            or (container.uow_factory if container is not None else uow_factory)
+        )
         self.view = IndividualEditInfoPopup(invoked_by_window, self)
 
         self.view.render_view()

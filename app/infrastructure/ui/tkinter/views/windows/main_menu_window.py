@@ -82,8 +82,8 @@ class MainMenuRoutedView(StyledRoutedView):
 
 
 class MainMenuWindow(BaseProjectWindow):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, container=None):
+        super().__init__(container=container)
 
         self.minsize(800, 600)
 

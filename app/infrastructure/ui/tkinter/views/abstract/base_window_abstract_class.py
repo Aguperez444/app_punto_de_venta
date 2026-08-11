@@ -23,11 +23,14 @@ class BaseProjectWindow(ttk.Window):
     """
     Base class for project windows, providing common functionality.
     """
-    def __init__(self):
+    def __init__(self, container=None):
         super().__init__()
-        self.auth_service = AuthService()
+        self.container = container
+        self.auth_service = container.auth_service if container is not None else AuthService()
         # -----------------------------------------comunicación con Controllers--------------------------------
-        self.init_controller = CommonWindowInitController()
+        self.init_controller = CommonWindowInitController(
+            config_persistence=container.config if container is not None else None
+        )
         # -----------------------------------------atributos principales----------------------------------------
         self.icon_path = self.init_controller.get_icon_path() # get the path to the icon
         self.version = self.init_controller.get_version() # get the program version
@@ -142,11 +145,14 @@ class BaseProjectView(StyledRoutedView):
     """
     def __init__(self, master: 'RouterOutlet'):
         super().__init__(master)
-        # -----------------------------------------comunicación con Controllers--------------------------------
-        self.init_controller = CommonWindowInitController()
         # -----------------------------------------atributos principales----------------------------------------
         self.parent = master.parent
+        self.container = getattr(self.parent, "container", None)
         self.auth_service = getattr(self.parent, "auth_service", AuthService())
+        # -----------------------------------------comunicación con Controllers--------------------------------
+        self.init_controller = CommonWindowInitController(
+            config_persistence=self.container.config if self.container is not None else None
+        )
 
         self.resolution = self.get_screen_resolution()
         self.resolution_str = f'{self.resolution[0]}x{self.resolution[1]}'
@@ -300,6 +306,7 @@ class BaseProjectPopupWindow(ttk.Toplevel):
         self.init_controller = CommonWindowInitController()
         # -----------------------------------------atributos principales----------------------------------------
         self.parent = parent
+        self.container = getattr(parent, "container", None)
         self.auth_service = getattr(parent, "auth_service", AuthService())
 
         self.resolution = self.get_screen_resolution()

@@ -2,9 +2,8 @@ from app.infrastructure.ui.tkinter.views.windows.find_bdd_window import FindBddW
 from app.infrastructure.config.config_files_persistance import ConfigFilesPersistence
 
 class ProgramStartController:
-    def __init__(self):
-
-        self.config_persistence_pointer = ConfigFilesPersistence()
+    def __init__(self, config_persistence: ConfigFilesPersistence | None = None):
+        self.config_persistence_pointer = config_persistence or ConfigFilesPersistence()
         self.boundary_pointer = None
 
 
