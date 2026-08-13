@@ -1,3 +1,4 @@
+from tkinter import messagebox
 import ttkbootstrap as ttk
 
 from app.infrastructure.ui.tkinter.custom_widgets.search_table import SearchTable, IHasTable
@@ -62,8 +63,21 @@ class IndividualEditInfoPopup(BaseProjectPopupWindow, IHasTable):
 
         # ----------------------------buttons---------------------------
 
-        self.button_cancel = ttk.Button(master=self, text='Cancelar', style='danger')
-        self.button_cancel.configure(width=15, command=self.cancelar)
+        self.footer_buttons_frame = ttk.Frame(master=self)
+        self.button_delete = ttk.Button(
+            master=self.footer_buttons_frame,
+            text='Eliminar producto',
+            style='warning',
+            width=18,
+            command=self.eliminar,
+        )
+        self.button_cancel = ttk.Button(
+            master=self.footer_buttons_frame,
+            text='Cancelar',
+            style='danger',
+            width=18,
+            command=self.cancelar,
+        )
 
 
         # -----------------------------------------------gestion de eventos----------------------------------------
@@ -90,8 +104,9 @@ class IndividualEditInfoPopup(BaseProjectPopupWindow, IHasTable):
 
         self.update()
 
-        self.button_cancel.place(relx=0.5, y=self.table.winfo_y() + 155 + 15,
-                                 height=40, width=200, anchor='n')
+        self.button_delete.grid(row=0, column=0, padx=10, ipady=4)
+        self.button_cancel.grid(row=0, column=1, padx=10, ipady=4)
+        self.footer_buttons_frame.place(relx=0.5, y=self.table.winfo_y() + 155 + 15, anchor='n')
 
         self.controller.get_product_info()
 
@@ -99,7 +114,25 @@ class IndividualEditInfoPopup(BaseProjectPopupWindow, IHasTable):
 
     def mostrar_datos(self, producto):
         self.product_entry.show_product(producto)
-        #TODO CHECK THIS, might be better to use DTO
+        if not getattr(producto, 'activo', True):
+            self.button_delete.configure(
+                text='Reactivar producto', style='success', command=self.reactivar
+            )
+        else:
+            self.button_delete.configure(
+                text='Eliminar producto', style='warning', command=self.eliminar
+            )
+
+    def eliminar(self):
+        if messagebox.askyesno(
+            "Confirmar eliminación",
+            "¿Está seguro que desea eliminar (archivar) este producto?",
+            parent=self,
+        ):
+            self.controller.delete_product()
+
+    def reactivar(self):
+        self.controller.restore_product()
 
 
     def confirm_action(self, _varname=None, _index=None, _mode=None):

@@ -151,6 +151,8 @@ class SearchTable(ttk.Frame):
                                   font=('Calibri', font_size))
         self.cuadro.tag_configure('impar', foreground="white", background="grey",
                                   font=('Calibri', font_size))
+        self.cuadro.tag_configure('inactivo', foreground="#666666", background="#e6e6e6",
+                                  font=('Calibri', font_size, 'italic'))
 
         # ------------------------- scroll bar -------------------------
         self.scrollbar = ttk.Scrollbar(self, orient="vertical", command=self.cuadro.yview)
@@ -216,8 +218,14 @@ class SearchTable(ttk.Frame):
         contador = 0
         # Añadir nuevas filas
         for product in product_list:
-            tag = 'par' if contador % 2 == 0 else 'impar'
-            self.cuadro.insert("", "end", iid=str(product.id_producto), text=product.nombre, values=(product.codigo,
+            is_active = getattr(product, 'activo', True)
+            if not is_active:
+                tag = 'inactivo'
+                display_name = f"{product.nombre} [ARCHIVADO]"
+            else:
+                tag = 'par' if contador % 2 == 0 else 'impar'
+                display_name = product.nombre
+            self.cuadro.insert("", "end", iid=str(product.id_producto), text=display_name, values=(product.codigo,
                                                                           f'{product.precio}', product.detalle,
                                                                           product.stock, product.id_producto),
                                tags=tag)

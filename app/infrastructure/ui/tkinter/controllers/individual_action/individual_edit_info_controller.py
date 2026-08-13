@@ -1,5 +1,6 @@
 import logging
 
+from app.application.use_cases.delete_product import DeleteProduct, RestoreProduct
 from app.application.use_cases.query_products import QueryProducts
 from app.domain.custom_errors import DomainValidationError
 from app.infrastructure.database.sqlalchemy.unit_of_work.uow_factory import uow_factory
@@ -50,6 +51,32 @@ class IndividualEditInfoController:
         except Exception as e:
             logger.exception("Error inesperado al actualizar producto %s", self.mod_id)
             self.view.show_error(f"Error al actualizar el producto: {e}")
+
+    def delete_product(self) -> None:
+        try:
+            DeleteProduct(self.uow_factory).execute(self.mod_id)
+            self.view.show_message("Producto eliminado (archivado) correctamente.")
+            self.view.destroy()
+            self.main_window.realizar_busqueda()
+        except DomainValidationError as e:
+            logger.warning("No se pudo eliminar producto %s: %s", self.mod_id, e)
+            self.view.show_error(str(e))
+        except Exception as e:
+            logger.exception("Error inesperado al eliminar producto %s", self.mod_id)
+            self.view.show_error(f"Error al eliminar el producto: {e}")
+
+    def restore_product(self) -> None:
+        try:
+            RestoreProduct(self.uow_factory).execute(self.mod_id)
+            self.view.show_message("Producto reactivado correctamente.")
+            self.view.destroy()
+            self.main_window.realizar_busqueda()
+        except DomainValidationError as e:
+            logger.warning("No se pudo reactivar producto %s: %s", self.mod_id, e)
+            self.view.show_error(str(e))
+        except Exception as e:
+            logger.exception("Error inesperado al reactivar producto %s", self.mod_id)
+            self.view.show_error(f"Error al reactivar el producto: {e}")
 
     def cancelar_cambios(self):
         self.view.destroy()
