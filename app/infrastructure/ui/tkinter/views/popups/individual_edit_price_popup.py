@@ -44,6 +44,7 @@ class IndividualEditPricePopup(BaseProjectPopupWindow, IHasTable):
                             '10', '15', '20', '25', '50', '75', '100', '-50', 'Personalizado']
         # -----------------------------------------ttk_variables-----------------------------------------
         self.porcentaje_var = ttk.StringVar(value='1')
+        self.custom_porcentaje_var = ttk.StringVar(value='')
         self.precio_var = ttk.StringVar(value='$')
 
         # -----------------------------------------Custom widgets------------------------------------------------
@@ -80,12 +81,14 @@ class IndividualEditPricePopup(BaseProjectPopupWindow, IHasTable):
 
         self.porcentaje_combobox = ttk.Combobox(master=self.increment_frame, textvariable=self.porcentaje_var,
                                                 values=self.porcentajes)
-        self.porcentaje_combobox.configure(width=3, state='readonly')
+        self.porcentaje_combobox.configure(width=12, state='readonly')
         self.porcentaje_combobox.set(self.porcentajes[3])
+        self.custom_percent_entry = ttk.Entry(master=self.increment_frame, textvariable=self.custom_porcentaje_var, width=8)
 
         # -----------------------------------------------gestion de eventos----------------------------------------
         self.bind("<Configure>", self.table.adjust_size)
         self.porcentaje_var.trace_add("write", self.actualizar_valor)
+        self.custom_porcentaje_var.trace_add("write", self.actualizar_valor)
 
         self.relleno_superior = ttk.Frame(self, height=44, width=0)
 
@@ -100,11 +103,22 @@ class IndividualEditPricePopup(BaseProjectPopupWindow, IHasTable):
     def cancelar(self):
         self.controller.cancelar_cambios()
 
+    def get_effective_percentage_str(self) -> str:
+        if self.porcentaje_var.get() == 'Personalizado':
+            return self.custom_porcentaje_var.get().strip().replace(',', '.')
+        return self.porcentaje_var.get().strip().replace(',', '.')
+
     def actualizar_valor(self, _varname=None, _index=None, _mode=None):
-        self.button_increment.config(text=f"Incrementar un %{self.porcentaje_var.get()} a el/los productos seleccionados")
+        if self.porcentaje_var.get() == 'Personalizado':
+            self.custom_percent_entry.grid(row=0, column=2, padx=(4, 0))
+            self.custom_percent_entry.focus_set()
+        else:
+            self.custom_percent_entry.grid_forget()
+        pct = self.get_effective_percentage_str() or '...'
+        self.button_increment.config(text=f"Aplicar %{pct} a el/los productos seleccionados")
 
     def actualizar_percent(self):
-        porcentaje_str = self.porcentaje_var.get()
+        porcentaje_str = self.get_effective_percentage_str()
         self.controller.update_price_by_percentage(porcentaje_str)
 
 

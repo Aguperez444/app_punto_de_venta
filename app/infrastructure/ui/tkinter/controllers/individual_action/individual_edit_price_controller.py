@@ -30,13 +30,11 @@ class IndividualEditPriceController:
 
     def update_price_by_percentage(self, porcentaje_str: str):
         try:
-            porcentaje = float(porcentaje_str)
-        except ValueError:
-            self.view.show_error("Porcentaje debe ser un numero válido")
+            UpdatePrice(self.uow_factory).update_selected(self.mod_ids_in, porcentaje_str)
+        except ValueError as e:
+            logger.warning("Porcentaje inválido en edición individual: %s", e)
+            self.view.show_error(str(e))
             return
-
-        try:
-            UpdatePrice(self.uow_factory).update_selected(self.mod_ids_in, porcentaje)
         except Exception as e:
             logger.exception("Error al actualizar precios por porcentaje")
             self.view.show_error(str(e))

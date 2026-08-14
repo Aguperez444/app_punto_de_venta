@@ -25,8 +25,13 @@ class UpdateAllPricesPopup(BaseProjectPopupWindow):
 
         self.buttons_frame = ttk.Frame(master=self)
 
-        self.label_alerta = ttk.Label(master=self, text=(f'Esta seguro que desea incrementar los precios de todos los '
-                                                            f'productos un %{parent_window.porcentaje_var.get()}'),
+        pct_display = (
+            parent_window.get_effective_percentage_str()
+            if hasattr(parent_window, 'get_effective_percentage_str')
+            else parent_window.porcentaje_var.get()
+        )
+        self.label_alerta = ttk.Label(master=self, text=(f'¿Está seguro que desea aplicar un %{pct_display} a todos los '
+                                                            f'productos?'),
                                  font='Arial 20 bold', wraplength=550)
         self.sub_label_alerta = ttk.Label(master=self, text=('Esto va a afectar a TODOS los productos, no solo a los'
                                                                 ' que aparecieron buscados por nombre'), wraplength=460)
