@@ -1,17 +1,22 @@
-import ttkbootstrap as ttk
-
-from app.infrastructure.ui.tkinter.custom_widgets.search_table import SearchTable, IHasTable
-from app.infrastructure.ui.tkinter.views.abstract.base_window_abstract_class import BaseProjectPopupWindow
+from __future__ import annotations
 
 from typing import TYPE_CHECKING
+import ttkbootstrap as ttk
+
+from app.infrastructure.ui.tkinter.custom_widgets.search_table import IHasTable, SearchTable
+from app.infrastructure.ui.tkinter.views.abstract.base_window_abstract_class import (
+    BaseProjectPopupWindow,
+)
+
 if TYPE_CHECKING:
-    from app.infrastructure.ui.tkinter.controllers.individual_action.register_sale_controller import RegisterSaleController
+    from app.infrastructure.ui.tkinter.controllers.individual_action.register_sale_controller import (
+        RegisterSaleController,
+    )
 
 
 class SalesRegisterWindow(BaseProjectPopupWindow, IHasTable):
-
     @property
-    def table(self) -> 'SearchTable':
+    def table(self) -> "SearchTable":
         return self._table
 
     def table_action(self, event):
@@ -26,124 +31,172 @@ class SalesRegisterWindow(BaseProjectPopupWindow, IHasTable):
     def alphabetical_search_action(self):
         pass
 
-    def __init__(self, parent, controller: 'RegisterSaleController'):
+    def __init__(self, parent, controller: "RegisterSaleController", default_to_cart: bool = False):
         super().__init__(parent)
         self.controller = controller
+        self.default_to_cart = default_to_cart
 
-        # ----------------------------------------- ventana ---------------------------------------------
         self.tecla_presionada = False
-
+        self._current_stock: int | None = None
+        self.minsize(720, 480)
         self.focus_set()
-        # -------------------------------------obtención de datos ----------------------------------------
 
-        # datos del producto
+        self.cantidad_vendida = ttk.StringVar(value="1")
+        self.title_var = ttk.StringVar()
+        self.stock_warning_var = ttk.StringVar(value="")
 
-        # -----------------------------------------ttk_variables------------------------------------------------
-        self.cantidad_vendida = ttk.StringVar()
-        self.cantidad_vendida.set('1')
-        self.title = ttk.StringVar()
-        # -----------------------------------------Custom widgets------------------------------------------------
-        self._table = SearchTable(self, self.resolution_str, self.resolution, 'Productos seleccionados para la venta:', 'Calibri 16 bold')
-        # -----------------------------------------bootstrap widgets------------------------------------------------
-        self.label_titulo = ttk.Label(master=self, text=f'{self.title.get()}', font='Calibri 20 bold')
+        self._table = SearchTable(
+            self,
+            self.resolution_str,
+            self.resolution,
+            "Producto seleccionado:",
+            "Calibri 15 bold",
+        )
 
-        self.sub_frame = ttk.Frame(master=self, width=1000, height=12)
-        self.entry_frame = ttk.Frame(master=self, width=120, height=40)
+        self.label_titulo = ttk.Label(master=self, text="", font="Calibri 18 bold", wraplength=660)
+        self.entry_frame = ttk.Frame(master=self)
+        self.label_entry = ttk.Label(master=self.entry_frame, text="Cantidad:", font="Calibri 14 bold")
+        self.entry_cantidad_vendida = ttk.Entry(
+            master=self.entry_frame, textvariable=self.cantidad_vendida, width=6
+        )
+        self.label_stock_warning = ttk.Label(
+            master=self,
+            textvariable=self.stock_warning_var,
+            font="Calibri 10 italic",
+            bootstyle="warning",
+        )
 
-        self.label_entry = ttk.Label(master=self.entry_frame, text='Cantidad:', font='Calibri 14 bold')
-        self.entry_cantidad_vendida = ttk.Entry(master=self.entry_frame, textvariable=self.cantidad_vendida, width=3)
+        self.buttons_frame = ttk.Frame(master=self)
 
-        # -----------------------------Buttons------------------------------
+        # Cuando el carrito ya tiene productos, la opción default (Enter) pasa a ser "Añadir al carrito".
+        # Cuando el carrito está vacío, la opción default (Enter) sigue siendo venta rápida directa.
+        if self.default_to_cart:
+            register_text = "Registrar venta directa"
+            register_style = "primary-outline"
+            cart_text = "Añadir al carrito (Enter)"
+            cart_style = "success"
+            hint_text = "Carrito activo: presione Enter para añadir al carrito."
+        else:
+            register_text = "Registrar venta (Enter)"
+            register_style = "success"
+            cart_text = "Añadir al carrito"
+            cart_style = "info"
+            hint_text = "Venta rápida: presione Enter para registrar venta directa o use 'Añadir al carrito'."
 
-        self.confirm_button = ttk.Button(master=self, text='Confirmar venta', style='success',
-                                    command=self.venta_confirm) #TODO CHECK THIS
+        self.cancel_button = ttk.Button(
+            master=self.buttons_frame,
+            text="Cancelar",
+            style="danger",
+            width=16,
+            command=self.venta_cancel,
+        )
+        self.add_to_cart_button = ttk.Button(
+            master=self.buttons_frame,
+            text=cart_text,
+            style=cart_style,
+            width=22,
+            command=self.add_to_cart,
+        )
+        self.confirm_button = ttk.Button(
+            master=self.buttons_frame,
+            text=register_text,
+            style=register_style,
+            width=22,
+            command=self.venta_confirm,
+        )
+        self.label_hint = ttk.Label(master=self, text=hint_text, font="Calibri 10 italic")
 
-        self.cancel_button = ttk.Button(master=self, text='Cancelar venta', style='danger',
-                                   command=self.venta_cancel)
-
-
-        self.adjust_view_for_resolution()
-
-        # -----------------------------------------------gestion de eventos----------------------------------------
-
+        self.cantidad_vendida.trace_add("write", self._update_stock_warning)
         self.bind("<Configure>", self.table.adjust_size)
         self.bind("<KeyPress>", self.iniciar_actualizacion)
         self.bind("<KeyRelease>", self.detener_actualizacion)
 
-
-
-    # --------------------------------- Métodos de esta ventana ----------------------------------
     # region Funciones para manejo de UX
     def iniciar_actualizacion(self, event):
-        # Marcar la tecla como presionada
+        if event.keysym not in ("Up", "Down"):
+            return
         self.tecla_presionada = True
-        # Llamar a la función de actualización
         self.actualizar_cantidad(event)
 
     def detener_actualizacion(self, _event):
-        # Marcar la tecla como liberada
         self.tecla_presionada = False
 
     def actualizar_cantidad(self, event):
         if self.tecla_presionada:
-            if self.cantidad_vendida.get() != '' and not any(caracter.isalpha() for caracter in self.cantidad_vendida.get()):
-                if event.keysym == 'Up':
-                    nueva_cantidad = int(self.cantidad_vendida.get()) + 1
-                elif event.keysym == 'Down':
-                    nueva_cantidad = int(self.cantidad_vendida.get()) - 1
+            raw = self.cantidad_vendida.get().strip()
+            if raw.isdigit():
+                val = int(raw)
+                if event.keysym == "Up":
+                    nueva_cantidad = val + 1
+                elif event.keysym == "Down":
+                    nueva_cantidad = max(1, val - 1)
                 else:
-                    nueva_cantidad = int(self.cantidad_vendida.get())
-
-                if nueva_cantidad <= 0:
-                    nueva_cantidad = 1
-
+                    return
                 self.cantidad_vendida.set(str(nueva_cantidad))
-
                 self.after(100, self.actualizar_cantidad, event)
 
+    def _update_stock_warning(self, *_args):
+        if self._current_stock is None:
+            self.stock_warning_var.set("")
+            return
+        raw = self.cantidad_vendida.get().strip()
+        if not raw.isdigit():
+            self.stock_warning_var.set("")
+            return
+        qty = int(raw)
+        resulting = self._current_stock - qty
+        if resulting < 0:
+            self.stock_warning_var.set(
+                f"Aviso: el stock pasará a {resulting} (permitido para ventas sin stock cargado)."
+            )
+        else:
+            self.stock_warning_var.set("")
+
     # endregion
-
-
-    #region Funciones Para manejo de UI
 
     def render_view(self):
-        # ---------------------------------------------- placing widgets -----------------------------------------------
+        self.label_titulo.pack(pady=(14, 6))
 
-        self.label_titulo.pack()
-        self.table.place(relx=0.5, rely=0.5, relwidth=0.9, height=155, anchor='center')
+        self.label_entry.grid(row=0, column=0, padx=(0, 8))
+        self.entry_cantidad_vendida.grid(row=0, column=1)
+        self.entry_frame.pack(pady=(4, 2))
+        self.label_stock_warning.pack(pady=(0, 6))
+
+        self.table.pack(fill="x", padx=24, pady=6)
         self.table.render_only_table()
-        self.confirm_button.place(relx=0.8, rely=0.8, anchor='center')
-        self.confirm_button.place_configure(width=160, height=60)
-        self.cancel_button.place(relx=0.2, rely=0.8, anchor='center')
-        self.cancel_button.place_configure(width=160, height=60)
-        self.entry_frame.place(relx=0.5, rely=0.3, anchor='center')
-        self.label_entry.place(relx=0, rely=0, anchor='nw')
-        self.entry_cantidad_vendida.place(relx=1, rely=0, anchor='ne')
+
+        self.cancel_button.grid(row=0, column=0, padx=8, ipady=10)
+        self.add_to_cart_button.grid(row=0, column=1, padx=8, ipady=10)
+        self.confirm_button.grid(row=0, column=2, padx=8, ipady=10)
+        self.buttons_frame.pack(pady=(14, 4))
+        self.label_hint.pack(pady=(0, 12))
 
         self.controller.show_product_data()
+        self.entry_cantidad_vendida.focus_set()
+        self.entry_cantidad_vendida.selection_range(0, "end")
 
-    def adjust_product_text(self, product_name: str):
-        self.title.set(f'¿Desea registrar una venta de: {product_name}?')
-        self.label_titulo.configure(text=f'{self.title.get()}')
-        self.adjust_view_for_resolution()
-
-    def adjust_view_for_resolution(self):
-        if self.resolution[0] == '615x461':
-            if len(self.title.get()) > 50:
-                self.label_titulo.configure(font='Calibri 15 bold')
-                self.table.configure_title(font='Calibri 13 bold')
-
-            self.label_entry.configure(font='Calibri 12 bold')
-
-    # endregion
+    def adjust_product_text(self, product_name: str, current_stock: int | None = None):
+        self._current_stock = current_stock
+        if self.default_to_cart:
+            self.title_var.set(f"Añadir al carrito o vender: {product_name}")
+        else:
+            self.title_var.set(f"¿Desea registrar una venta de: {product_name}?")
+        self.label_titulo.configure(text=self.title_var.get())
+        self._update_stock_warning()
 
     def confirm_action(self, _varname=None, _index=None, _mode=None):
-        self.venta_confirm()
+        if self.default_to_cart:
+            self.add_to_cart()
+        else:
+            self.venta_confirm()
 
     def venta_confirm(self):
         amount_in = self.cantidad_vendida.get()
         self.controller.register_new_sale(amount_in)
 
+    def add_to_cart(self):
+        amount_in = self.cantidad_vendida.get()
+        self.controller.add_to_cart(amount_in)
 
     def venta_cancel(self):
         self.destroy()
