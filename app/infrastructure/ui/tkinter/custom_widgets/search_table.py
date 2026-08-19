@@ -69,18 +69,21 @@ class MixinTableNavigation(ABC):
 
 class SearchTable(ttk.Frame):
     def __init__(self, parent: ttk.Frame|IHasTable, resolution_str: str, resolution: tuple, title: str,
-                 font_param: str = 'Calibri 24 bold'):
+                 font_param: str = 'Calibri 24 bold', debounce_ms: int = 250):
 
         super().__init__(parent)
         self.parent = parent
         self.resolution_str = resolution_str
         self.resolution = resolution
+        self._debounce_ms = debounce_ms
+        self._search_after_id: str | None = None
         # --------------------------- frames --------------------------
         self.cuadro_frame = ttk.Frame(master=self)
 
         # ------------------------ ttk_variables ----------------------
         self.str_buscado = ttk.StringVar()
         self.alfabetico_checked = ttk.IntVar()
+        self.results_count_var = ttk.StringVar(value="")
 
         # --------------------------- entry's --------------------------
         self.entry = ttk.Entry(master=self, textvariable=self.str_buscado, width=105)
@@ -93,6 +96,9 @@ class SearchTable(ttk.Frame):
 
         # --------------------------- labels ---------------------------
         self.label_titulo = ttk.Label(master=self, text=title, font=font_param)
+        self.label_results_count = ttk.Label(
+            master=self, textvariable=self.results_count_var, font=('Calibri', 10, 'italic')
+        )
 
         # --------------------------- Cuadro ---------------------------
         style = ttk.Style()
@@ -166,10 +172,33 @@ class SearchTable(ttk.Frame):
 
         self.cuadro.bind("<Return>", self.parent.table_action)
         self.cuadro.bind("<Double-1>", self.parent.table_action)
-        self.str_buscado.trace_add('write', self.parent.entry_action)
+        self.str_buscado.trace_add('write', self._schedule_debounced_search)
+        self.bind("<Destroy>", self._cancel_pending_search)
 
 
         self.grab_focus()
+
+    def _schedule_debounced_search(self, *args):
+        self._cancel_pending_search()
+        if self._debounce_ms <= 0:
+            self.parent.entry_action(*args)
+            return
+        self._search_after_id = self.after(
+            self._debounce_ms, lambda: self._run_debounced_search(*args)
+        )
+
+    def _run_debounced_search(self, *args):
+        self._search_after_id = None
+        if self.winfo_exists():
+            self.parent.entry_action(*args)
+
+    def _cancel_pending_search(self, _event=None):
+        if self._search_after_id is not None:
+            try:
+                self.after_cancel(self._search_after_id)
+            except Exception:
+                pass
+            self._search_after_id = None
 
     def toggle_alphabetic(self):
 
@@ -190,24 +219,26 @@ class SearchTable(ttk.Frame):
             self.label_titulo.configure(text=title)
 
     def render(self):
-        self.label_titulo.pack_configure(pady=10)
+        self.label_titulo.pack_configure(pady=8)
 
-        self.alphabetic_check_button.pack_configure(pady=10)
-        self.entry.pack_configure(pady=10, fill='x', expand=True)
+        self.alphabetic_check_button.pack_configure(pady=6)
+        self.entry.pack_configure(pady=6, fill='x', expand=True)
+        self.label_results_count.pack_configure(anchor='e', pady=(0, 4))
 
         self.scrollbar.pack(side="right", fill="y")
         self.cuadro.pack_configure(fill='both', expand=True)
 
     def render_no_alphabetic(self):
-        self.label_titulo.pack_configure(pady=10)
+        self.label_titulo.pack_configure(pady=8)
 
-        self.entry.pack_configure(pady=10, fill='x', expand=True)
+        self.entry.pack_configure(pady=6, fill='x', expand=True)
+        self.label_results_count.pack_configure(anchor='e', pady=(0, 4))
         self.scrollbar.pack(side="right", fill="y")
 
         self.cuadro.pack_configure(fill='both', expand=True)
 
     def render_only_table(self):
-        self.label_titulo.pack_configure(pady=10)
+        self.label_titulo.pack_configure(pady=8)
 
         self.scrollbar.pack(side="right", fill="y")
         self.cuadro.pack_configure(fill='both', expand=True)
@@ -230,11 +261,18 @@ class SearchTable(ttk.Frame):
                                                                           product.stock, product.id_producto),
                                tags=tag)
             contador += 1
+        if contador == 0:
+            self.results_count_var.set("Sin resultados")
+        elif contador == 1:
+            self.results_count_var.set("1 producto encontrado")
+        else:
+            self.results_count_var.set(f"{contador} productos encontrados")
         return
 
 
     def clear_all(self):
         self.cuadro.delete(*self.cuadro.get_children())
+        self.results_count_var.set("Sin resultados")
 
 
     def adjust_size(self, event):
