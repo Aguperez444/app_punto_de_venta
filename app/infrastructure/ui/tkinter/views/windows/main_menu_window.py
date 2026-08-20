@@ -12,6 +12,7 @@ from app.infrastructure.ui.tkinter.views.views.show_sales_list_view import ShowS
 from app.infrastructure.ui.tkinter.views.views.add_stock_view import AddStockView
 from app.infrastructure.ui.tkinter.views.views.edit_product_info_view import EditProductInfoView
 from app.infrastructure.ui.tkinter.views.views.show_no_stock_list_view import ShowNoStockView
+from app.infrastructure.ui.tkinter.views.popups.settings_popup import SettingsPopup
 
 
 class MainMenuRoutedView(StyledRoutedView):
@@ -63,6 +64,10 @@ class MainMenuRoutedView(StyledRoutedView):
         self.button_no_stock = RouteLinkButton(master=self.frame_for_buttons, to='/showNoStockList',
                                                text='Productos sin stock', width=23, style='my.TButton')
 
+        self.button_settings = ttk.Button(master=self, text='Configuración', width=17, style='my.TButton',
+                                          command=lambda: SettingsPopup(self.parent))
+
+        self.button_settings.place(x=15, y=15, height=40, anchor='nw')
         self.button_theme.place(relx=0.990, y=15, height=40, anchor='ne')
 
         # ---------------------------label versión-------------------------
