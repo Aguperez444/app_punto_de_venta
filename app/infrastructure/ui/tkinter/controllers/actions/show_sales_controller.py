@@ -10,6 +10,7 @@ from app.application.use_cases.query_sales import QuerySales
 from app.domain.models.precio import Precio
 from app.domain.models.venta import Venta
 from app.infrastructure.database.sqlalchemy.unit_of_work.uow_factory import uow_factory
+from app.infrastructure.export.csv_exporter import CsvExporter
 from app.infrastructure.ui.tkinter.views.popups.sale_detail_popup import SaleDetailPopup
 
 if TYPE_CHECKING:
@@ -64,6 +65,19 @@ class ShowSalesController:
 
         detail_dto = SaleDetailDTO.from_domain(venta)
         SaleDetailPopup(self.view, detail_dto)
+
+    def export_current_sales_to_csv(self, output_path: str) -> bool:
+        if not self._last_sales:
+            self.view.show_error("No hay ventas listadas para exportar.")
+            return False
+        try:
+            CsvExporter.export_sales(self._last_sales, output_path)
+            self.view.show_message(f"Ventas exportadas correctamente a:\n{output_path}")
+            return True
+        except Exception as exc:
+            logger.exception("Error al exportar ventas a CSV")
+            self.view.show_error(f"Error al exportar ventas: {exc}")
+            return False
 
     @staticmethod
     def calculate_total_of_sales(ventas: list[Venta]) -> Precio:

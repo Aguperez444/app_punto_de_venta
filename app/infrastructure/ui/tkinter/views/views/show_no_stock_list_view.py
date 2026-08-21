@@ -1,3 +1,4 @@
+from tkinter import filedialog
 import ttkbootstrap as ttk
 
 from app.infrastructure.ui.tkinter.custom_widgets.search_table import IHasTable, SearchTable, MixinTableNavigation
@@ -21,6 +22,13 @@ class ShowNoStockView(BaseProjectView, IHasTable, MixinTableNavigation):
         # -----------------------------------------------frames---------------------------------------------------
 
         self.increment_frame = ttk.Frame(master=self)
+        self.button_export_csv = ttk.Button(
+            master=self.increment_frame,
+            text="Exportar faltantes (CSV)",
+            style="success-outline",
+            width=22,
+            command=self.export_csv,
+        )
 
         # -----------------------------------------Custom widgets------------------------------------------------
 
@@ -61,9 +69,20 @@ class ShowNoStockView(BaseProjectView, IHasTable, MixinTableNavigation):
         self.table.place(relx=0.5, rely=0.4, relwidth=0.9, relheight=0.6, anchor="center")
         self.table.render()
 
+        self.button_export_csv.pack()
         self.increment_frame.place(relx=0.82, rely=0.017, anchor='ne')
 
         self.controller.get_all_products_no_stock()
+
+    def export_csv(self):
+        output_path = filedialog.asksaveasfilename(
+            title="Exportar productos sin stock a CSV",
+            defaultextension=".csv",
+            initialfile="faltantes_stock.csv",
+            filetypes=[("Archivo CSV", "*.csv")],
+        )
+        if output_path:
+            self.controller.export_no_stock_to_csv(output_path)
 
 
     def toggle_alphabetical_search(self):

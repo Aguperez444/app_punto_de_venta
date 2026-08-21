@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime
+from tkinter import filedialog
 from typing import TYPE_CHECKING
 import ttkbootstrap as ttk
 
@@ -43,6 +44,13 @@ class ShowSalesListView(BaseProjectView):
             width=20,
             style="info",
             command=self.open_selected_sale_detail,
+        )
+        self.button_export = ttk.Button(
+            master=self.actions_frame,
+            text="Exportar a CSV",
+            width=18,
+            style="success-outline",
+            command=self.export_sales_csv,
         )
 
         self.calendario = ttk.DateEntry(self)
@@ -121,6 +129,7 @@ class ShowSalesListView(BaseProjectView):
         self.calendario.place(relx=0.5, y=68, anchor="center")
 
         self.button_detail.grid(row=0, column=0, padx=8)
+        self.button_export.grid(row=0, column=1, padx=8)
         self.actions_frame.place(relx=0.5, rely=0.76, anchor="center")
 
         self.titulo_total_dia.grid(row=0, column=0)
@@ -145,6 +154,16 @@ class ShowSalesListView(BaseProjectView):
             self.controller.get_ventas_del_dia(fecha_obj)
         else:
             self.controller.get_ventas_del_mes(fecha_obj)
+
+    def export_sales_csv(self):
+        output_path = filedialog.asksaveasfilename(
+            title="Exportar listado de ventas a CSV",
+            defaultextension=".csv",
+            initialfile="ventas.csv",
+            filetypes=[("Archivo CSV", "*.csv")],
+        )
+        if output_path:
+            self.controller.export_current_sales_to_csv(output_path)
 
     def open_selected_sale_detail(self, _event=None):
         selection = self.cuadro.selection()
