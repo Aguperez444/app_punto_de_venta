@@ -1,168 +1,88 @@
-# 📦 Catálogo de Productos – Gestión de inventario y ventas (Hexagonal + Tkinter + SQLAlchemy)
+# Catálogo de Productos – Gestión de inventario y ventas (Hexagonal + Tkinter + SQLAlchemy 2.0)
 
-Aplicación de escritorio para administrar productos, stock, precios y ventas. Construida en Python con arquitectura Hexagonal (Ports & Adapters), UI en Tkinter y persistencia con SQLAlchemy/PostgresSQL.
+Aplicación de escritorio para farmacia/mostrador para administrar productos, stock, precios y ventas. Construida en Python con **Arquitectura Hexagonal (Ports & Adapters)** estricta, UI SPA en Tkinter/ttkbootstrap, persistencia en SQLAlchemy 2.0 (PostgreSQL y SQLite) y migraciones con Alembic.
 
 ---
 
-## ⚙️ Tecnologías y librerías
+## Tecnologías y librerías
 
 - Lenguaje: **Python 3.13**
-- UI: **Tkinter** + **ttkbootstrap** + **tkrouter** (estilos modernos)
-- ORM/DB: **SQLAlchemy + PostgresSQL**
-- Patrones: **Arquitectura Hexagonal**, Unit of Work, Repositorios, Value Objects
+- UI: **Tkinter** + **ttkbootstrap** + **tkrouter** (SPA con navegación por teclado y temas claro/oscuro)
+- ORM/DB: **SQLAlchemy 2.0** + **PostgreSQL (`psycopg`)** / **SQLite** + **Alembic**
+- Patrones: **Arquitectura Hexagonal**, Unit of Work con commit explícito, Repositorios, Composition Root (`AppContainer`), DTOs, Value Objects inmutables
 - Testing: **pytest**, pytest-cov, pytest-mock, freezegun, faker
-- Otros: screeninfo (soporte de pantallas), iconos estáticos en PNG/ICO
 
 ---
 
-## 🚀 Funcionalidades principales
+## Funcionalidades principales
 
 - **Gestión de productos**
-  - Alta, baja y modificación de productos
-  - Edición individual y masiva (precio/stock)
-  - Búsqueda y listados ordenados alfabéticamente
-  - Detección de productos sin stock
-- **Gestión de ventas**
-  - Registro de ventas con detalles (producto, cantidad, precio unitario)
-  - Cálculo de subtotales y total con precisión decimal
-  - Consultas por día, rango y mes
-- **Persistencia**
-  - BDD PostgresSQL
-  - Se provee una BDD en SQLite con la estructura que debe tener la BDD
-  - Unidad de trabajo (UoW) para transacciones consistentes
-- **Experiencia de usuario**
-  - Ventanas y popups con validaciones de dominio
-  - Soporte de temas/estilos (ttkbootstrap)
-  - UI responsive
-  - UI navegable mediante teclado
+  - Alta, edición y baja lógica (archivo y reactivación preservando integridad referencial de ventas históricas)
+  - Búsqueda con debounce (250 ms), orden alfabético, búsqueda por código de barras y contador de resultados
+  - Edición individual y masiva de precios con porcentajes predefinidos o **porcentaje personalizado** con vista previa
+  - Ajuste de stock en 3 modos (**Sumar**, **Restar**, **Fijar exacto**) y listado de productos sin stock / con stock negativo
+  - **Regla de negocio de stock negativo:** se permite vender productos incluso sin stock cargado (quedando negativo con aviso informativo en pantalla) para no frenar la atención en mostrador
+- **Gestión de ventas y carrito inteligente**
+  - **Venta rápida (1 producto):** al abrir un producto con el carrito vacío, presionar `Enter` registra la venta directa sin pasos extra
+  - **Carrito multi-producto:** al agregar un producto al carrito, la acción por defecto con `Enter` cambia automáticamente a *"Añadir al carrito"* hasta finalizar o vaciar el carrito (`F2` abre el checkout)
+  - Registro atómico de ventas con múltiples ítems y precisión decimal (`ROUND_HALF_UP`)
+  - Consultas de ventas por día, mes y rango, **popup de detalle completo** por venta y **exportación a CSV** (ventas y lista de faltantes)
+- **Seguridad, configuración y observabilidad**
+  - Contraseña administrativa protegida con `hashlib.scrypt` + salt aleatorio (sin contraseñas hardcodeadas)
+  - Configuración en `config.json` (con migración automática desde `config.txt`), soporte para `DATABASE_URL` por variable de entorno y asistente de conexión PostgreSQL/SQLite con prueba de conectividad y migraciones Alembic
+  - Logging estructurado rotativo en archivo (`catalogo/logs/app.log`) y captura global de excepciones
 
 ---
 
+## Arquitectura (Hexagonal / Ports & Adapters)
 
-## 🛠️ Arquitectura (Hexagonal / Ports & Adapters)
-
-- **Domain**
-  - Entidades y Value Objects: Producto, Venta, DetalleVenta, Precio, Stock
-  - Reglas de negocio puras y excepciones de dominio
-- **Application**
-  - Use Cases: AddProduct, EditProductInfo, EditStock, UpdatePrice, RegisterSale, QueryProducts, QuerySales
-  - Puertos (ports) para repositorios y Unidad de Trabajo (IProductoRepository, ISaleRepository, IUnitOfWork)
-- **Infrastructure**
-  - Adaptadores concretos: SQLAlchemy ORM, Repositorios (ProductoRepositoryImpl, SaleRepositoryImpl)
-  - Unit of Work real (SqlAlchemyUnitOfWork) y fábrica (uow_factory)
-  - Configuración de ruta de base de datos (ConfigFilesPersistence)
-- **UI (Adapter)**
-  - Tkinter + ttkbootstrap: vistas y controladores por acción (alta de producto, edición, registro de venta, listados)
-- **Runners**
-  - Punto de entrada de la aplicación de escritorio (app/runners/Programa_catalogo.py)
-
-Beneficios: separación estricta de capas, testabilidad (use cases con fakes), independencia de framework/DB.
-
-
-## 📂 Estructura del proyecto (resumen)
-
-```
-.
-├── app/
-│   ├── application/
-│   │   ├── building_blocks/
-│   │   ├── ports/
-│   │   └── use_cases/
-│   ├── domain/
-│   │   ├── models/
-│   │   └── custom_errors.py
-│   ├── infrastructure/
-│   │   ├── config/
-│   │   ├── database/sqlalchemy/
-│   │   │   ├── repositories/
-│   │   │   ├── uow_factory.py
-│   │   │   └── unit_of_work_impl.py
-│   │   └── ui/tkinter/
-│   │       ├── controllers/
-│   │       ├── custom_widgets/
-│   │       └── views/
-│   └── runners/Programa_catalogo.py
-├── tests/
-│   ├── unit/
-│   │   ├── domain/
-│   │   └── application/use_cases/
-│   └── integration/
-├── productos.db
-├── pytest.ini
-├── requirements.txt
-├── TODO.txt
-└── README.md
-```
-
-Consulta el árbol completo en el repositorio para ver todos los módulos (repositorios, controladores y vistas específicas).
+- **Domain (`app/domain/`)**: 100% puro, sin dependencias externas. Entidades (`Producto`, `Venta`, `DetalleVenta`), Value Objects inmutables (`Precio`, `Stock`) y jerarquía `DomainValidationError`.
+- **Application (`app/application/`)**: Casos de uso (`AddProduct`, `EditProductInfo`, `DeleteProduct`, `RestoreProduct`, `EditStock`, `UpdatePrice`, `RegisterSale`, `QueryProducts`, `QuerySales`), servicio `SaleCart`, DTOs (`ProductDTO`, `SaleSummaryDTO`, `SaleDetailDTO`) y puertos (`IProductoRepository`, `ISaleRepository`, `IUnitOfWork`, `IClock`).
+- **Infrastructure (`app/infrastructure/`)**:
+  - `database/sqlalchemy/`: modelos ORM (`Numeric(12, 2)`, índices, `activo`), mappers, repositorios SQLAlchemy 2.0, `SqlAlchemyUnitOfWork` y `engine_factory` multidialecto.
+  - `config/`: `ConfigFilesPersistence` (`config.json`), `AuthService` (`scrypt`) y `logging_config`.
+  - `di/`: `AppContainer` (Composition Root con inicialización perezosa).
+  - `export/`: `CsvExporter` compatible con Excel (`utf-8-sig`).
+  - `ui/tkinter/`: vistas SPA, popups, widgets reutilizables y controladores con inyección de dependencias.
+- **Runners (`app/runners/Programa_catalogo.py`)**: punto de entrada que inicializa logging, `AppContainer`, primer arranque y `MainMenuWindow`.
 
 ---
 
-## 📦 Instalación y requisitos
-
-- Python 3.13
-- Instalar dependencias:
+## Instalación y ejecución
 
 ```bash
 pip install -r requirements.txt
 ```
 
-Requisitos mínimos en requirements.txt: SQLAlchemy, ttkbootstrap, screeninfo, pytest y complementos si vas a ejecutar tests.
-
----
-
-## ▶️ Ejecución de la aplicación
-
-Desde la raíz del proyecto:
+Ejecutar desde la raíz del proyecto:
 
 ```bash
-python app/runners/Programa_catalogo.py
+python -m app.runners.Programa_catalogo
 ```
 
-En el primer arranque se solicitará la ruta de la base de datos. Se espera una direccion de postgres.   
-(ejemplo: postgresql+psycopg://miusuario:micontra@192.168.1.255:5432/mibasedatos)
+También podés definir la base de datos por variable de entorno:
+
+```bash
+DATABASE_URL="postgresql+psycopg://usuario:clave@127.0.0.1:5432/farmacia" python -m app.runners.Programa_catalogo
+```
+
+### Migraciones (Alembic)
+
+```bash
+DATABASE_URL="sqlite:///productos.db" alembic upgrade head
+```
 
 ---
 
-## 🧪 Testing
-
-- Ejecutar toda la suite:
+## Testing
 
 ```bash
+# Suite completa con cobertura
 pytest
-```
 
-- Ejecutar unit tests únicamente:
-
-```bash
+# Solo unitarios
 pytest -m unit tests/unit
-```
 
-- Ejecutar integración:
-
-```bash
+# Solo integración
 pytest -m integration tests/integration
 ```
-
-La configuración de pytest (pytest.ini) incluye cobertura con pytest-cov y marcadores unit/integration.
-
----
-
-## 🔌 Detalles técnicos relevantes
-
-- Precisión monetaria: cálculos con Decimal y redondeo HALF_UP a 2 decimales
-- Unit of Work: garantiza commit/rollback y cierre de sesión por acción
-- Repositorios: consultas, filtros y actualizaciones en SQLAlchemy; mapeos con ORM propio
-- Value Objects: Precio y Stock encapsulan validación y operaciones numéricas
-
----
-
-## 🗺️ Roadmap breve
-
-- Mejoras en validaciones de UI y mensajes de error
-- Logging estructurado y empaquetado para distribución
-
----
-
-## 👨‍💻 Autor
-Proyecto personal en desarrollo como laboratorio de buenas prácticas, patrones de diseño y arquitectura de software.

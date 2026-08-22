@@ -1,13 +1,12 @@
--Añadir registro de errores a un log.
+Completado:
+- [x] Añadir registro de errores a un log rotativo (logging_config.py)
+- [x] Añadir funcionalidad para ver el detalle completo de una venta en el listado (SaleDetailPopup)
+- [x] Añadir funcionalidad para elegir un porcentaje personalizado en actualizar precios
+- [x] Añadir funcionalidad para eliminar (archivar) y reactivar productos (soft-delete)
+- [x] Carrito multi-producto con acción Enter inteligente (venta rápida vs carrito)
+- [x] Exportación a CSV de ventas y faltantes de stock
+- [x] Asistente de conexión PostgreSQL/SQLite con prueba de conexión y migraciones Alembic
 
--Añadir funcionalidad para ver el detalle de una venta en el listado
-
--Añadir funcionalidad para elegir un precio personalizado en la view de actualizar precios
-
--Añadir funcionalidad para eliminar productos
-
-
-
-
-
-
+Próximas mejoras (Fase 4 opcional):
+- [ ] Exponer API REST con FastAPI reutilizando los casos de uso en app/infrastructure/ui/fastapi/
+- [ ] Empaquetado ejecutable de escritorio con PyInstaller y pipeline CI/CD
