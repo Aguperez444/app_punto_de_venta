@@ -39,7 +39,7 @@ class ShowProductsView(BaseProjectView, IHasTable, MixinTableNavigation):
         self.button_checkout_cart = ttk.Button(
             master=self.cart_bar_frame,
             text="Ver / Finalizar carrito (F2)",
-            style="success",
+            bootstyle="success",
             width=26,
             state="disabled",
             command=self.controller.open_cart_checkout,
@@ -47,7 +47,7 @@ class ShowProductsView(BaseProjectView, IHasTable, MixinTableNavigation):
         self.button_clear_cart = ttk.Button(
             master=self.cart_bar_frame,
             text="Vaciar carrito",
-            style="danger-outline",
+            bootstyle="danger-outline",
             width=15,
             state="disabled",
             command=self.controller.clear_cart,
@@ -83,7 +83,6 @@ class ShowProductsView(BaseProjectView, IHasTable, MixinTableNavigation):
 
     def render_view(self):
         super().render_base()
-        self.button_theme.place(relx=0.990, rely=0.017, height=35, anchor="ne")
         self.table.place(relx=0.5, rely=0.41, relwidth=0.9, relheight=0.62, anchor="center")
         self.table.render()
 

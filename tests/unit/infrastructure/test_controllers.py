@@ -203,3 +203,21 @@ def test_show_sales_controller_presents_dtos_and_exports_csv(tmp_path):
     csv_file = tmp_path / "ventas_ctrl.csv"
     assert ctrl.export_current_sales_to_csv(str(csv_file)) is True
     assert csv_file.exists()
+
+
+@pytest.mark.unit
+def test_sales_date_navigation_helpers():
+    from app.infrastructure.ui.tkinter.views.views.show_sales_list_view import (
+        shift_date_by_days,
+        shift_date_by_months,
+    )
+
+    # Días
+    assert shift_date_by_days(datetime(2026, 8, 1), -1) == datetime(2026, 7, 31)
+    assert shift_date_by_days(datetime(2026, 8, 31), 1) == datetime(2026, 9, 1)
+
+    # Meses (cambio de año y ajuste de fin de mes)
+    assert shift_date_by_months(datetime(2026, 1, 15), -1) == datetime(2025, 12, 15)
+    assert shift_date_by_months(datetime(2026, 12, 15), 1) == datetime(2027, 1, 15)
+    assert shift_date_by_months(datetime(2026, 3, 31), -1) == datetime(2026, 2, 28)
+    assert shift_date_by_months(datetime(2024, 3, 31), -1) == datetime(2024, 2, 29)

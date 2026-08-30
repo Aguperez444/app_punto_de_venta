@@ -28,19 +28,15 @@ class IndividualEditInfoPopup(BaseProjectPopupWindow, IHasTable):
         pass
 
     def __init__(self, parent, controller: 'IndividualEditInfoController'):
-        super().__init__(parent)
+        super().__init__(parent, width=1020, height=680)
 
         self.controller = controller
-
-        # -------------------------------------- atributos principales ---------------------------------------------
         self.actual_focus = 0
-        # ----------------------------------------- ventana ---------------------------------------------
-
-
 
         self.title('Cambiar información del producto seleccionado')
+        self.minsize(900, 625)
+        self.center_on_parent(1020, 680)
         self.focus_set()
-        self.minsize(600, 625)
 
 
         # -----------------------------------------Custom widgets-----------------------------------------
@@ -67,14 +63,14 @@ class IndividualEditInfoPopup(BaseProjectPopupWindow, IHasTable):
         self.button_delete = ttk.Button(
             master=self.footer_buttons_frame,
             text='Eliminar producto',
-            style='warning',
+            bootstyle='warning',
             width=18,
             command=self.eliminar,
         )
         self.button_cancel = ttk.Button(
             master=self.footer_buttons_frame,
             text='Cancelar',
-            style='danger',
+            bootstyle='danger',
             width=18,
             command=self.cancelar,
         )
@@ -87,26 +83,19 @@ class IndividualEditInfoPopup(BaseProjectPopupWindow, IHasTable):
         # ---------------------------------------------- placing widgets -----------------------------------------------
 
     def render_view(self):
-        self.label_alerta.pack()
-        self.sub_label_alerta.pack()
-        self.label_msg.grid(row=0, column=1, pady=6)
+        self.label_alerta.pack(pady=(12, 2))
+        self.sub_label_alerta.pack(pady=(0, 8))
+        self.label_msg.grid(row=0, column=1, pady=4)
         self.msg_frame.pack()
         self.product_entry.render()
-        self.product_entry.pack()
-        self.buttons_frame.pack(pady=15)
+        self.product_entry.pack(pady=4)
 
-        self.update()
-
-        self.table.place(relx=0.5, y=self.buttons_frame.winfo_y() + self.buttons_frame.winfo_reqheight() + 5,
-                             relwidth=0.8, height=155, anchor='n')
-
+        self.table.pack(fill='both', expand=True, padx=24, pady=(8, 10))
         self.table.render_only_table()
-
-        self.update()
 
         self.button_delete.grid(row=0, column=0, padx=10, ipady=4)
         self.button_cancel.grid(row=0, column=1, padx=10, ipady=4)
-        self.footer_buttons_frame.place(relx=0.5, y=self.table.winfo_y() + 155 + 15, anchor='n')
+        self.footer_buttons_frame.pack(pady=(4, 16))
 
         self.controller.get_product_info()
 
@@ -116,11 +105,11 @@ class IndividualEditInfoPopup(BaseProjectPopupWindow, IHasTable):
         self.product_entry.show_product(producto)
         if not getattr(producto, 'activo', True):
             self.button_delete.configure(
-                text='Reactivar producto', style='success', command=self.reactivar
+                text='Reactivar producto', bootstyle='success', command=self.reactivar
             )
         else:
             self.button_delete.configure(
-                text='Eliminar producto', style='warning', command=self.eliminar
+                text='Eliminar producto', bootstyle='warning', command=self.eliminar
             )
 
     def eliminar(self):

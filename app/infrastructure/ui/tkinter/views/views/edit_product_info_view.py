@@ -32,21 +32,21 @@ class EditProductInfoView(BaseProjectView, IHasTable, MixinTableNavigation):
         self.button_edit = ttk.Button(
             master=self.actions_frame,
             text="Editar seleccionado",
-            style="primary",
+            bootstyle="primary",
             width=20,
             command=lambda: self.edit_selected(None),
         )
         self.button_delete = ttk.Button(
             master=self.actions_frame,
             text="Eliminar producto",
-            style="danger",
+            bootstyle="danger",
             width=20,
             command=self.delete_selected,
         )
         self.button_restore = ttk.Button(
             master=self.actions_frame,
             text="Reactivar producto",
-            style="success",
+            bootstyle="success",
             width=20,
             command=self.restore_selected,
         )

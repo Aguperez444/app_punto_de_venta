@@ -155,12 +155,18 @@ class ProductEntryFields(ttk.Frame):
                 return
 
     def change_focus(self, event):
+        if not self.winfo_exists():
+            return
         if event.keysym == "Down":
             self.actual_focus = (self.actual_focus + 1) % len(self.entries)
-            self.entries[self.actual_focus].focus_set()
+            target = self.entries[self.actual_focus]
+            if target.winfo_exists():
+                target.focus_set()
         elif event.keysym == "Up":
             self.actual_focus = (self.actual_focus - 1) % len(self.entries)
-            self.entries[self.actual_focus].focus_set()
+            target = self.entries[self.actual_focus]
+            if target.winfo_exists():
+                target.focus_set()
 
     def restart_focus(self):
         self.actual_focus = 0

@@ -29,8 +29,7 @@ class SettingsPopup(BaseProjectPopupWindow):
         )
 
         self.title("Configuración del Sistema")
-        self.geometry("640x480")
-        self.minsize(600, 440)
+        self.minsize(820, 480)
         self.bind("<Escape>", lambda _e: self.destroy())
         self.focus_set()
 
@@ -42,6 +41,16 @@ class SettingsPopup(BaseProjectPopupWindow):
         self.confirm_pwd_var = ttk.StringVar(value="")
 
         self._build_ui()
+        self.update_idletasks()
+        from app.infrastructure.ui.tkinter.controllers.common.common_window_innit_controller import (
+            CommonWindowInitController,
+        )
+
+        final_w = max(self.winfo_reqwidth() + 48, 860)
+        final_h = max(self.winfo_reqheight() + 24, 500)
+        CommonWindowInitController.center_window_on_parent(
+            self, self._main_window, final_w, final_h
+        )
 
     def _build_ui(self) -> None:
         ttk.Label(self, text="Configuración", font="Arial 18 bold").pack(pady=(14, 6))
@@ -65,7 +74,7 @@ class SettingsPopup(BaseProjectPopupWindow):
             side="left", fill="x", expand=True, padx=(0, 8)
         )
         ttk.Button(
-            url_frame, text="Archivo SQLite...", style="secondary", command=self._browse_sqlite
+            url_frame, text="Archivo SQLite...", bootstyle="secondary", command=self._browse_sqlite
         ).pack(side="right")
 
         ttk.Label(
@@ -77,21 +86,21 @@ class SettingsPopup(BaseProjectPopupWindow):
         db_btns = ttk.Frame(db_tab)
         db_btns.pack(pady=8)
         ttk.Button(
-            db_btns, text="Probar conexión", style="info", width=18, command=self._test_connection
+            db_btns, text="Probar conexión", bootstyle="info", width=18, command=self._test_connection
         ).grid(row=0, column=0, padx=6)
         ttk.Button(
             db_btns,
             text="Aplicar migraciones",
-            style="warning",
+            bootstyle="warning",
             width=18,
             command=self._run_migrations,
         ).grid(row=0, column=1, padx=6)
         ttk.Button(
-            db_btns, text="Guardar URL", style="success", width=16, command=self._save_db_url
+            db_btns, text="Guardar URL", bootstyle="success", width=16, command=self._save_db_url
         ).grid(row=0, column=2, padx=6)
 
         ttk.Label(
-            db_tab, textvariable=self.db_status_var, font="Arial 10 italic", wraplength=540
+            db_tab, textvariable=self.db_status_var, font="Arial 10 italic", wraplength=760
         ).pack(pady=8)
 
         # --- Tab Seguridad / Contraseña ---
@@ -128,12 +137,12 @@ class SettingsPopup(BaseProjectPopupWindow):
         ttk.Button(
             sec_tab,
             text="Guardar contraseña",
-            style="success",
+            bootstyle="success",
             width=22,
             command=self._save_password,
         ).grid(row=row, column=0, columnspan=2, pady=14)
 
-        ttk.Button(self, text="Cerrar", style="secondary", width=16, command=self.destroy).pack(
+        ttk.Button(self, text="Cerrar", bootstyle="secondary", width=16, command=self.destroy).pack(
             pady=(4, 14)
         )
 

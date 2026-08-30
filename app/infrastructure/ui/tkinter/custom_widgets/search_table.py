@@ -101,64 +101,18 @@ class SearchTable(ttk.Frame):
         )
 
         # --------------------------- Cuadro ---------------------------
+        self._current_font_size = 14
         style = ttk.Style()
         style.configure('Treeview', rowheight=30)
         self.cuadro = ttk.Treeview(master=self, columns=("col1", "col2", "col3", "col4"))
-        self.cuadro.column("#0")
-        self.cuadro.column("col1")
-        self.cuadro.column("col2")
-        self.cuadro.column("col3")
-        self.cuadro.column("col4")
+        self.cuadro.heading("#0", text="Producto", anchor='w')
+        self.cuadro.heading("col1", text="Código", anchor='center')
+        self.cuadro.heading("col2", text="Precio", anchor='e')
+        self.cuadro.heading("col3", text="Detalle", anchor='w')
+        self.cuadro.heading("col4", text="Stock", anchor='center')
 
-        self.cuadro.heading("#0", text="Producto", anchor='center')
-        self.cuadro.heading("col1", text="Codigo", anchor='center')
-        self.cuadro.heading("col2", text="Precio", anchor='center')
-        self.cuadro.heading("col3", text="Detalle", anchor='center')
-        self.cuadro.heading("col4", text="stock", anchor='center')
-
-        screen_width = int(self.resolution[1] * 1.3)
-        screen_width = int(screen_width * 0.9)
-
-        self.cuadro.column("#0", width=int(screen_width * 3 / 10), anchor="center")
-        self.cuadro.column("col1", width=int(screen_width / 10), anchor="center")
-        self.cuadro.column("col2", width=int(screen_width / 10), anchor="center")
-        self.cuadro.column("col3", width=int(screen_width * 3 / 10), anchor="center")
-        self.cuadro.column("col4", width=int(screen_width / 10), anchor="center")
-
-        font_per_res = {'1476x830': 18,
-                        '1353x761': 18,
-                        '1292x807': 17,
-                        '1230x692': 16,
-                        '1107x692': 16,
-                        '1050x590': 15,
-                        '984x615': 14,
-                        '984x787': 13,
-                        '984x738': 13,
-                        '984x553': 13,
-                        '787x590': 12,
-                        '615x461': 10
-                        }
-
-        font_size = font_per_res.get(self.resolution_str)
-        if font_size is None:
-            height = self.resolution[1] if self.resolution and len(self.resolution) > 1 else 600
-            if height >= 800:
-                font_size = 18
-            elif height >= 690:
-                font_size = 16
-            elif height >= 590:
-                font_size = 14
-            elif height >= 500:
-                font_size = 12
-            else:
-                font_size = 10
-
-        self.cuadro.tag_configure('par', foreground="black", background="white",
-                                  font=('Calibri', font_size))
-        self.cuadro.tag_configure('impar', foreground="white", background="grey",
-                                  font=('Calibri', font_size))
-        self.cuadro.tag_configure('inactivo', foreground="#666666", background="#e6e6e6",
-                                  font=('Calibri', font_size, 'italic'))
+        initial_width = max(int(self.resolution[0] * 0.85), 760) if self.resolution else 900
+        self._apply_responsive_layout(initial_width)
 
         # ------------------------- scroll bar -------------------------
         self.scrollbar = ttk.Scrollbar(self, orient="vertical", command=self.cuadro.yview)
@@ -170,6 +124,7 @@ class SearchTable(ttk.Frame):
         # -----------------------------------------------gestion de eventos----------------------------------------
         self.cuadro.configure(yscrollcommand=self.scrollbar.set)
 
+        self.cuadro.bind("<Configure>", self._on_table_configure)
         self.cuadro.bind("<Return>", self.parent.table_action)
         self.cuadro.bind("<Double-1>", self.parent.table_action)
         self.str_buscado.trace_add('write', self._schedule_debounced_search)
@@ -177,6 +132,48 @@ class SearchTable(ttk.Frame):
 
 
         self.grab_focus()
+
+    def _apply_responsive_layout(self, table_width: int) -> None:
+        usable = max(int(table_width) - 22, 560)
+
+        if usable < 860:
+            font_size = 11
+            rowheight = 26
+        elif usable < 1120:
+            font_size = 13
+            rowheight = 28
+        elif usable < 1420:
+            font_size = 15
+            rowheight = 30
+        else:
+            font_size = 16
+            rowheight = 32
+
+        if font_size != self._current_font_size or not self.cuadro.tag_configure('par', 'font'):
+            self._current_font_size = font_size
+            ttk.Style().configure('Treeview', rowheight=rowheight)
+            self.cuadro.tag_configure(
+                'par', foreground="black", background="white", font=('Calibri', font_size)
+            )
+            self.cuadro.tag_configure(
+                'impar', foreground="white", background="grey", font=('Calibri', font_size)
+            )
+            self.cuadro.tag_configure(
+                'inactivo',
+                foreground="#666666",
+                background="#e6e6e6",
+                font=('Calibri', font_size, 'italic'),
+            )
+
+        self.cuadro.column("#0", width=int(usable * 0.31), minwidth=150, anchor="w", stretch=True)
+        self.cuadro.column("col1", width=int(usable * 0.12), minwidth=80, anchor="center", stretch=True)
+        self.cuadro.column("col2", width=int(usable * 0.16), minwidth=115, anchor="e", stretch=True)
+        self.cuadro.column("col3", width=int(usable * 0.31), minwidth=150, anchor="w", stretch=True)
+        self.cuadro.column("col4", width=int(usable * 0.10), minwidth=65, anchor="center", stretch=True)
+
+    def _on_table_configure(self, event):
+        if event.width > 100:
+            self._apply_responsive_layout(event.width)
 
     def _schedule_debounced_search(self, *args):
         self._cancel_pending_search()
@@ -275,15 +272,12 @@ class SearchTable(ttk.Frame):
         self.results_count_var.set("Sin resultados")
 
 
-    def adjust_size(self, event):
-        new_width = event.width
-        new_width = int(new_width * 0.9)
-
-        self.cuadro.column("#0", width=int(new_width * 3 / 10), anchor="center")
-        self.cuadro.column("col1", width=int(new_width / 10), anchor="center")
-        self.cuadro.column("col2", width=int(new_width / 10), anchor="center")
-        self.cuadro.column("col3", width=int(new_width * 3 / 10), anchor="center")
-        self.cuadro.column("col4", width=int(new_width / 10), anchor="center")
+    def adjust_size(self, event=None):
+        table_w = self.cuadro.winfo_width()
+        if table_w > 100:
+            self._apply_responsive_layout(table_w)
+        elif event is not None and getattr(event, "width", 0) > 100:
+            self._apply_responsive_layout(int(event.width * 0.9))
 
 
     def get_selected(self) -> tuple:

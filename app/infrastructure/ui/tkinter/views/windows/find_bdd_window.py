@@ -35,8 +35,8 @@ class FindBddWindow(ttk.Window):
     def __init__(self, puntero_controller: "ProgramStartController", initial_url: str = ""):
         super().__init__(themename="journal")
         self.title("Configurar conexión a la base de datos")
-        self.geometry("620x460")
-        self.minsize(580, 440)
+        self.geometry("820x500")
+        self.minsize(780, 480)
 
         self.controller = puntero_controller
         self.status_var = ttk.StringVar(value="Configure una conexión PostgreSQL o SQLite local.")
@@ -114,7 +114,7 @@ class FindBddWindow(ttk.Window):
             side="left", fill="x", expand=True, padx=(0, 8)
         )
         ttk.Button(
-            path_frame, text="Explorar...", style="info", command=self.abrir_explorador
+            path_frame, text="Explorar...", bootstyle="info", command=self.abrir_explorador
         ).pack(side="right")
 
         # --- Status & Actions ---
@@ -128,21 +128,21 @@ class FindBddWindow(ttk.Window):
         ttk.Button(
             btn_frame,
             text="Probar conexión",
-            style="info",
+            bootstyle="info",
             width=18,
             command=self.probar_conexion,
         ).grid(row=0, column=0, padx=6)
         ttk.Button(
             btn_frame,
             text="Aplicar migraciones",
-            style="warning",
+            bootstyle="warning",
             width=18,
             command=self.aplicar_migraciones,
         ).grid(row=0, column=1, padx=6)
         ttk.Button(
             btn_frame,
             text="Guardar y continuar",
-            style="success",
+            bootstyle="success",
             width=20,
             command=self.confirmar_ruta,
         ).grid(row=0, column=2, padx=6)

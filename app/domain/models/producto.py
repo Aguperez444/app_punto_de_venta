@@ -16,13 +16,16 @@ class Producto:
         codigo_de_barras: str | None,
         stock: Stock,
         activo: bool = True,
+        *,
+        validate: bool = True,
     ):
         nombre_limpio = (nombre or "").strip()
         codigo_limpio = (codigo or "").strip()
-        if not nombre_limpio:
-            raise DomainValidationError("El nombre del producto no puede estar vacío.")
-        if not codigo_limpio:
-            raise DomainValidationError("El código del producto no puede estar vacío.")
+        if validate:
+            if not nombre_limpio:
+                raise DomainValidationError("El nombre del producto no puede estar vacío.")
+            if not codigo_limpio:
+                raise DomainValidationError("El código del producto no puede estar vacío.")
 
         self._id_producto = id_producto
         self._nombre = nombre_limpio
@@ -32,6 +35,31 @@ class Producto:
         self._codigo_de_barras = (codigo_de_barras or "").strip()
         self._stock = stock
         self._activo = bool(activo)
+
+    @classmethod
+    def from_persistence(
+        cls,
+        id_producto: int | None,
+        nombre: str | None,
+        codigo: str | None,
+        precio: Precio,
+        detalle: str | None,
+        codigo_de_barras: str | None,
+        stock: Stock,
+        activo: bool = True,
+    ) -> "Producto":
+        """Rehidrata un Producto existente desde la BDD sin rechazar datos legacy incompletos."""
+        return cls(
+            id_producto=id_producto,
+            nombre=nombre or "",
+            codigo=codigo or "",
+            precio=precio,
+            detalle=detalle,
+            codigo_de_barras=codigo_de_barras,
+            stock=stock,
+            activo=activo,
+            validate=False,
+        )
 
     def disminuir_stock(self, amount: int) -> None:
         """Resta stock al registrar una venta. Permite stock negativo por regla de negocio."""

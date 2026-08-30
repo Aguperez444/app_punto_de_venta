@@ -30,6 +30,14 @@ class RouterOutlet(tk.Frame):
         self.router = None
         self.pack(fill="both", expand=True)
 
+    def _reset_parent_key_bindings(self):
+        """Limpia bindings globales de teclado de la vista anterior antes de montar la nueva."""
+        for seq in ("<Escape>", "<KeyRelease>", "<Up>", "<Down>", "<Left>", "<Right>", "<Return>", "<KP_Enter>", "<F2>"):
+            try:
+                self.parent.unbind(seq)
+            except Exception:
+                pass
+
     def set_view(self, view_class: Type[tk.Widget], params: Optional[dict] = None):
         """
         Renders the specified view in the outlet, replacing any existing view.
@@ -41,6 +49,8 @@ class RouterOutlet(tk.Frame):
             view_class (type): A subclass of tk.Widget to instantiate.
             params (dict, optional): Optional parameters passed to the new view.
         """
+        self._reset_parent_key_bindings()
+
         if self.current_view and self.current_view.winfo_exists():
             self.current_view.destroy()
 

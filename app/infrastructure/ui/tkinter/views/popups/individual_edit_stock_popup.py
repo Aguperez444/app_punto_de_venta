@@ -32,9 +32,11 @@ class IndividualEditStockPopup(BaseProjectPopupWindow, IHasTable):
         pass
 
     def __init__(self, parent, controller: "IndividualEditStockController"):
-        super().__init__(parent)
+        super().__init__(parent, width=1020, height=580)
         self.controller = controller
         self.title("Actualizar Stock de productos seleccionados")
+        self.minsize(900, 520)
+        self.center_on_parent(1020, 580)
         self.focus_set()
 
         self.stock_var = ttk.StringVar(value="")
@@ -90,10 +92,10 @@ class IndividualEditStockPopup(BaseProjectPopupWindow, IHasTable):
         )
 
         self.button_confirm = ttk.Button(
-            master=self.buttons_frame, text="Sumar Stock", style="success", width=16, command=self.confirmar
+            master=self.buttons_frame, text="Sumar Stock", bootstyle="success", width=16, command=self.confirmar
         )
         self.button_cancel = ttk.Button(
-            master=self.buttons_frame, text="Cancelar", style="danger", width=16, command=self.cancelar
+            master=self.buttons_frame, text="Cancelar", bootstyle="danger", width=16, command=self.cancelar
         )
 
         self.bind("<Configure>", self.table.adjust_size)
@@ -103,13 +105,13 @@ class IndividualEditStockPopup(BaseProjectPopupWindow, IHasTable):
         mode = self.mode_var.get()
         if mode == "add":
             self.label_input.configure(text="Ingrese el stock a sumar:")
-            self.button_confirm.configure(text="Sumar Stock", style="success")
+            self.button_confirm.configure(text="Sumar Stock", bootstyle="success")
         elif mode == "subtract":
             self.label_input.configure(text="Ingrese el stock a restar:")
-            self.button_confirm.configure(text="Restar Stock", style="warning")
+            self.button_confirm.configure(text="Restar Stock", bootstyle="warning")
         else:
             self.label_input.configure(text="Ingrese el nuevo stock exacto:")
-            self.button_confirm.configure(text="Fijar Stock", style="primary")
+            self.button_confirm.configure(text="Fijar Stock", bootstyle="primary")
 
     def render_view(self):
         self.relleno_superior.pack(side="top")
@@ -127,18 +129,9 @@ class IndividualEditStockPopup(BaseProjectPopupWindow, IHasTable):
 
         self.button_cancel.grid(row=0, column=0, padx=15)
         self.button_confirm.grid(row=0, column=1, padx=15)
-        self.buttons_frame.pack(pady=12)
+        self.buttons_frame.pack(pady=(10, 14))
 
-        self.increment_frame.place(relx=0.99, rely=0.017, anchor="ne")
-
-        self.update_idletasks()
-        self.table.place(
-            relx=0.5,
-            y=self.buttons_frame.winfo_y() + self.buttons_frame.winfo_reqheight() + 10,
-            relwidth=0.8,
-            relheight=0.4,
-            anchor="n",
-        )
+        self.table.pack(fill="both", expand=True, padx=24, pady=(0, 18))
         self.table.render_only_table()
         self.entry.focus_set()
 

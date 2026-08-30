@@ -218,3 +218,27 @@ def test_alembic_upgrade_migrates_legacy_db_without_activo_column(tmp_path):
         assert found[0].activo is True
     finally:
         engine.dispose()
+
+
+def test_query_products_tolerates_legacy_rows_with_blank_nombre_or_codigo(session_factory, uow_factory_integration):
+    from app.infrastructure.database.sqlalchemy.models.producto_orm import ProductoORM
+
+    with session_factory() as session:
+        session.add(
+            ProductoORM(
+                nombre="",
+                codigo="",
+                precio=Decimal("10.00"),
+                detalle=None,
+                codigo_de_barras=None,
+                stock=0,
+                activo=True,
+            )
+        )
+        session.commit()
+
+    qp = QueryProducts(uow_factory_integration)
+    all_products = qp.get_all()
+    assert len(all_products) == 1
+    assert all_products[0].nombre == ""
+    assert all_products[0].codigo == ""

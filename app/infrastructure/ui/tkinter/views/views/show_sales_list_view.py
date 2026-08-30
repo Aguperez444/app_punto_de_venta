@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from datetime import datetime
+import calendar
+from datetime import datetime, timedelta
 from tkinter import filedialog
 from typing import TYPE_CHECKING
 import ttkbootstrap as ttk
@@ -15,7 +16,24 @@ if TYPE_CHECKING:
     from app.domain.models.venta import Venta
 
 
+def shift_date_by_days(base_date: datetime, days: int) -> datetime:
+    """Desplaza una fecha la cantidad indicada de días (positiva o negativa)."""
+    return base_date + timedelta(days=days)
+
+
+def shift_date_by_months(base_date: datetime, months: int) -> datetime:
+    """Desplaza una fecha por meses ajustando el día al último día válido del mes destino."""
+    month_index = (base_date.month - 1) + months
+    target_year = base_date.year + (month_index // 12)
+    target_month = (month_index % 12) + 1
+    last_day = calendar.monthrange(target_year, target_month)[1]
+    target_day = min(base_date.day, last_day)
+    return base_date.replace(year=target_year, month=target_month, day=target_day)
+
+
 class ShowSalesListView(BaseProjectView):
+    _DATE_FORMAT = "%d/%m/%Y"
+
     def __init__(self, parent):
         super().__init__(parent)
         self.controller = ShowSalesController(self)
@@ -24,12 +42,17 @@ class ShowSalesListView(BaseProjectView):
         self.resolution_str = f"{self.resolution[0]}x{self.resolution[1]}"
         self.frame_para_total = ttk.Frame(master=self)
         self.actions_frame = ttk.Frame(master=self)
+        self.date_nav_frame = ttk.Frame(master=self)
 
-        self.fecha_var = ttk.StringVar()
+        self._current_date = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+
+        self.fecha_var = ttk.StringVar(value=self._current_date.strftime(self._DATE_FORMAT))
         self.total_price_of_day = ttk.StringVar(value="")
         self.mode_txt = ttk.StringVar(value="Ver listado por mes")
         self.mode = ttk.IntVar(value=1)
         self.title_mode = ttk.StringVar(value="Total del Día: ")
+        self.prev_btn_txt = ttk.StringVar(value="◀ Día anterior")
+        self.next_btn_txt = ttk.StringVar(value="Día siguiente ▶")
 
         self.button_mode = ttk.Button(
             master=self,
@@ -38,23 +61,43 @@ class ShowSalesListView(BaseProjectView):
             style="my.TButton",
             command=self.change_mode,
         )
+        self.button_prev = ttk.Button(
+            master=self.date_nav_frame,
+            textvariable=self.prev_btn_txt,
+            width=18,
+            bootstyle="info",
+            command=self.go_previous_period,
+        )
+        self.button_next = ttk.Button(
+            master=self.date_nav_frame,
+            textvariable=self.next_btn_txt,
+            width=18,
+            bootstyle="info",
+            command=self.go_next_period,
+        )
+
         self.button_detail = ttk.Button(
             master=self.actions_frame,
             text="Ver detalle de venta",
             width=20,
-            style="info",
+            bootstyle="info",
             command=self.open_selected_sale_detail,
         )
         self.button_export = ttk.Button(
             master=self.actions_frame,
             text="Exportar a CSV",
             width=18,
-            style="success-outline",
+            bootstyle="success-outline",
             command=self.export_sales_csv,
         )
 
-        self.calendario = ttk.DateEntry(self)
+        self.calendario = ttk.DateEntry(
+            self.date_nav_frame,
+            dateformat=self._DATE_FORMAT,
+            startdate=self._current_date.date(),
+        )
         self.calendario.entry.configure(textvariable=self.fecha_var)
+        self.fecha_var.set(self._current_date.strftime(self._DATE_FORMAT))
 
         self.total_del_dia = ttk.Label(
             master=self.frame_para_total,
@@ -92,8 +135,12 @@ class ShowSalesListView(BaseProjectView):
         else:
             font_size = 10
 
-        self.cuadro.tag_configure("par", foreground="black", background="white", font=("Calibri", font_size))
-        self.cuadro.tag_configure("impar", foreground="white", background="grey", font=("Calibri", font_size))
+        self.cuadro.tag_configure(
+            "par", foreground="black", background="white", font=("Calibri", font_size)
+        )
+        self.cuadro.tag_configure(
+            "impar", foreground="white", background="grey", font=("Calibri", font_size)
+        )
 
         self.scrollbar = ttk.Scrollbar(self.sub_frame, orient="vertical", command=self.cuadro.yview)
         self.cuadro.configure(yscrollcommand=self.scrollbar.set)
@@ -108,9 +155,14 @@ class ShowSalesListView(BaseProjectView):
         self.cuadro.bind("<Return>", self.open_selected_sale_detail)
         self.bind("<Configure>", self.on_resize)
         self.parent.bind("<Escape>", self.volver_al_menu)
+        self.parent.bind("<Left>", self._on_left_arrow)
+        self.parent.bind("<Right>", self._on_right_arrow)
+        self.bind("<Destroy>", self._cleanup_bindings)
         self.es_primer_resize = True
 
         self.controller.finished_init()
+        self.realizar_busqueda_sale()
+        self.cuadro.focus_set()
 
     def _apply_column_widths(self, total_width: int) -> None:
         self.cuadro.column("#0", width=int(total_width * 2 / 5), anchor="center")
@@ -120,33 +172,42 @@ class ShowSalesListView(BaseProjectView):
         self.cuadro.column("col4", width=int(total_width / 5), anchor="center")
 
     def render_view(self):
-        self.menu_button.place(x=15, rely=0.017, anchor="nw", height=35)
-        self.frame.place(relx=0.5, rely=0.42, relwidth=0.9, relheight=0.52, anchor="center")
+        self.menu_button.place(x=15, y=14, anchor="nw")
+        self.button_theme.place(relx=0.990, y=14, anchor="ne")
+        self.button_mode.place(y=14, relx=0.5, anchor="n")
+
+        self.button_prev.grid(row=0, column=0, padx=(0, 10))
+        self.calendario.grid(row=0, column=1, padx=4)
+        self.button_next.grid(row=0, column=2, padx=(10, 0))
+        self.date_nav_frame.place(relx=0.5, y=72, anchor="center")
+
+        self.frame.place(relx=0.5, rely=0.45, relwidth=0.9, relheight=0.52, anchor="center")
         self.cuadro.pack_configure(fill="both", expand=True)
         self.sub_frame.pack_configure(fill="both", expand=True)
-        self.button_theme.place(relx=0.990, rely=0.017, height=35, anchor="ne")
-        self.button_mode.place(y=12, relx=0.5, anchor="n")
-        self.calendario.place(relx=0.5, y=68, anchor="center")
 
         self.button_detail.grid(row=0, column=0, padx=8)
         self.button_export.grid(row=0, column=1, padx=8)
-        self.actions_frame.place(relx=0.5, rely=0.76, anchor="center")
+        self.actions_frame.place(relx=0.5, rely=0.78, anchor="center")
 
         self.titulo_total_dia.grid(row=0, column=0)
         self.total_del_dia.grid(row=0, column=1)
-        self.frame_para_total.place(relx=0.5, rely=0.87, anchor="center")
+        self.frame_para_total.place(relx=0.5, rely=0.88, anchor="center")
 
-    def realizar_busqueda_sale(self, _varname=None, _index=None, _mode=None):
+    def _parse_current_date(self) -> datetime | None:
         fecha_del_dia = self.fecha_var.get().strip()
         if not fecha_del_dia:
-            return
-        fecha_obj = None
-        for fmt in ("%d/%m/%y", "%d/%m/%Y", "%Y-%m-%d", "%m/%d/%Y", "%m/%d/%y"):
+            return None
+        for fmt in ("%d/%m/%Y", "%d/%m/%y", "%Y-%m-%d", "%m/%d/%Y", "%m/%d/%y"):
             try:
-                fecha_obj = datetime.strptime(fecha_del_dia, fmt)
-                break
+                parsed = datetime.strptime(fecha_del_dia, fmt)
+                self._current_date = parsed
+                return parsed
             except ValueError:
                 continue
+        return None
+
+    def realizar_busqueda_sale(self, _varname=None, _index=None, _mode=None):
+        fecha_obj = self._parse_current_date()
         if fecha_obj is None:
             return
 
@@ -154,6 +215,56 @@ class ShowSalesListView(BaseProjectView):
             self.controller.get_ventas_del_dia(fecha_obj)
         else:
             self.controller.get_ventas_del_mes(fecha_obj)
+
+    def _step_period(self, delta: int) -> None:
+        base = self._parse_current_date() or self._current_date
+        if self.mode.get() == 1:
+            target = shift_date_by_days(base, delta)
+        else:
+            target = shift_date_by_months(base, delta)
+        self._current_date = target
+        self.fecha_var.set(target.strftime(self._DATE_FORMAT))
+
+    def go_previous_period(self) -> None:
+        self._step_period(-1)
+
+    def go_next_period(self) -> None:
+        self._step_period(1)
+
+    def _is_main_window_active(self) -> bool:
+        if not self.winfo_exists():
+            return False
+        focused = self.parent.focus_get()
+        if focused is not None and focused.winfo_toplevel() != self.parent:
+            return False
+        if focused == self.calendario.entry:
+            return False
+        return True
+
+    def _on_left_arrow(self, _event=None):
+        if self._is_main_window_active():
+            self.go_previous_period()
+            return "break"
+        return None
+
+    def _on_right_arrow(self, _event=None):
+        if self._is_main_window_active():
+            self.go_next_period()
+            return "break"
+        return None
+
+    def _cleanup_bindings(self, event=None):
+        if event is not None and event.widget is not self:
+            return
+        try:
+            self.parent.unbind("<Left>")
+            self.parent.unbind("<Right>")
+        except Exception:
+            pass
+
+    def volver_al_menu(self, _varname=None, _index=None, _mode=None):
+        self._cleanup_bindings()
+        super().volver_al_menu(_varname=_varname, _index=_index, _mode=_mode)
 
     def export_sales_csv(self):
         output_path = filedialog.asksaveasfilename(
@@ -189,10 +300,14 @@ class ShowSalesListView(BaseProjectView):
             self.mode.set(2)
             self.mode_txt.set("Ver listado por día")
             self.title_mode.set("Total del Mes: ")
+            self.prev_btn_txt.set("◀ Mes anterior")
+            self.next_btn_txt.set("Mes siguiente ▶")
         else:
             self.mode.set(1)
             self.title_mode.set("Total del Día: ")
             self.mode_txt.set("Ver listado por mes")
+            self.prev_btn_txt.set("◀ Día anterior")
+            self.next_btn_txt.set("Día siguiente ▶")
         self.realizar_busqueda_sale()
 
     def pasar_al_cuadro_ventas(self, ventas_list: list[SaleSummaryDTO | "Venta"]):

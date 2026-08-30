@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from decimal import Decimal
+
 from app.domain.models.precio import Precio
 from app.domain.models.producto import Producto
 from app.domain.models.stock import Stock
@@ -9,14 +11,17 @@ from app.infrastructure.database.sqlalchemy.models.producto_orm import ProductoO
 class ProductoMapper:
     @staticmethod
     def to_domain_producto(row: ProductoORM) -> Producto:
-        return Producto(
+        raw_price = Decimal(row.precio) if row.precio is not None else Decimal("0.00")
+        safe_price = raw_price if raw_price >= Decimal("0") else Decimal("0.00")
+        safe_stock = int(row.stock) if row.stock is not None else 0
+        return Producto.from_persistence(
             id_producto=row.id,
             nombre=row.nombre,
             codigo=row.codigo,
-            precio=Precio(row.precio),
+            precio=Precio(safe_price),
             detalle=row.detalle or "",
             codigo_de_barras=row.codigo_de_barras or "",
-            stock=Stock(row.stock),
+            stock=Stock(safe_stock),
             activo=bool(getattr(row, "activo", True)),
         )
 

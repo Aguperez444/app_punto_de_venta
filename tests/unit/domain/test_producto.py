@@ -62,3 +62,19 @@ def test_producto_ajustar_stock_and_soft_delete(sample_producto):
 def test_producto_disminuir_stock_rejects_negative_amount(sample_producto):
     with pytest.raises(ValueError):
         sample_producto.disminuir_stock(-1)
+
+
+def test_producto_from_persistence_allows_legacy_blank_fields():
+    legacy = Producto.from_persistence(
+        id_producto=99,
+        nombre="",
+        codigo="   ",
+        precio=Precio(Decimal("10.00")),
+        detalle=None,
+        codigo_de_barras=None,
+        stock=Stock(0),
+        activo=True,
+    )
+    assert legacy.id_producto == 99
+    assert legacy.nombre == ""
+    assert legacy.codigo == ""

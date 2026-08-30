@@ -32,13 +32,14 @@ class SalesRegisterWindow(BaseProjectPopupWindow, IHasTable):
         pass
 
     def __init__(self, parent, controller: "RegisterSaleController", default_to_cart: bool = False):
-        super().__init__(parent)
+        super().__init__(parent, width=1020, height=520)
         self.controller = controller
         self.default_to_cart = default_to_cart
 
         self.tecla_presionada = False
         self._current_stock: int | None = None
-        self.minsize(720, 480)
+        self.minsize(900, 480)
+        self.center_on_parent(1020, 520)
         self.focus_set()
 
         self.cantidad_vendida = ttk.StringVar(value="1")
@@ -86,21 +87,21 @@ class SalesRegisterWindow(BaseProjectPopupWindow, IHasTable):
         self.cancel_button = ttk.Button(
             master=self.buttons_frame,
             text="Cancelar",
-            style="danger",
+            bootstyle="danger",
             width=16,
             command=self.venta_cancel,
         )
         self.add_to_cart_button = ttk.Button(
             master=self.buttons_frame,
             text=cart_text,
-            style=cart_style,
+            bootstyle=cart_style,
             width=22,
             command=self.add_to_cart,
         )
         self.confirm_button = ttk.Button(
             master=self.buttons_frame,
             text=register_text,
-            style=register_style,
+            bootstyle=register_style,
             width=22,
             command=self.venta_confirm,
         )

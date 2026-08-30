@@ -18,11 +18,12 @@ class CartCheckoutPopup(BaseProjectPopupWindow):
     """Popup de revisión y confirmación del carrito multi-producto."""
 
     def __init__(self, parent, controller: "ShowProductController", cart: "SaleCart"):
-        super().__init__(parent)
+        super().__init__(parent, width=960, height=540)
         self.controller = controller
         self.cart = cart
         self.title("Carrito de Venta")
-        self.minsize(780, 480)
+        self.minsize(840, 480)
+        self.center_on_parent(960, 540)
         self.focus_set()
 
         self.header_frame = ttk.Frame(master=self)
@@ -52,11 +53,15 @@ class CartCheckoutPopup(BaseProjectPopupWindow):
         self.tree.heading("precio_unitario", text="Precio unit.", anchor="center")
         self.tree.heading("subtotal", text="Subtotal", anchor="center")
 
-        self.tree.column("#0", width=260, anchor="w")
-        self.tree.column("codigo", width=110, anchor="center")
-        self.tree.column("cantidad", width=90, anchor="center")
-        self.tree.column("precio_unitario", width=120, anchor="e")
-        self.tree.column("subtotal", width=130, anchor="e")
+        self.tree.column("#0", width=310, minwidth=180, anchor="w", stretch=True)
+        self.tree.column("codigo", width=115, minwidth=80, anchor="center", stretch=True)
+        self.tree.column("cantidad", width=95, minwidth=70, anchor="center", stretch=True)
+        self.tree.column("precio_unitario", width=140, minwidth=115, anchor="e", stretch=True)
+        self.tree.column("subtotal", width=145, minwidth=115, anchor="e", stretch=True)
+
+        self.tree.tag_configure("par", foreground="black", background="white", font=("Calibri", 12))
+        self.tree.tag_configure("impar", foreground="white", background="grey", font=("Calibri", 12))
+        self.tree.bind("<Configure>", self._on_tree_resize)
 
         self.scrollbar = ttk.Scrollbar(self.table_frame, orient="vertical", command=self.tree.yview)
         self.tree.configure(yscrollcommand=self.scrollbar.set)
@@ -64,28 +69,28 @@ class CartCheckoutPopup(BaseProjectPopupWindow):
         self.btn_plus = ttk.Button(
             master=self.item_controls_frame,
             text="+1 unidad",
-            style="info-outline",
+            bootstyle="info-outline",
             width=12,
             command=lambda: self._adjust_selected(1),
         )
         self.btn_minus = ttk.Button(
             master=self.item_controls_frame,
             text="-1 unidad",
-            style="info-outline",
+            bootstyle="info-outline",
             width=12,
             command=lambda: self._adjust_selected(-1),
         )
         self.btn_remove = ttk.Button(
             master=self.item_controls_frame,
             text="Quitar ítem",
-            style="warning-outline",
+            bootstyle="warning-outline",
             width=14,
             command=self._remove_selected,
         )
         self.btn_clear = ttk.Button(
             master=self.item_controls_frame,
             text="Vaciar carrito",
-            style="danger-outline",
+            bootstyle="danger-outline",
             width=14,
             command=self._clear_cart,
         )
@@ -99,19 +104,27 @@ class CartCheckoutPopup(BaseProjectPopupWindow):
         self.btn_continue = ttk.Button(
             master=self.footer_frame,
             text="Seguir agregando",
-            style="secondary",
+            bootstyle="secondary",
             width=18,
             command=self.destroy,
         )
         self.btn_confirm = ttk.Button(
             master=self.footer_frame,
             text="Confirmar venta (Enter)",
-            style="success",
+            bootstyle="success",
             width=22,
             command=self._confirm_sale,
         )
 
         self.render_view()
+
+    def _on_tree_resize(self, event):
+        usable = max(event.width - 20, 560)
+        self.tree.column("#0", width=int(usable * 0.36))
+        self.tree.column("codigo", width=int(usable * 0.14))
+        self.tree.column("cantidad", width=int(usable * 0.12))
+        self.tree.column("precio_unitario", width=int(usable * 0.19))
+        self.tree.column("subtotal", width=int(usable * 0.19))
 
     def render_view(self):
         self.label_title.pack(pady=(12, 2))

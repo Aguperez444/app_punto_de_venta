@@ -25,7 +25,7 @@ class ShowNoStockView(BaseProjectView, IHasTable, MixinTableNavigation):
         self.button_export_csv = ttk.Button(
             master=self.increment_frame,
             text="Exportar faltantes (CSV)",
-            style="success-outline",
+            bootstyle="success-outline",
             width=22,
             command=self.export_csv,
         )

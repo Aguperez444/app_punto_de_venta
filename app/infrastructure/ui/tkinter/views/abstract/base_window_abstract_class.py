@@ -1,132 +1,174 @@
+from __future__ import annotations
+
 import logging
-import ttkbootstrap as ttk
-from tkinter import simpledialog, messagebox, PhotoImage
+from tkinter import PhotoImage, TclError, messagebox
+from typing import TYPE_CHECKING
 
-logger = logging.getLogger(__name__)
-
+from PIL import Image, ImageTk
 from tkrouter import RouteLinkButton, get_router
+from tkrouter.views import StyledRoutedView
+import ttkbootstrap as ttk
 
 from app.infrastructure.config.auth_service import AuthService
-from app.infrastructure.ui.tkinter.controllers.common.common_window_innit_controller import CommonWindowInitController
-from PIL import Image, ImageTk
-from tkinter import TclError
-
-from tkrouter.views import StyledRoutedView
-
-
-from typing import TYPE_CHECKING
+from app.infrastructure.ui.tkinter.controllers.common.common_window_innit_controller import (
+    CommonWindowInitController,
+)
 
 if TYPE_CHECKING:
     from app.infrastructure.ui.tkinter.custom_widgets.customRouter import RouterOutlet
 
+logger = logging.getLogger(__name__)
+
+
+def ask_password_centered(parent_window, title: str, prompt: str) -> str | None:
+    """Muestra un diálogo modal de contraseña centrado sobre `parent_window` (en su mismo monitor)."""
+    result: dict[str, str | None] = {"value": None}
+
+    dialog = ttk.Toplevel(parent_window)
+    dialog.title(title)
+    dialog.resizable(False, False)
+
+    top_parent = parent_window.winfo_toplevel()
+    CommonWindowInitController.center_window_on_parent(dialog, top_parent, 420, 185)
+
+    frame = ttk.Frame(dialog, padding=18)
+    frame.pack(fill="both", expand=True)
+
+    ttk.Label(frame, text=prompt, font="Arial 11", wraplength=380, justify="center").pack(
+        pady=(0, 10)
+    )
+
+    pwd_var = ttk.StringVar()
+    entry = ttk.Entry(frame, textvariable=pwd_var, show="*", width=32)
+    entry.pack(pady=(0, 14))
+
+    btns = ttk.Frame(frame)
+    btns.pack()
+
+    def _on_ok(_event=None):
+        result["value"] = pwd_var.get()
+        dialog.destroy()
+
+    def _on_cancel(_event=None):
+        result["value"] = None
+        dialog.destroy()
+
+    ttk.Button(btns, text="Aceptar", bootstyle="primary", width=12, command=_on_ok).grid(
+        row=0, column=0, padx=8
+    )
+    ttk.Button(btns, text="Cancelar", bootstyle="secondary", width=12, command=_on_cancel).grid(
+        row=0, column=1, padx=8
+    )
+
+    dialog.bind("<Return>", _on_ok)
+    dialog.bind("<Escape>", _on_cancel)
+    dialog.protocol("WM_DELETE_WINDOW", _on_cancel)
+
+    dialog.update_idletasks()
+    # Re-centrar tras layout para precisión exacta en multi-monitor
+    CommonWindowInitController.center_window_on_parent(
+        dialog, top_parent, max(dialog.winfo_reqwidth(), 420), max(dialog.winfo_reqheight(), 175)
+    )
+    dialog.lift()
+    dialog.grab_set()
+    entry.focus_set()
+    dialog.wait_window()
+    return result["value"]
+
+
+def _run_password_flow(owner_widget, auth_service: AuthService, on_success) -> None:
+    top_parent = owner_widget.winfo_toplevel()
+
+    if not auth_service.is_password_configured():
+        new_pwd = ask_password_centered(
+            top_parent,
+            "Configurar contraseña",
+            "No hay contraseña administrativa configurada.\nIngrese una nueva contraseña (mínimo 4 caracteres):",
+        )
+        if new_pwd is None:
+            return
+        confirm_pwd = ask_password_centered(
+            top_parent,
+            "Confirmar contraseña",
+            "Vuelva a ingresar la contraseña:",
+        )
+        if confirm_pwd is None:
+            return
+        if new_pwd != confirm_pwd:
+            messagebox.showerror("Error", "Las contraseñas no coinciden.", parent=top_parent)
+            return
+        try:
+            auth_service.set_password(new_pwd)
+            messagebox.showinfo(
+                "Contraseña configurada",
+                "Contraseña administrativa guardada correctamente.",
+                parent=top_parent,
+            )
+            on_success()
+        except Exception as exc:
+            messagebox.showerror("Error", str(exc), parent=top_parent)
+        return
+
+    while True:
+        candidate = ask_password_centered(top_parent, "Contraseña", "Ingrese su contraseña:")
+        if candidate is None:
+            break
+        if auth_service.verify_password(candidate):
+            on_success()
+            break
+        messagebox.showerror("Error", "Contraseña incorrecta", parent=top_parent)
+
+
 class BaseProjectWindow(ttk.Window):
-    """
-    Base class for project windows, providing common functionality.
-    """
+    """Base class for project windows, providing common functionality."""
+
     def __init__(self, container=None):
         super().__init__()
         self.container = container
         self.auth_service = container.auth_service if container is not None else AuthService()
-        # -----------------------------------------comunicación con Controllers--------------------------------
         self.init_controller = CommonWindowInitController(
             config_persistence=container.config if container is not None else None
         )
-        # -----------------------------------------atributos principales----------------------------------------
-        self.icon_path = self.init_controller.get_icon_path() # get the path to the icon
-        self.version = self.init_controller.get_version() # get the program version
-        self.window_geometry = self.init_controller.calculate_window_resolution() # calculate the window resolution
+
+        self.icon_path = self.init_controller.get_icon_path()
+        self.version = self.init_controller.get_version()
+        self.window_geometry = self.init_controller.calculate_window_resolution()
         self.geometry(self.window_geometry)
         self.img = Image.open(self.icon_path)
         self.icon: PhotoImage = ImageTk.PhotoImage(self.img)
         self.theme = self.init_controller.obtener_tema_actual()
 
         self.minsize(400, 300)
-
-        #self.iconbitmap(self.icon_path) funcionaba en windows no en linux
-        self.wm_iconphoto(False, self.icon) #marca en naranja pero funciona bien
-
+        self.wm_iconphoto(False, self.icon)
         self.style.theme_use(self.theme)
 
-
-        # ----------------------------botón tema---------------------------
         self.str_modo = ttk.StringVar()
-        self.str_modo.set('Modo claro')
-        if self.theme == 'journal':
-            self.str_modo.set('Modo oscuro')
-
+        self.str_modo.set("Modo claro")
+        if self.theme == "journal":
+            self.str_modo.set("Modo oscuro")
 
     def solicit_password(self, mode):
-        if not self.auth_service.is_password_configured():
-            new_pwd = simpledialog.askstring(
-                "Configurar contraseña",
-                "No hay contraseña administrativa configurada.\nIngrese una nueva contraseña (mínimo 4 caracteres):",
-                show="*",
-            )
-            if new_pwd is None:
-                return
-            confirm_pwd = simpledialog.askstring(
-                "Confirmar contraseña",
-                "Vuelva a ingresar la contraseña:",
-                show="*",
-            )
-            if confirm_pwd is None:
-                return
-            if new_pwd != confirm_pwd:
-                messagebox.showerror("Error", "Las contraseñas no coinciden.")
-                return
-            try:
-                self.auth_service.set_password(new_pwd)
-                messagebox.showinfo("Contraseña configurada", "Contraseña administrativa guardada correctamente.")
-                self.handle_correct_password(mode)
-            except Exception as exc:
-                messagebox.showerror("Error", str(exc))
-            return
-
-        correct_password_introduced = False
-
-        while not correct_password_introduced:
-            dialog = simpledialog.askstring("Contraseña", "Ingrese su contraseña:", show="*")
-
-            if dialog is None:
-                break
-            elif self.auth_service.verify_password(dialog):
-                self.handle_correct_password(mode)
-                correct_password_introduced = True
-            else:
-                messagebox.showerror("Error", "Contraseña incorrecta")
-
+        _run_password_flow(self, self.auth_service, lambda: self.handle_correct_password(mode))
 
     def handle_correct_password(self, mode):
-        """
-        Handle the action to take when the correct password is entered.
-        To be implemented in subclasses.
-        """
         raise NotImplementedError("Subclasses should implement this method.")
 
-
     def cambiar_modo(self):
-        if self.theme == 'journal':
-            self.style.theme_use('darkly')
-            self.theme = 'darkly'
-            self.str_modo.set('Modo claro')
-
-
+        if self.theme == "journal":
+            self.style.theme_use("darkly")
+            self.theme = "darkly"
+            self.str_modo.set("Modo claro")
         else:
-            self.style.theme_use('journal')
-            self.theme = 'journal'
-            self.str_modo.set('Modo oscuro')
-
+            self.style.theme_use("journal")
+            self.theme = "journal"
+            self.str_modo.set("Modo oscuro")
         self.init_controller.tema_cambiado(self.theme)
-
 
     def cerrar_ventana_alerta(self):
         raise NotImplementedError("Subclasses should implement this method.")
 
-
-    @staticmethod
-    def show_error(msg):
-        messagebox.showerror('Ha ocurrido un error', msg)
-
+    def show_error(self, msg):
+        messagebox.showerror("Ha ocurrido un error", msg, parent=self)
 
     def report_callback_exception(self, exc, val, tb):
         logger.exception("Error no controlado en callback de Tkinter", exc_info=(exc, val, tb))
@@ -134,223 +176,171 @@ class BaseProjectWindow(ttk.Window):
 
     def maximizar(self):
         try:
-            self.attributes('-zoomed', True)
+            self.attributes("-zoomed", True)
         except TclError:
-            self.state('zoomed')
+            self.state("zoomed")
 
 
 class BaseProjectView(StyledRoutedView):
-    """
-    Base class for project topLevel windows, providing common functionality.
-    """
-    def __init__(self, master: 'RouterOutlet'):
+    """Base class for routed SPA views, providing common functionality."""
+
+    def __init__(self, master: "RouterOutlet"):
         super().__init__(master)
-        # -----------------------------------------atributos principales----------------------------------------
         self.parent = master.parent
         self.container = getattr(self.parent, "container", None)
         self.auth_service = getattr(self.parent, "auth_service", AuthService())
-        # -----------------------------------------comunicación con Controllers--------------------------------
         self.init_controller = CommonWindowInitController(
             config_persistence=self.container.config if self.container is not None else None
         )
 
         self.resolution = self.get_screen_resolution()
-        self.resolution_str = f'{self.resolution[0]}x{self.resolution[1]}'
+        self.resolution_str = f"{self.resolution[0]}x{self.resolution[1]}"
 
-        # ----------------------------botón tema---------------------------
         self.str_modo = ttk.StringVar()
-        self.str_modo.set('Modo claro')
-        if self.parent.theme == 'journal':
-            self.str_modo.set('Modo oscuro')
+        self.str_modo.set("Modo claro")
+        if self.parent.theme == "journal":
+            self.str_modo.set("Modo oscuro")
 
-        self.button_theme = ttk.Button(master=self, textvariable=self.str_modo, width=17, style='my.TButton',
-                                       command=self.cambiar_modo)
+        self.button_theme = ttk.Button(
+            master=self,
+            textvariable=self.str_modo,
+            width=17,
+            style="my.TButton",
+            takefocus=False,
+            command=self.cambiar_modo,
+        )
 
-        # ---------------------------botón menú----------------------------
-        self.menu_button = RouteLinkButton(master=self, to='/', text='Volver al menú',  width=17, style='my.TButton')
+        self.menu_button = RouteLinkButton(
+            master=self,
+            to="/",
+            text="Volver al menú",
+            width=17,
+            style="my.TButton",
+            takefocus=False,
+        )
 
-
-        # -----------------------------------------------frames---------------------------------------------------
         self.frame = ttk.Frame(master=self)
         self.sub_frame = ttk.Frame(master=self.frame)
 
-
-
-        # -----------------------------------------------gestion de eventos----------------------------------------
         self.parent.bind("<Escape>", self.volver_al_menu)
-
 
     def realizar_busqueda_alfabetica(self):
         raise NotImplementedError("Subclasses should implement this method.")
 
-
     def realizar_busqueda(self, _varname=None, _index=None, _mode=None):
         raise NotImplementedError("Subclasses should implement this method.")
-
 
     def cerrar_ventana_alerta(self):
         raise NotImplementedError("Subclasses should implement this method.")
 
-
     def handle_correct_password(self, mode):
-        """
-        Handle the action to take when the correct password is entered.
-        To be implemented in subclasses.
-        """
         raise NotImplementedError("Subclasses should implement this method.")
 
-
     def solicit_password(self, mode):
-        if not self.auth_service.is_password_configured():
-            new_pwd = simpledialog.askstring(
-                "Configurar contraseña",
-                "No hay contraseña administrativa configurada.\nIngrese una nueva contraseña (mínimo 4 caracteres):",
-                show="*",
-            )
-            if new_pwd is None:
-                return
-            confirm_pwd = simpledialog.askstring(
-                "Confirmar contraseña",
-                "Vuelva a ingresar la contraseña:",
-                show="*",
-            )
-            if confirm_pwd is None:
-                return
-            if new_pwd != confirm_pwd:
-                messagebox.showerror("Error", "Las contraseñas no coinciden.")
-                return
-            try:
-                self.auth_service.set_password(new_pwd)
-                messagebox.showinfo("Contraseña configurada", "Contraseña administrativa guardada correctamente.")
-                self.handle_correct_password(mode)
-            except Exception as exc:
-                messagebox.showerror("Error", str(exc))
-            return
-
-        correct_password_introduced = False
-
-        while not correct_password_introduced:
-            dialog = simpledialog.askstring("Contraseña", "Ingrese su contraseña:", show="*")
-
-            if dialog is None:
-                break
-            elif self.auth_service.verify_password(dialog):
-                self.handle_correct_password(mode)
-                correct_password_introduced = True
-            else:
-                messagebox.showerror("Error", "Contraseña incorrecta")
-
+        _run_password_flow(
+            self.parent, self.auth_service, lambda: self.handle_correct_password(mode)
+        )
 
     def cambiar_modo(self):
-        if self.parent.theme == 'journal':
-            self.parent.style.theme_use('darkly')
-            self.parent.theme = 'darkly'
-            self.str_modo.set('Modo claro')
+        if self.parent.theme == "journal":
+            self.parent.style.theme_use("darkly")
+            self.parent.theme = "darkly"
+            self.str_modo.set("Modo claro")
         else:
-            self.parent.style.theme_use('journal')
-            self.parent.theme = 'journal'
-            self.str_modo.set('Modo oscuro')
-
+            self.parent.style.theme_use("journal")
+            self.parent.theme = "journal"
+            self.str_modo.set("Modo oscuro")
         self.init_controller.tema_cambiado(self.parent.theme)
-
 
     def get_screen_resolution(self):
         return self.init_controller.get_screen_resolution()
 
-
     def clear_event(self, _varname=None, _index=None, _mode=None):
         pass
 
-
     def volver_al_menu(self, _varname=None, _index=None, _mode=None):
-        self.parent.bind("<Escape>", self.clear_event) # evita que se siga recargando el menu con esc al volver al menu
+        self.parent.bind("<Escape>", self.clear_event)
         self.parent.bind("<KeyRelease>", self.clear_event)
-        get_router().navigate('/')
-
+        get_router().navigate("/")
 
     def render_base(self):
-        self.menu_button.place(x=15, rely=0.017, anchor='nw', height=35)
-        self.button_theme.place(relx=0.990, rely=0.017, height=35, anchor='ne')
-
+        # Sin height fijo para respetar el padding natural de la fuente 'arial 12 bold'
+        self.menu_button.place(x=15, y=14, anchor="nw")
+        self.button_theme.place(relx=0.990, y=14, anchor="ne")
 
     def render_view(self):
         raise NotImplementedError("Subclasses should implement this method.")
 
-
-    def report_callback_exception(self, exc, val, tb):
-        logger.exception("Error no controlado en callback de Tkinter", exc_info=(exc, val, tb))
-        self.show_error(f"Ocurrió un error inesperado: {val}")
-
     def maximizar(self):
         try:
-            self.parent.attributes('-zoomed', True)
+            self.parent.attributes("-zoomed", True)
         except TclError:
-            self.parent.state('zoomed')
+            self.parent.state("zoomed")
 
+    def show_error(self, msg):
+        messagebox.showerror("Ha ocurrido un error", msg, parent=self.parent)
 
-    @staticmethod
-    def show_error(msg):
-        messagebox.showerror('Ha ocurrido un error', msg)
-
-
-    @staticmethod
-    def show_message(msg):
-        messagebox.showinfo('Atención', msg)
+    def show_message(self, msg):
+        messagebox.showinfo("Atención", msg, parent=self.parent)
 
 
 class BaseProjectPopupWindow(ttk.Toplevel):
-
-    def __init__(self, parent):
-        super().__init__(parent.parent)
-        # -----------------------------------------comunicación con Controllers--------------------------------
-        self.init_controller = CommonWindowInitController()
-        # -----------------------------------------atributos principales----------------------------------------
+    def __init__(self, parent, width: int | None = None, height: int | None = None):
+        main_win = parent.parent if hasattr(parent, "parent") else parent
+        super().__init__(main_win)
+        self._main_window = main_win
         self.parent = parent
-        self.container = getattr(parent, "container", None)
-        self.auth_service = getattr(parent, "auth_service", AuthService())
+        self.container = getattr(parent, "container", getattr(main_win, "container", None))
+        self.auth_service = getattr(parent, "auth_service", getattr(main_win, "auth_service", AuthService()))
+        self.init_controller = CommonWindowInitController(
+            config_persistence=self.container.config if self.container is not None else None
+        )
 
         self.resolution = self.get_screen_resolution()
-        self.resolution_str = f'{self.resolution[0]}x{self.resolution[1]}'
+        self.resolution_str = f"{self.resolution[0]}x{self.resolution[1]}"
 
-        self.img = parent.parent.img
+        self.img = main_win.img
         self.icon: PhotoImage = ImageTk.PhotoImage(self.img)
-        self.theme = self.parent.parent.theme
+        self.theme = main_win.theme
 
-        #self.iconbitmap(self.icon_path) funcionaba en windows no en linux
         self.wm_iconphoto(False, self.icon)
-
         self.style.theme_use(self.theme)
 
+        try:
+            self.transient(main_win)
+        except Exception:
+            pass
 
-        self.geometry(self.init_controller.calculate_popup_resolution(self.parent.parent))
+        self.geometry(
+            self.init_controller.calculate_popup_resolution(main_win, width=width, height=height)
+        )
+        self.minsize(600, 420)
 
-        self.minsize(600,500)
-
-        # -------------------------------------- buttons -------------------------------------------
-        # ---------------------------- button theme ---------------------------
         self.str_modo = ttk.StringVar()
-        self.str_modo.set('Modo claro')
-        if self.theme == 'journal':
-            self.str_modo.set('Modo oscuro')
+        self.str_modo.set("Modo claro")
+        if self.theme == "journal":
+            self.str_modo.set("Modo oscuro")
 
-        self.button_theme = ttk.Button(master=self, textvariable=self.str_modo, width=17, style='my.TButton',
-                                       command=self.cambiar_modo)
+        self.button_theme = ttk.Button(
+            master=self,
+            textvariable=self.str_modo,
+            width=17,
+            style="my.TButton",
+            command=self.cambiar_modo,
+        )
+        self.menu_button = ttk.Button(
+            master=self,
+            text="Volver al menú",
+            width=17,
+            style="my.TButton",
+            command=self.volver_al_menu,
+        )
 
-        # --------------------------- button menu ----------------------------
-        self.menu_button = ttk.Button(master=self, text='Volver al menú',  width=17, style='my.TButton',
-                                 command=self.volver_al_menu)
-
-
-
-        # -----------------------------------------------frames---------------------------------------------------
         self.frame = ttk.Frame(master=self)
         self.sub_frame = ttk.Frame(master=self.frame)
 
-
-        # -----------------------------------------------gestion de eventos----------------------------------------
         self.bind("<Escape>", self.volver_al_menu)
-        self.bind('<Return>', self.confirm_action)
-
+        self.bind("<Return>", self.confirm_action)
 
         self.buttons_frame = None
         self.input_frame = None
@@ -361,125 +351,63 @@ class BaseProjectPopupWindow(ttk.Toplevel):
         self.sub_label_alerta = None
         self.label_alerta = None
         self.relleno_superior = None
-        self.parent = parent
 
-
+    def center_on_parent(self, width: int, height: int) -> None:
+        self.init_controller.center_window_on_parent(self, self._main_window, width, height)
 
     def confirm_action(self, _varname=None, _index=None, _mode=None):
         raise NotImplementedError("Subclasses should implement this method.")
 
-
     def realizar_busqueda_alfabetica(self):
         raise NotImplementedError("Subclasses should implement this method.")
 
-
     def realizar_busqueda(self, _varname=None, _index=None, _mode=None):
-        """
-        Perform a search or sorting operation based on the order_mode variable.
-        To be implemented in subclasses.
-        """
         raise NotImplementedError("Subclasses should implement this method.")
-
 
     def cerrar_ventana_alerta(self):
         raise NotImplementedError("Subclasses should implement this method.")
 
-
     def handle_correct_password(self, mode):
-        """
-        Handle the action to take when the correct password is entered.
-        To be implemented in subclasses.
-        """
         raise NotImplementedError("Subclasses should implement this method.")
 
-
     def solicit_password(self, mode):
-        if not self.auth_service.is_password_configured():
-            new_pwd = simpledialog.askstring(
-                "Configurar contraseña",
-                "No hay contraseña administrativa configurada.\nIngrese una nueva contraseña (mínimo 4 caracteres):",
-                show="*",
-            )
-            if new_pwd is None:
-                return
-            confirm_pwd = simpledialog.askstring(
-                "Confirmar contraseña",
-                "Vuelva a ingresar la contraseña:",
-                show="*",
-            )
-            if confirm_pwd is None:
-                return
-            if new_pwd != confirm_pwd:
-                messagebox.showerror("Error", "Las contraseñas no coinciden.")
-                return
-            try:
-                self.auth_service.set_password(new_pwd)
-                messagebox.showinfo("Contraseña configurada", "Contraseña administrativa guardada correctamente.")
-                self.handle_correct_password(mode)
-            except Exception as exc:
-                messagebox.showerror("Error", str(exc))
-            return
-
-        correct_password_introduced = False
-
-        while not correct_password_introduced:
-            dialog = simpledialog.askstring("Contraseña", "Ingrese su contraseña:", show="*")
-
-            if dialog is None:
-                break
-            elif self.auth_service.verify_password(dialog):
-                self.handle_correct_password(mode)
-                correct_password_introduced = True
-            else:
-                messagebox.showerror("Error", "Contraseña incorrecta")
-
+        _run_password_flow(self, self.auth_service, lambda: self.handle_correct_password(mode))
 
     def cambiar_modo(self):
-        if self.theme == 'journal':
-            self.style.theme_use('darkly')
-            self.parent.style.theme_use('darkly')
-            self.theme = 'darkly'
-            self.parent.theme = 'darkly'
-            self.str_modo.set('Modo claro')
-
-
+        if self.theme == "journal":
+            self.style.theme_use("darkly")
+            self._main_window.style.theme_use("darkly")
+            self.theme = "darkly"
+            self._main_window.theme = "darkly"
+            self.str_modo.set("Modo claro")
         else:
-            self.style.theme_use('journal')
-            self.theme = 'journal'
-            self.str_modo.set('Modo oscuro')
-
+            self.style.theme_use("journal")
+            self._main_window.style.theme_use("journal")
+            self.theme = "journal"
+            self._main_window.theme = "journal"
+            self.str_modo.set("Modo oscuro")
         self.init_controller.tema_cambiado(self.theme)
-
 
     def get_screen_resolution(self):
         return self.init_controller.get_screen_resolution()
 
-
     def volver_al_menu(self, _varname=None, _index=None, _mode=None):
         self.destroy()
 
-
-    def report_callback_exception(self, exc, val, tb):
-        logger.exception("Error no controlado en callback de Tkinter", exc_info=(exc, val, tb))
-        self.show_error(f"Ocurrió un error inesperado: {val}")
-
     def maximizar(self):
         try:
-            self.attributes('-zoomed', True)
+            self.attributes("-zoomed", True)
         except TclError:
-            self.state('zoomed')
-
+            self.state("zoomed")
 
     def show_error(self, msg):
-        messagebox.showerror('Ha ocurrido un error', msg, parent=self)
-
+        messagebox.showerror("Ha ocurrido un error", msg, parent=self)
 
     def show_message(self, msg):
-        messagebox.showinfo('Atención', msg, parent=self)
-
+        messagebox.showinfo("Atención", msg, parent=self)
 
     def render_view(self):
-        self.relleno_superior.pack(side='top')
+        self.relleno_superior.pack(side="top")
         self.label_alerta.pack()
         self.sub_label_alerta.pack()
         self.button_cancel.grid(row=0, column=0, padx=15)

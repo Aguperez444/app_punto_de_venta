@@ -12,10 +12,11 @@ class SaleDetailPopup(BaseProjectPopupWindow):
     """Popup de solo lectura que muestra todos los ítems y subtotales de una venta."""
 
     def __init__(self, parent, sale_detail: SaleDetailDTO):
-        super().__init__(parent)
+        super().__init__(parent, width=920, height=500)
         self.sale_detail = sale_detail
         self.title(f"Detalle de Venta #{sale_detail.venta_id or '-'}")
-        self.minsize(720, 420)
+        self.minsize(820, 440)
+        self.center_on_parent(920, 500)
         self.focus_set()
 
         self.header_frame = ttk.Frame(master=self)
@@ -44,11 +45,15 @@ class SaleDetailPopup(BaseProjectPopupWindow):
         self.tree.heading("precio_unitario", text="Precio unitario", anchor="center")
         self.tree.heading("subtotal", text="Subtotal", anchor="center")
 
-        self.tree.column("#0", width=260, anchor="w")
-        self.tree.column("codigo", width=110, anchor="center")
-        self.tree.column("cantidad", width=80, anchor="center")
-        self.tree.column("precio_unitario", width=120, anchor="e")
-        self.tree.column("subtotal", width=120, anchor="e")
+        self.tree.column("#0", width=310, minwidth=180, anchor="w", stretch=True)
+        self.tree.column("codigo", width=110, minwidth=80, anchor="center", stretch=True)
+        self.tree.column("cantidad", width=90, minwidth=70, anchor="center", stretch=True)
+        self.tree.column("precio_unitario", width=140, minwidth=115, anchor="e", stretch=True)
+        self.tree.column("subtotal", width=140, minwidth=115, anchor="e", stretch=True)
+
+        self.tree.tag_configure("par", foreground="black", background="white", font=("Calibri", 12))
+        self.tree.tag_configure("impar", foreground="white", background="grey", font=("Calibri", 12))
+        self.tree.bind("<Configure>", self._on_tree_resize)
 
         self.scrollbar = ttk.Scrollbar(
             self.table_frame, orient="vertical", command=self.tree.yview
@@ -63,12 +68,20 @@ class SaleDetailPopup(BaseProjectPopupWindow):
         self.button_close = ttk.Button(
             master=self.footer_frame,
             text="Cerrar",
-            style="secondary",
+            bootstyle="secondary",
             width=16,
             command=self.destroy,
         )
 
         self.render_view()
+
+    def _on_tree_resize(self, event):
+        usable = max(event.width - 20, 560)
+        self.tree.column("#0", width=int(usable * 0.36))
+        self.tree.column("codigo", width=int(usable * 0.14))
+        self.tree.column("cantidad", width=int(usable * 0.12))
+        self.tree.column("precio_unitario", width=int(usable * 0.19))
+        self.tree.column("subtotal", width=int(usable * 0.19))
 
     def confirm_action(self, _varname=None, _index=None, _mode=None):
         self.destroy()
