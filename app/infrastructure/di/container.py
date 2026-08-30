@@ -8,6 +8,7 @@ from app.application.ports.clock import IClock
 from app.application.ports.unit_of_work import UowFactory
 from app.infrastructure.config.auth_service import AuthService
 from app.infrastructure.config.config_files_persistance import ConfigFilesPersistence
+from app.infrastructure.database.sqlalchemy.migrations_runner import run_alembic_upgrade
 from app.infrastructure.database.sqlalchemy.unit_of_work.uow_factory import (
     build_uow_factory,
     reset_uow_factory,
@@ -33,6 +34,13 @@ class AppContainer:
             self._uow_factory = factory
             self._engine = engine
         return self._uow_factory
+
+    def ensure_database_schema(self) -> tuple[bool, str]:
+        """Aplica migraciones Alembic pendientes para garantizar compatibilidad de esquema."""
+        db_url = self.config.get_ruta_bdd()
+        if not db_url:
+            return False, "No hay URL de base de datos configurada."
+        return run_alembic_upgrade(db_url)
 
     def reload_database(self, new_db_url: str | None = None) -> None:
         """Reinicia la conexión tras cambiar la URL de BDD en configuración."""

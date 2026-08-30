@@ -30,6 +30,9 @@ target_metadata = Base.metadata
 
 
 def _resolve_db_url() -> str | None:
+    attr_url = config.attributes.get("db_url")
+    if attr_url and str(attr_url).strip():
+        return str(attr_url).strip()
     x_args = context.get_x_argument(as_dictionary=True)
     if x_args.get("db_url"):
         return x_args["db_url"]
@@ -61,17 +64,20 @@ def run_migrations_offline() -> None:
 def run_migrations_online() -> None:
     engine = create_db_engine(db_url=_resolve_db_url())
 
-    with engine.connect() as connection:
-        context.configure(
-            connection=connection,
-            target_metadata=target_metadata,
-            compare_type=True,
-            compare_server_default=True,
-            include_object=_no_drop_extras,
-        )
+    try:
+        with engine.connect() as connection:
+            context.configure(
+                connection=connection,
+                target_metadata=target_metadata,
+                compare_type=True,
+                compare_server_default=True,
+                include_object=_no_drop_extras,
+            )
 
-        with context.begin_transaction():
-            context.run_migrations()
+            with context.begin_transaction():
+                context.run_migrations()
+    finally:
+        engine.dispose()
 
 
 if context.is_offline_mode():

@@ -173,3 +173,48 @@ def test_alembic_upgrade_helper_creates_schema(tmp_path):
     db_file = tmp_path / "alembic_int.db"
     ok, msg = run_alembic_upgrade(f"sqlite:///{db_file}")
     assert ok is True, msg
+
+
+def test_alembic_upgrade_migrates_legacy_db_without_activo_column(tmp_path):
+    import sqlite3
+    from app.infrastructure.database.sqlalchemy.unit_of_work.uow_factory import build_uow_factory
+
+    db_file = tmp_path / "legacy_farma.db"
+    conn = sqlite3.connect(db_file)
+    try:
+        conn.execute(
+            """
+            CREATE TABLE "Productos" (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                nombre VARCHAR(150) NOT NULL,
+                codigo VARCHAR(50) NOT NULL,
+                precio NUMERIC NOT NULL,
+                detalle VARCHAR(255),
+                codigo_de_barras VARCHAR(100),
+                stock INTEGER NOT NULL DEFAULT 0
+            )
+            """
+        )
+        conn.execute(
+            """
+            INSERT INTO "Productos" (nombre, codigo, precio, detalle, codigo_de_barras, stock)
+            VALUES ('Elixir Legacy', 'ELX1', 150.00, 'Frasco', '779001', 4)
+            """
+        )
+        conn.commit()
+    finally:
+        conn.close()
+
+    db_url = f"sqlite:///{db_file}"
+    ok, msg = run_alembic_upgrade(db_url)
+    assert ok is True, msg
+
+    factory, engine = build_uow_factory(db_url)
+    try:
+        qp = QueryProducts(factory)
+        found = qp.get_filtered("el")
+        assert len(found) == 1
+        assert found[0].nombre == "Elixir Legacy"
+        assert found[0].activo is True
+    finally:
+        engine.dispose()

@@ -8,6 +8,7 @@ import ttkbootstrap as ttk
 from tkinter import filedialog, messagebox
 
 from app.infrastructure.database.sqlalchemy.engine_factory import test_db_connection
+from app.infrastructure.database.sqlalchemy.migrations_runner import run_alembic_upgrade
 
 if TYPE_CHECKING:
     from app.infrastructure.ui.tkinter.controllers.common.program_start_controller import (
@@ -26,31 +27,6 @@ def build_postgres_url(host: str, port: str, database: str, user: str, password:
     if not clean_host or not clean_db or not clean_user:
         raise ValueError("Host, base de datos y usuario son obligatorios para PostgreSQL.")
     return f"postgresql+psycopg://{clean_user}:{clean_pass}@{clean_host}:{clean_port}/{clean_db}"
-
-
-def _find_project_root() -> Path:
-    for parent in Path(__file__).resolve().parents:
-        if (parent / "alembic.ini").exists():
-            return parent
-    return Path(__file__).resolve().parents[6]
-
-
-def run_alembic_upgrade(db_url: str) -> tuple[bool, str]:
-    """Ejecuta `alembic upgrade head` apuntando a `db_url`."""
-    try:
-        from alembic import command
-        from alembic.config import Config
-
-        project_root = _find_project_root()
-        alembic_ini = project_root / "alembic.ini"
-        cfg = Config(str(alembic_ini))
-        cfg.set_main_option("script_location", str(project_root / "migrations"))
-        cfg.set_main_option("sqlalchemy.url", db_url)
-        command.upgrade(cfg, "head")
-        return True, "Migraciones aplicadas correctamente."
-    except Exception as exc:
-        logger.exception("Error al ejecutar migraciones Alembic")
-        return False, f"Error al ejecutar migraciones: {exc}"
 
 
 class FindBddWindow(ttk.Window):
