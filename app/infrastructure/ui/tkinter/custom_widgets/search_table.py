@@ -1,9 +1,11 @@
 import ttkbootstrap as ttk
 from abc import ABC, abstractmethod
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 if TYPE_CHECKING:
     from app.domain.models.producto import Producto
+
+
 
 
 class IHasTable(ABC):
@@ -13,9 +15,8 @@ class IHasTable(ABC):
     def table(self) -> 'SearchTable':
         """Cada clase concreta debe exponer un atributo 'table'"""
         pass
-
     @abstractmethod
-    def table_action(self, event):
+    def table_action(self, event: Any):
         pass
     @abstractmethod
     def entry_action(self, *args):
@@ -26,10 +27,44 @@ class IHasTable(ABC):
     @abstractmethod
     def alphabetical_search_action(self):
         pass
-    def pasar_al_cuadro(self, product_list: list['Producto']):
+    def pasar_al_cuadro(self, product_list: list['Producto']) -> None:
         self.table.show_products(product_list)
-    def clean_treeview(self):
+    def clean_treeview(self) -> None:
         self.table.clear_all()
+
+
+class MixinTableNavigation(ABC):
+    """PARA USAR ESTE MIXIN DEBE IMPLEMENTAR LA TABLA SI O SI"""
+    @property
+    @abstractmethod
+    def table(self) -> 'SearchTable':
+        """Cada clase concreta debe exponer un atributo 'table'"""
+        pass
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._up_last_time = 0.0
+        self._up_count = 0
+        self._up_double_threshold = 0.3
+
+    def _on_up_press(self, _event=None) -> None:
+        import time
+        now = time.monotonic()
+        if now - self._up_last_time <= self._up_double_threshold:
+            self._up_count += 1
+        else:
+            self._up_count = 1
+        self._up_last_time = now
+        if self._up_count >= 2:
+            # doble pulsación detectada
+            self.change_focus_up(_event)
+            self._up_count = 0
+
+    def change_focus_down(self, _event=None) -> None:
+        self.table.grab_focus_cuadro()
+
+    def change_focus_up(self, _event=None) -> None:
+        self.table.grab_focus_cuadro(going_up=True)
 
 
 class SearchTable(ttk.Frame):
@@ -98,10 +133,24 @@ class SearchTable(ttk.Frame):
                         '615x461': 10
                         }
 
+        font_size = font_per_res.get(self.resolution_str)
+        if font_size is None:
+            height = self.resolution[1] if self.resolution and len(self.resolution) > 1 else 600
+            if height >= 800:
+                font_size = 18
+            elif height >= 690:
+                font_size = 16
+            elif height >= 590:
+                font_size = 14
+            elif height >= 500:
+                font_size = 12
+            else:
+                font_size = 10
+
         self.cuadro.tag_configure('par', foreground="black", background="white",
-                                  font=('Calibri', font_per_res[self.resolution_str]))
+                                  font=('Calibri', font_size))
         self.cuadro.tag_configure('impar', foreground="white", background="grey",
-                                  font=('Calibri', font_per_res[self.resolution_str]))
+                                  font=('Calibri', font_size))
 
         # ------------------------- scroll bar -------------------------
         self.scrollbar = ttk.Scrollbar(self, orient="vertical", command=self.cuadro.yview)
@@ -116,6 +165,7 @@ class SearchTable(ttk.Frame):
         self.cuadro.bind("<Return>", self.parent.table_action)
         self.cuadro.bind("<Double-1>", self.parent.table_action)
         self.str_buscado.trace_add('write', self.parent.entry_action)
+
 
         self.grab_focus()
 
@@ -211,9 +261,13 @@ class SearchTable(ttk.Frame):
         children = self.cuadro.get_children()
 
         if not children:
+            self.cuadro.selection_clear()
+            self.cuadro.focus('')
+            self.entry.focus_set()
             return
 
         selection = self.cuadro.selection()
+
 
         if not going_up:
                 selection = self.cuadro.selection()

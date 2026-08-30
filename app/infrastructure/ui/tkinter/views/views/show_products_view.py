@@ -1,6 +1,6 @@
 import ttkbootstrap as ttk
 
-from app.infrastructure.ui.tkinter.custom_widgets.search_table import SearchTable, IHasTable
+from app.infrastructure.ui.tkinter.custom_widgets.search_table import SearchTable, IHasTable, MixinTableNavigation
 from app.infrastructure.ui.tkinter.views.abstract.base_window_abstract_class import BaseProjectView
 
 
@@ -12,10 +12,12 @@ if TYPE_CHECKING:
     from app.domain.models.producto import Producto
 
 
-class ShowProductsView(BaseProjectView, IHasTable):
+class ShowProductsView(BaseProjectView, IHasTable, MixinTableNavigation):
 
     def __init__(self, master):
         super().__init__(master)
+        # inicializar el mixin
+        MixinTableNavigation.__init__(self)
         self.controller = ShowProductController(self)
         # -----------------------------------------------frames---------------------------------------------------
 
@@ -29,10 +31,6 @@ class ShowProductsView(BaseProjectView, IHasTable):
         self._table = SearchTable(self, self.resolution_str, self.resolution, 'Búsqueda de productos')
 
         # -----------------------------------------------gestion de eventos----------------------------------------
-
-        self._up_last_time = 0.0
-        self._up_double_threshold = 0.35  # segundos
-        self._up_count = 0
 
         self.bind("<Configure>", self.table.adjust_size)
         self.bind("<Escape>", self.volver_al_menu)
@@ -99,23 +97,3 @@ class ShowProductsView(BaseProjectView, IHasTable):
         self.parent.bind("<Down>", self.clear_event)
         self.parent.bind("<Up>", self.clear_event)
         super().volver_al_menu(_varname=_varname,_index=_index,_mode=_mode)
-
-    def _on_up_press(self, _event=None):
-        import time
-        now = time.monotonic()
-        if now - self._up_last_time <= self._up_double_threshold:
-            self._up_count += 1
-        else:
-            self._up_count = 1
-        self._up_last_time = now
-        if self._up_count >= 2:
-            # doble pulsación detectada
-            self.change_focus_up(_event)
-            self._up_count = 0
-
-    def change_focus_down(self, _event=None):
-        self.table.grab_focus_cuadro()
-
-    def change_focus_up(self, _event=None):
-        self.table.grab_focus_cuadro(going_up=True)
-

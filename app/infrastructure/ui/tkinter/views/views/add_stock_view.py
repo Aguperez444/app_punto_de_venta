@@ -1,13 +1,16 @@
 from app.infrastructure.ui.tkinter.views.abstract.base_window_abstract_class import BaseProjectView
-from app.infrastructure.ui.tkinter.custom_widgets.search_table import SearchTable, IHasTable
+from app.infrastructure.ui.tkinter.custom_widgets.search_table import SearchTable, IHasTable, MixinTableNavigation
 
 from app.infrastructure.ui.tkinter.controllers.actions.add_stock_controller import AddStockController
 
 
-class AddStockView(BaseProjectView, IHasTable):
+class AddStockView(BaseProjectView, IHasTable, MixinTableNavigation):
 
     def __init__(self, master):
         super().__init__(master)
+        # inicializar el mixin
+        MixinTableNavigation.__init__(self)
+
         self.controller = AddStockController(self)
 
         # -----------------------------------------------Custom Widgets-------------------------------------------------
@@ -16,6 +19,8 @@ class AddStockView(BaseProjectView, IHasTable):
         # -----------------------------------------------gestion de eventos----------------------------------------
         self.bind("<Configure>", self.table.adjust_size)
         self.bind("<Escape>", self.volver_al_menu)
+        self.parent.bind("<Down>", self.change_focus_down)
+        self.parent.bind("<Up>", self._on_up_press)
 
         self.controller.finished_init()
 
@@ -90,3 +95,9 @@ class AddStockView(BaseProjectView, IHasTable):
 
     def pasar_al_cuadro(self, products):
         self.table.show_products(products)
+
+
+    def volver_al_menu(self, _varname=None, _index=None, _mode=None):
+        self.parent.bind("<Down>", self.clear_event)
+        self.parent.bind("<Up>", self.clear_event)
+        super().volver_al_menu(_varname=_varname,_index=_index,_mode=_mode)

@@ -84,10 +84,24 @@ class ShowSalesListView(BaseProjectView):
                         '787x590': 12,
                         '615x461': 10}
 
+        font_size = font_per_res.get(self.resolution_str)
+        if font_size is None:
+            height = self.resolution[1] if self.resolution and len(self.resolution) > 1 else 600
+            if height >= 800:
+                font_size = 18
+            elif height >= 690:
+                font_size = 16
+            elif height >= 590:
+                font_size = 14
+            elif height >= 500:
+                font_size = 12
+            else:
+                font_size = 10
+
         self.cuadro.tag_configure('par', foreground="black", background="white",
-                                  font=('Calibri', font_per_res[self.resolution_str],))
+                                  font=('Calibri', font_size))
         self.cuadro.tag_configure('impar', foreground="white", background="grey",
-                                  font=('Calibri', font_per_res[self.resolution_str],))
+                                  font=('Calibri', font_size))
 
         # ------------------------- scroll bar -------------------------
         self.scrollbar = ttk.Scrollbar(self.sub_frame, orient="vertical", command=self.cuadro.yview)

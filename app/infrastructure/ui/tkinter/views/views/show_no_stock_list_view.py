@@ -1,16 +1,20 @@
 import ttkbootstrap as ttk
 
-from app.infrastructure.ui.tkinter.custom_widgets.search_table import IHasTable, SearchTable
+from app.infrastructure.ui.tkinter.custom_widgets.search_table import IHasTable, SearchTable, MixinTableNavigation
 from app.infrastructure.ui.tkinter.views.abstract.base_window_abstract_class import BaseProjectView
 
 
 from app.infrastructure.ui.tkinter.controllers.actions.show_no_stock_controller import ShowNoStockController
 
-class ShowNoStockView(BaseProjectView, IHasTable):
+class ShowNoStockView(BaseProjectView, IHasTable, MixinTableNavigation):
 
 
     def __init__(self, parent):
         super().__init__(parent)
+
+        # inicializar el mixin
+        MixinTableNavigation.__init__(self)
+
 
         self.controller = ShowNoStockController(self)
 
@@ -26,6 +30,9 @@ class ShowNoStockView(BaseProjectView, IHasTable):
         self.bind("<Configure>", self.table.adjust_size)
         self.controller.finished_init()
 
+        self.bind("<Escape>", self.volver_al_menu)
+        self.parent.bind("<Down>", self.change_focus_down)
+        self.parent.bind("<Up>", self._on_up_press)
 
     @property
     def table(self) -> 'SearchTable':
@@ -92,3 +99,7 @@ class ShowNoStockView(BaseProjectView, IHasTable):
 
         self.controller.open_edit_stock_controller_window(mod_ids)
 
+    def volver_al_menu(self, _varname=None, _index=None, _mode=None):
+        self.parent.bind("<Down>", self.clear_event)
+        self.parent.bind("<Up>", self.clear_event)
+        super().volver_al_menu(_varname=_varname,_index=_index,_mode=_mode)
